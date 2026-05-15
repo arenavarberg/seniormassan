@@ -209,7 +209,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			<?php endforeach; ?>
 		</div>
 
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="sm-reg-form">
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="sm-reg-form" novalidate>
 			<input type="hidden" name="action" value="sm_register">
 			<?php wp_nonce_field( 'sm_register', 'sm_register_nonce' ); ?>
 
@@ -263,7 +263,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							<span class="sm-wiz-field-label">
 								Webbplats <span class="sm-wiz-field-required" id="sm-website-required">*</span>
 							</span>
-							<input type="url" name="sm_website" id="sm-website-input" value="<?php echo esc_attr( $input['sm_website'] ?? '' ); ?>" placeholder="https://" class="sm-wiz-input" data-required="1" <?php echo $saved_no_website ? 'disabled' : ''; ?> data-step1-input>
+							<input type="text" name="sm_website" id="sm-website-input" value="<?php echo esc_attr( $input['sm_website'] ?? '' ); ?>" placeholder="t.ex. www.exempel.se" class="sm-wiz-input" data-required="1" <?php echo $saved_no_website ? 'disabled' : ''; ?> data-step1-input>
 						</label>
 
 						<label style="grid-column: 1 / -1;">
@@ -538,11 +538,11 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 						<div style="margin-top: 28px; display: flex; flex-direction: column; gap: 12px;">
 							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
-								<input type="checkbox" name="sm_accept_terms" value="1" required id="sm-accept-terms" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
+								<input type="checkbox" name="sm_accept_terms" value="1" id="sm-accept-terms" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
 								<span style="font-size: 16px;">Jag godkänner utställarvillkoren och faktureringsvillkoren (30 dagar netto).</span>
 							</label>
 							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
-								<input type="checkbox" name="sm_accept_gdpr" value="1" required id="sm-accept-gdpr" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
+								<input type="checkbox" name="sm_accept_gdpr" value="1" id="sm-accept-gdpr" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
 								<span style="font-size: 16px;">Jag samtycker till att uppgifterna hanteras enligt GDPR och visas i utställarlistan på webben.</span>
 							</label>
 							<div id="sm-submit-error" style="display: none; padding: 12px 16px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 14px; margin-top: 8px;">
