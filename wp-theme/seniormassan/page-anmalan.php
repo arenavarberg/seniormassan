@@ -544,6 +544,9 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 								<input type="checkbox" name="sm_accept_gdpr" value="1" required id="sm-accept-gdpr" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
 								<span style="font-size: 16px;">Jag samtycker till att uppgifterna hanteras enligt GDPR och visas i utställarlistan på webben.</span>
 							</label>
+							<div id="sm-submit-error" style="display: none; padding: 12px 16px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 14px; margin-top: 8px;">
+								Bocka i båda rutorna ovan för att skicka anmälan.
+							</div>
 						</div>
 					</div>
 				</div>
@@ -653,10 +656,11 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 		var s = readState();
 		var canProceed = canNext(step, s);
+		// Next-knappen disablas hårt; submit-knappen är alltid klickbar
+		// (klick-handlern visar tydligt fel om GDPR/villkor saknas)
 		$('sm-wiz-next').style.opacity = canProceed ? '1' : '0.4';
 		$('sm-wiz-next').style.pointerEvents = canProceed ? 'auto' : 'none';
-		$('sm-wiz-submit').style.opacity = canProceed ? '1' : '0.4';
-		$('sm-wiz-submit').style.pointerEvents = canProceed ? 'auto' : 'none';
+		$('sm-wiz-submit').style.opacity = canProceed ? '1' : '0.55';
 
 		var total = computeTotal(s);
 		$('sm-footer-total').textContent = nf(total);
@@ -859,6 +863,19 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 	$('sm-wiz-back').addEventListener('click', function () { goto(step - 1); });
 	$('sm-wiz-next').addEventListener('click', function () { goto(step + 1); });
+	// Submit-validering: visa fel om GDPR/villkor saknas
+	$('sm-reg-form').addEventListener('submit', function (e) {
+		if (step !== TOTAL_STEPS - 1) {
+			// Skickas av misstag (t.ex. Enter i ett textfält i tidigare steg)
+			e.preventDefault();
+			return;
+		}
+		if (!canNext(4, readState())) {
+			e.preventDefault();
+			$('sm-submit-error').style.display = 'block';
+			$('sm-submit-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+	});
 	document.querySelectorAll('#sm-wiz-stepper .sm-wiz-stepper-btn').forEach(function (btn) {
 		btn.addEventListener('click', function () {
 			var i = parseInt(btn.dataset.step, 10);
@@ -868,6 +885,11 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	document.addEventListener('change', function (e) {
 		if (e.target.matches('.sm-booth-input, .sm-addon-input, #sm-is-forening, #sm-accept-terms, #sm-accept-gdpr')) {
 			render();
+			// Göm submit-felmeddelandet när användaren bockar i en ruta
+			if (e.target.id === 'sm-accept-terms' || e.target.id === 'sm-accept-gdpr') {
+				var err = $('sm-submit-error');
+				if (err && canNext(4, readState())) err.style.display = 'none';
+			}
 		}
 		if (e.target.id === 'sm-no-website') {
 			toggleWebsite();
