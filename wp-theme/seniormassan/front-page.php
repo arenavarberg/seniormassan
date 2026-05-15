@@ -48,10 +48,10 @@ $highlights = array(
 	<div style="position: relative; background: linear-gradient(180deg, rgba(15,23,30,0.15) 0%, rgba(15,23,30,0.55) 60%, rgba(15,23,30,0.82) 100%); min-height: 620px; display: flex; align-items: flex-end;">
 		<div class="sm-container" style="padding: 80px 32px 88px; color: #fff; position: relative; z-index: 2;">
 			<h1 style="font-size: var(--sm-fs-xxl); color: #fff; max-width: 920px; text-shadow: 0 2px 20px rgba(0,0,0,0.45);">
-				Seniormässan <span style="color: var(--sm-gold);">24 feb 2027</span>
+				<?php echo esc_html( sm_hero_h1_main() ); ?> <span style="color: var(--sm-gold);"><?php echo esc_html( sm_hero_h1_accent() ); ?></span>
 			</h1>
 			<p style="font-size: var(--sm-fs-lg); max-width: 720px; margin-top: 20px; color: rgba(255,255,255,0.95); text-shadow: 0 1px 10px rgba(0,0,0,0.5);">
-				En dag fylld av möten, upplevelser och inspiration — närmare 90 utställare, scenprogram, caféer och restaurang.
+				<?php echo esc_html( sm_hero_body() ); ?>
 			</p>
 		</div>
 	</div>
@@ -106,16 +106,16 @@ $highlights = array(
 					get_template_part( 'template-parts/info-block', null, array(
 						'title' => 'När?',
 						'items' => array(
-							array( 'Onsdag 24 februari 2027', '10.00 – 17.00' ),
-							array( '', 'Dörrarna öppnar 09.30' ),
+							array( sm_event_date_long(), sm_event_hours() ),
+							array( '', sm_event_doors() ),
 						),
 					) );
 					get_template_part( 'template-parts/info-block', null, array(
 						'title' => 'Hur?',
 						'items' => array(
-							array( 'Entré', '100 kr i förköp · 120 kr vid dörren (swish / kort)' ),
+							array( 'Entré', sm_event_entry() ),
 							array( 'Fri parkering', 'över 200 platser på området' ),
-							array( 'Buss', 'Linje 1, 2 och 4 till Arena Varberg' ),
+							array( 'Buss', 'Linje 1, 2 och 4 till ' . sm_venue_name() ),
 						),
 					) );
 					?>

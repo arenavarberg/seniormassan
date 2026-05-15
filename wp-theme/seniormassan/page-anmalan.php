@@ -465,7 +465,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 					<div style="background: #fff; border: 1px solid var(--sm-line); border-radius: 10px; padding: 24px;">
 						<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-muted); margin-bottom: 16px;">
-							Lediga tider · Onsdag 24 februari 2027
+							Lediga tider · <?php echo esc_html( sm_event_date_long() ); ?>
 						</div>
 						<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;" class="sm-stage-grid">
 							<?php foreach ( sm_stage_slots() as $slot ) :
@@ -748,7 +748,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		// Scenpass
 		if (s.stage) {
 			$('sm-review-stage-wrap').style.display = 'block';
-			$('sm-review-stage').innerHTML = '<strong>' + s.stage + '</strong> — 15 min · Onsdag 24 februari 2027';
+			$('sm-review-stage').innerHTML = '<strong>' + s.stage + '</strong> — 15 min · <?php echo esc_js( sm_event_date_long() ); ?>';
 		} else {
 			$('sm-review-stage-wrap').style.display = 'none';
 		}

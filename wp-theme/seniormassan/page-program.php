@@ -41,7 +41,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	<div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
 		<div class="sm-eyebrow" style="margin: 0;">Datum</div>
 	</div>
-	<h2 style="font-size: 36px; margin: 0 0 8px; color: var(--sm-primary);">Onsdag 24 februari</h2>
+	<h2 style="font-size: 36px; margin: 0 0 8px; color: var(--sm-primary);"><?php echo esc_html( sm_event_date_long() ); ?></h2>
 	<p style="font-size: 17px; color: var(--sm-ink-soft); margin: 0 0 40px;">
 		Programmet uppdateras löpande inför mässan. Med reservation för ändringar.
 	</p>

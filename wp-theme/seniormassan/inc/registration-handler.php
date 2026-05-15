@@ -250,7 +250,7 @@ function sm_send_registration_emails( $post_id ) {
 	if ( $contact_email ) {
 		$user_subject = 'Tack för din anmälan till Seniormässan 2027';
 		$user_body    = "Hej $contact_name,\n\n"
-			. "Tack för din anmälan till Seniormässan på Arena Varberg, onsdag 24 februari 2027.\n\n"
+			. "Tack för din anmälan till Seniormässan på " . sm_venue_name() . ", " . mb_strtolower( sm_event_date_long() ) . ".\n\n"
 			. "Vi har tagit emot din bokning av följande montrar: $booths_str.\n\n"
 			. "Totalsumma: " . number_format( $total, 0, ',', "\u{00A0}" ) . " kr ($moms_label).\n\n"
 			. "Vi återkommer inom kort med bekräftelse och faktura. Har du frågor — svara på det här mejlet eller hör av dig till bokning@arenavarberg.se.\n\n"

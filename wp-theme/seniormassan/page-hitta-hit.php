@@ -5,9 +5,12 @@
 
 get_header();
 
+<?php
+$venue_query = rawurlencode( sm_venue_name() . ', ' . sm_venue_street() . ', ' . sm_venue_zip() );
+
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Hitta hit',
-	'title'   => 'Arena Varberg — den stadsnära arenan.',
+	'title'   => sm_venue_name() . ' — den stadsnära arenan.',
 	'body'    => '15 minuters promenad från stationen. Fri parkering med över 200 platser.',
 	'tone'    => 'primary',
 ) );
@@ -17,9 +20,9 @@ get_template_part( 'template-parts/page-hero', null, array(
 	<div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px;">
 		<div style="height: 440px; border-radius: var(--sm-radius-lg); overflow: hidden; border: 1px solid var(--sm-line);">
 			<iframe
-				src="https://maps.google.com/maps?q=Arena+Varberg,+Kattegattsv%C3%A4gen+26,+432+50+Varberg&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=&amp;output=embed"
+				src="https://maps.google.com/maps?q=<?php echo esc_attr( $venue_query ); ?>&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=&amp;output=embed"
 				style="width: 100%; height: 100%; border: 0;"
-				title="Karta till Arena Varberg, Kattegattsvägen 26"
+				title="Karta till <?php echo esc_attr( sm_venue_name() . ', ' . sm_venue_street() ); ?>"
 				loading="lazy"
 				referrerpolicy="no-referrer-when-downgrade"></iframe>
 		</div>
@@ -28,9 +31,9 @@ get_template_part( 'template-parts/page-hero', null, array(
 			get_template_part( 'template-parts/info-block', null, array(
 				'title' => 'Adress',
 				'items' => array(
-					array( '', 'Arena Varberg' ),
-					array( '', 'Kattegattsvägen 26' ),
-					array( '', '432 50 Varberg' ),
+					array( '', sm_venue_name() ),
+					array( '', sm_venue_street() ),
+					array( '', sm_venue_zip() ),
 				),
 			) );
 			get_template_part( 'template-parts/info-block', null, array(
