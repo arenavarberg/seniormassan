@@ -1,0 +1,252 @@
+<?php
+/**
+ * Custom Post Type "sm_registration" — utställaranmälningar.
+ *
+ * Spara, lista och redigera anmälningar via standard WP-admin.
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+function sm_register_cpt() {
+	register_post_type( 'sm_registration', array(
+		'labels' => array(
+			'name'               => 'Anmälningar',
+			'singular_name'      => 'Anmälan',
+			'menu_name'          => 'Anmälningar',
+			'add_new'            => 'Lägg till',
+			'add_new_item'       => 'Lägg till anmälan',
+			'edit_item'          => 'Redigera anmälan',
+			'view_item'          => 'Visa anmälan',
+			'search_items'       => 'Sök anmälningar',
+			'not_found'          => 'Inga anmälningar hittades.',
+			'not_found_in_trash' => 'Inga anmälningar i papperskorgen.',
+		),
+		'public'              => false,
+		'show_ui'             => true,
+		'show_in_menu'        => true,
+		'menu_position'       => 26,
+		'menu_icon'           => 'dashicons-clipboard',
+		'capability_type'     => 'post',
+		'supports'            => array( 'title' ),
+		'has_archive'         => false,
+		'exclude_from_search' => true,
+	) );
+}
+add_action( 'init', 'sm_register_cpt' );
+
+/**
+ * Anpassade kolumner i listvyn.
+ */
+function sm_registration_columns( $columns ) {
+	return array(
+		'cb'           => $columns['cb'],
+		'title'        => 'Företag',
+		'sm_contact'   => 'Kontakt',
+		'sm_booths'    => 'Montrar',
+		'sm_total'     => 'Summa',
+		'sm_status'    => 'Status',
+		'date'         => 'Inkom',
+	);
+}
+add_filter( 'manage_sm_registration_posts_columns', 'sm_registration_columns' );
+
+function sm_registration_column_content( $column, $post_id ) {
+	switch ( $column ) {
+		case 'sm_contact':
+			$name  = get_post_meta( $post_id, '_sm_contact_name', true );
+			$email = get_post_meta( $post_id, '_sm_contact_email', true );
+			$phone = get_post_meta( $post_id, '_sm_contact_phone', true );
+			echo esc_html( $name );
+			if ( $email ) {
+				echo '<br><a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a>';
+			}
+			if ( $phone ) {
+				echo '<br>' . esc_html( $phone );
+			}
+			break;
+
+		case 'sm_booths':
+			$booths = get_post_meta( $post_id, '_sm_booths', true );
+			if ( is_array( $booths ) && $booths ) {
+				echo esc_html( implode( ', ', $booths ) );
+			} else {
+				echo '—';
+			}
+			break;
+
+		case 'sm_total':
+			$total = (int) get_post_meta( $post_id, '_sm_total', true );
+			echo esc_html( number_format( $total, 0, ',', "\u{00A0}" ) ) . ' kr';
+			break;
+
+		case 'sm_status':
+			$status = get_post_meta( $post_id, '_sm_status', true ) ?: 'pending';
+			$labels = array(
+				'pending'   => array( 'Ny',         '#fef3c7', '#92400e' ),
+				'confirmed' => array( 'Bekräftad',  '#dcfce7', '#166534' ),
+				'cancelled' => array( 'Avbokad',    '#fee2e2', '#991b1b' ),
+			);
+			$info = $labels[ $status ] ?? array( $status, '#eee', '#333' );
+			printf(
+				'<span style="background:%s;color:%s;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;">%s</span>',
+				esc_attr( $info[1] ),
+				esc_attr( $info[2] ),
+				esc_html( $info[0] )
+			);
+			break;
+	}
+}
+add_action( 'manage_sm_registration_posts_custom_column', 'sm_registration_column_content', 10, 2 );
+
+/**
+ * Meta box med alla anmälningsdata.
+ */
+function sm_registration_meta_boxes() {
+	add_meta_box( 'sm_registration_details', 'Anmälningsdetaljer', 'sm_registration_meta_box_html', 'sm_registration', 'normal', 'high' );
+}
+add_action( 'add_meta_boxes', 'sm_registration_meta_boxes' );
+
+function sm_registration_meta_box_html( $post ) {
+	wp_nonce_field( 'sm_save_registration', 'sm_registration_nonce' );
+
+	$fields = array(
+		'_sm_company'         => 'Företagsnamn',
+		'_sm_orgnr'           => 'Organisationsnummer',
+		'_sm_invoice_address' => 'Fakturaadress',
+		'_sm_invoice_email'   => 'Faktura-e-post',
+		'_sm_contact_name'    => 'Kontaktperson',
+		'_sm_contact_email'   => 'E-post kontaktperson',
+		'_sm_contact_phone'   => 'Telefon',
+		'_sm_website'         => 'Webbplats',
+		'_sm_description'     => 'Beskrivning',
+	);
+	$status = get_post_meta( $post->ID, '_sm_status', true ) ?: 'pending';
+	$booths = get_post_meta( $post->ID, '_sm_booths', true ) ?: array();
+	$addons = get_post_meta( $post->ID, '_sm_addons', true ) ?: array();
+	$reqs   = get_post_meta( $post->ID, '_sm_special_requests', true );
+	$total  = (int) get_post_meta( $post->ID, '_sm_total', true );
+	$is_for = get_post_meta( $post->ID, '_sm_is_forening', true );
+
+	echo '<style>.sm-meta-grid{display:grid;grid-template-columns:200px 1fr;gap:12px 24px;align-items:start;margin-bottom:16px;}.sm-meta-grid label{font-weight:600;padding-top:6px;}.sm-meta-grid input,.sm-meta-grid textarea,.sm-meta-grid select{width:100%;padding:6px 10px;}</style>';
+
+	echo '<div class="sm-meta-grid">';
+	echo '<label>Status</label><select name="sm_status">';
+	foreach ( array( 'pending' => 'Ny', 'confirmed' => 'Bekräftad', 'cancelled' => 'Avbokad' ) as $k => $v ) {
+		printf( '<option value="%s"%s>%s</option>', esc_attr( $k ), selected( $status, $k, false ), esc_html( $v ) );
+	}
+	echo '</select>';
+
+	foreach ( $fields as $key => $label ) {
+		$value = get_post_meta( $post->ID, $key, true );
+		$name  = 'sm_' . substr( $key, 4 );
+		echo '<label>' . esc_html( $label ) . '</label>';
+		if ( in_array( $key, array( '_sm_invoice_address', '_sm_description' ), true ) ) {
+			echo '<textarea name="' . esc_attr( $name ) . '" rows="3">' . esc_textarea( $value ) . '</textarea>';
+		} else {
+			echo '<input type="text" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">';
+		}
+	}
+
+	echo '<label>Förening</label><label><input type="checkbox" name="sm_is_forening" value="1" ' . checked( $is_for, '1', false ) . '> Anmälan från ideell förening (N-monter / inkl. moms)</label>';
+
+	echo '<label>Montrar</label><div>' . esc_html( implode( ', ', (array) $booths ) ) . '</div>';
+
+	echo '<label>Tillval</label><div>';
+	if ( is_array( $addons ) && $addons ) {
+		echo '<ul style="margin:0;padding-left:18px;">';
+		foreach ( $addons as $id => $qty ) {
+			$a = sm_addon( $id );
+			if ( $a && (int) $qty > 0 ) {
+				printf( '<li>%s × %d (%s kr/st)</li>', esc_html( $a['name'] ), (int) $qty, esc_html( $a['price'] ) );
+			}
+		}
+		echo '</ul>';
+	} else {
+		echo '—';
+	}
+	echo '</div>';
+
+	echo '<label>Önskemål</label><div style="white-space:pre-wrap;">' . esc_html( $reqs ?: '—' ) . '</div>';
+	echo '<label>Totalsumma</label><div><strong>' . esc_html( number_format( $total, 0, ',', "\u{00A0}" ) ) . ' kr</strong> ' . ( $is_for ? 'inkl. moms' : 'exkl. moms' ) . '</div>';
+	echo '</div>';
+}
+
+function sm_save_registration_meta( $post_id ) {
+	if ( ! isset( $_POST['sm_registration_nonce'] ) || ! wp_verify_nonce( $_POST['sm_registration_nonce'], 'sm_save_registration' ) ) {
+		return;
+	}
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+	if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		return;
+	}
+
+	$text_keys = array( 'company', 'orgnr', 'invoice_address', 'invoice_email', 'contact_name', 'contact_email', 'contact_phone', 'website', 'description', 'status' );
+	foreach ( $text_keys as $k ) {
+		if ( isset( $_POST[ 'sm_' . $k ] ) ) {
+			update_post_meta( $post_id, '_sm_' . $k, sanitize_textarea_field( wp_unslash( $_POST[ 'sm_' . $k ] ) ) );
+		}
+	}
+	update_post_meta( $post_id, '_sm_is_forening', isset( $_POST['sm_is_forening'] ) ? '1' : '' );
+}
+add_action( 'save_post_sm_registration', 'sm_save_registration_meta' );
+
+/**
+ * Admin-sida för att manuellt blockera/avblockera enskilda montrar.
+ */
+function sm_register_blocked_booths_page() {
+	add_submenu_page(
+		'edit.php?post_type=sm_registration',
+		'Blockera montrar',
+		'Blockera montrar',
+		'manage_options',
+		'sm-blocked-booths',
+		'sm_blocked_booths_page'
+	);
+}
+add_action( 'admin_menu', 'sm_register_blocked_booths_page' );
+
+function sm_blocked_booths_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	if ( isset( $_POST['sm_blocked_booths_save'] ) && check_admin_referer( 'sm_blocked_booths' ) ) {
+		$ids = isset( $_POST['sm_blocked'] ) && is_array( $_POST['sm_blocked'] )
+			? array_map( 'sanitize_text_field', wp_unslash( $_POST['sm_blocked'] ) )
+			: array();
+		update_option( 'sm_blocked_booths', $ids );
+		echo '<div class="notice notice-success"><p>Sparat.</p></div>';
+	}
+
+	$blocked = (array) get_option( 'sm_blocked_booths', array() );
+	$by_section = array();
+	foreach ( sm_booths() as $b ) {
+		$section = substr( $b['id'], 0, 1 );
+		$by_section[ $section ][] = $b;
+	}
+	ksort( $by_section );
+
+	echo '<div class="wrap"><h1>Blockera montrar</h1>';
+	echo '<p>Bocka i de montrar som ska markeras som upptagna oavsett anmälningar (t.ex. internt bokade eller ej tillgängliga). Dessa visas som "BOKAD" i anmälningsformuläret.</p>';
+	echo '<form method="post">';
+	wp_nonce_field( 'sm_blocked_booths' );
+	foreach ( $by_section as $section => $booths ) {
+		echo '<h2>' . esc_html( $section ) . '</h2><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;max-width:720px;">';
+		foreach ( $booths as $b ) {
+			$checked = in_array( $b['id'], $blocked, true ) ? 'checked' : '';
+			printf(
+				'<label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" name="sm_blocked[]" value="%s" %s> %s <span style="opacity:0.6;font-size:12px;">(%s)</span></label>',
+				esc_attr( $b['id'] ),
+				$checked,
+				esc_html( $b['id'] ),
+				esc_html( $b['size'] )
+			);
+		}
+		echo '</div>';
+	}
+	echo '<p style="margin-top:24px;"><input type="submit" name="sm_blocked_booths_save" class="button button-primary" value="Spara"></p>';
+	echo '</form></div>';
+}
