@@ -4,53 +4,54 @@ Vägledning för Claude Code (claude.ai/code) när den arbetar i detta repo.
 
 ## Vad detta repo är
 
-Repot innehåller **designunderlag** för webbplatsen till **Seniormässan på Arena Varberg** (onsdag 24 februari 2027). Det är inte produktionskod — `design_handoff_seniormassan/` är en HTML-prototyp med React + Babel inline som demonstrerar tänkt utseende och beteende. Produktionssidan ska byggas i en riktig stack och deployas separat.
+Repot innehåller två saker:
 
-Webbplatsen omfattar:
+1. **`design_handoff_seniormassan/`** — den ursprungliga HTML-prototypen med React + Babel inline. Designspec, tokens och referensbeteende. *Inte produktionskod.*
+2. **`wp-theme/seniormassan/`** — det riktiga WordPress-temat som körs på www.seniormassanvarberg.se. Det här är vad användaren laddar upp till servern.
 
-- Publik marknadsföringssajt (5 sektioner: För besökare, Program, Hitta hit, Kontakt, För utställare)
-- Utställaranmälan (5-stegs wizard med interaktiv SVG-båskarta, tillval med lagerhantering, scenpassbokning)
-- Adminpanel (visa anmälningar, exportera CSV, hantera lager)
-- Levande utställarlista (fylls på från anmälningar)
+Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. Målgrupp: seniorer 55+. Allt innehåll på **svenska**.
 
-Domän: `https://www.seniormassanvarberg.se`. Målgrupp: seniorer 55+. Allt innehåll är på **svenska**.
+## Status (senast uppdaterad)
+
+**Tema-version: 0.8.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
+
+### Klart
+- **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
+- **Auto-populerande utställarlista** på förstasidan (hämtar från `sm_registration`-CPT)
+- **Anmälningsformulär** — wizard-modal med 5 steg, stepper, sticky footer, sammanfattning, scenpassbokning, monter-variantval, matta som skalar med antal montrar
+- **Admin**: Anmälningar i WP-admin med CPT, möjlighet att markera anmälningar som avbokade, manuellt blockera enskilda montrar, ladda upp tillval-ikoner per produkt (+ per färgvariant)
+- **Editerbarhet v1** via Customizer (Utseende → Anpassa):
+  - Färgpalett (13 paletter att välja mellan)
+  - Hero-rubrik och ingress på förstasidan
+  - Mässans datum, öppettider, dörröppning, entrépris, slogan
+  - Plats & adress (namn, gatuadress, postnummer, mejl, växel)
+  - Anmälan: hallplan-bild, sista anmälningsdag, notismejl
+
+### Att göra (nästa iterationer)
+- **Editerbarhet v2** — Custom Post Types för listor: program, kontakter, höjdpunkter, områden
+- **Tillval-priser** redigerbara via admin (just nu hårdkodade i `inc/booth-data.php`)
+- **SSL** via Let's Encrypt (kräver att DNS pekar rätt först)
+- **Cookie-banner** (krävs enligt svensk lag)
+- **Integritetspolicy + utställarvillkor** (sidor saknas)
+- **Tillgänglighetspass** (prefers-reduced-motion på hero-karusell, aria-label på båskartan)
 
 ## Stack
 
-### Prototyp (det som finns i repot idag)
+### Produktion (faktisk)
+- **WordPress 6.x** på Oderland-webbhotell (cPanel, PHP, MySQL)
+- **Custom tema**: `wp-theme/seniormassan/` (inte block-tema, klassisk PHP-mallhierarki)
+- Inga betalplugins — använder bara WP-kärnan
+- Akismet-plugin borttagen
+- Permalänkar: "Inläggsnamn" (kräver `.htaccess` med standard WP-rewrites)
 
-- React 18 (UMD från unpkg)
-- Babel standalone — JSX kompileras inline i webbläsaren (långsamt, endast för prototyp)
-- Plain CSS med custom properties (ingen ramverk)
-- `localStorage` för all dataflöde (måste ersättas med riktig backend)
+### Prototyp (referens)
+- React 18 (UMD från unpkg) + Babel standalone — bara för design_handoff_seniormassan/, ska inte byggas vidare
+- Plain CSS med custom properties + 13 paletter via `data-palette`
 - Google Fonts: Sofia Sans (display), Mulish (body), Caveat (dekorativ)
-
-### Produktion (planerat)
-
-- **WordPress** på Oderland-webbhotell (PHP + MySQL via cPanel/WP Toolkit)
-- Custom tema som matchar designen pixel-perfekt
-- Anmälningswizarden + båskartan byggs som custom plugin
-- Anmälningsnotis till `bokning@arenavarberg.se`
-- Adminpanel = WP-admin
-- Ingen betalningshantering — utställare faktureras separat
-
-Alternativ stack som diskuterats (men inte vald): Next.js (App Router) + headless CMS.
 
 ## Kommandon
 
 ### Visa prototypen lokalt
-
-Det finns ingen byggprocess. Öppna HTML-filen direkt:
-
-```bash
-# macOS
-open design_handoff_seniormassan/Webbplats.html
-
-# Linux
-xdg-open design_handoff_seniormassan/Webbplats.html
-```
-
-Eller servera mappen med valfri statisk server (rekommenderas för att undvika `file://`-restriktioner i vissa webbläsare):
 
 ```bash
 cd design_handoff_seniormassan
@@ -58,103 +59,138 @@ python3 -m http.server 8000
 # → http://localhost:8000/Webbplats.html
 ```
 
-### Bygg / test / lint
+### Bygga / testa / linta
 
-Inget byggsteg, inga tester, ingen linter konfigurerad i repot. När produktionsstacken är på plats ska kommandon dokumenteras här.
+Det finns ingen byggprocess för temat — det är ren PHP. För att se ändringar på servern: klona repot lokalt, paketera om `wp-theme/seniormassan/` som ZIP, ladda upp via WP-admin → Utseende → Teman → Lägg till nytt → Ladda upp. Bumpa versionen i `style.css` + `functions.php` för cache-busting.
 
 ## Mappstruktur
 
 ```
 .
-├── CLAUDE.md                          # Den här filen
-└── design_handoff_seniormassan/
-    ├── README.md                      # Komplett designspec — läs denna först
-    ├── Webbplats.html                 # Prototypens entry point
-    ├── styles.css                     # Designtokens, paletter, typografi, responsivitet
-    ├── site-shell.jsx                 # NAV, SiteHeader, SiteFooter
-    ├── site-pages.jsx                 # Visitor/Exhibitor/Program/Info/Contact-sidor + helpers
-    ├── booth-map.jsx                  # SVG-båskarta, BOOTHS, BOOTH_PRICES, DEMO_BOOKED
-    ├── registration.jsx               # 5-stegs wizard, AddonCard, ConfirmationModal, AdminPanel
-    ├── exhibitor-list.jsx             # Utställarlista med sök + bokstavsfilter
-    ├── assets/                        # Logotyper + hero-foton (hero-1.jpg … hero-7.jpg)
-    ├── images/                        # Stockfoton + porträtt
-    └── screenshots/                   # Referensskärmdumpar
+├── CLAUDE.md
+├── design_handoff_seniormassan/        Originalreferens (orörd)
+│   ├── README.md                       Auktoritativ designspec
+│   ├── Webbplats.html
+│   ├── styles.css
+│   ├── site-shell.jsx
+│   ├── site-pages.jsx
+│   ├── booth-map.jsx
+│   ├── registration.jsx
+│   ├── exhibitor-list.jsx
+│   ├── assets/                         Logotyper + hero-foton
+│   └── images/                         Stockfoton + porträtt
+└── wp-theme/
+    └── seniormassan/                   WordPress-tema (produktion)
+        ├── style.css                   Tema-header
+        ├── functions.php               Bootstrap, enqueue, includes
+        ├── header.php                  Site header med nav
+        ├── footer.php                  Footer med kontakt
+        ├── index.php                   Fallback
+        ├── page.php                    Standardmall för sidor
+        ├── front-page.php              För besökare (hero, stats, video, områden, höjdpunkter, utställarlista)
+        ├── page-program.php            Programschema (Stora Scen + Utställarscenen)
+        ├── page-hitta-hit.php          Karta + adress + tillgänglighet
+        ├── page-kontakt.php            4 kontaktkort
+        ├── page-for-utstallare.php     Paket, tillval, Nyhet 2027, citat
+        ├── page-anmalan.php            Wizard-formulär (modal-stil)
+        ├── inc/
+        │   ├── booth-data.php          BOOTHS-array, priser, tillvalsdefinitioner
+        │   ├── registration-cpt.php    CPT sm_registration + admin-kolumner + blockera-sida
+        │   ├── registration-handler.php POST-validering, sparar CPT, skickar mejl
+        │   ├── customizer.php          Alla Customizer-inställningar + hjälpfunktioner
+        │   └── addon-admin.php         Admin-sida för tillval-ikoner (Media Library-picker)
+        ├── template-parts/
+        │   ├── wave-divider.php        SVG-våg mellan sektioner
+        │   ├── page-hero.php           Färgad rubrik-banner
+        │   ├── info-block.php          Eyebrow + key/value-rader
+        │   ├── booth-map.php           SVG-karta (ersatt av uppladdad bild i v0.4+, kvar för fallback)
+        │   └── exhibitor-list.php      Sök + bokstavsfilter + 3-kolumns kortgrid
+        └── assets/
+            ├── css/main.css            Designtokens, paletter, typografi (kopia av design_handoff/styles.css)
+            └── images/                 Logotyper + foton (kopia)
 ```
-
-`README.md` i `design_handoff_seniormassan/` är den auktoritativa specen — den dokumenterar varje sektion, alla designtokens, formstate-shape, animationer, ansvarsfördelning och kvarvarande beslut. Konsultera den innan du implementerar något.
 
 ## Konventioner
 
-### Design
+### Customizer som källa för redigerbara värden
 
-- **Aktiv palett:** `havsbla-korall` — djup marinblå (`#003D5B`) + varm korall (`#D96E5F`) på varm cremeaktig bakgrund (`#faf7f2`). Prototypen exponerar 13 paletter via `data-palette`-attribut på `<html>`; produktionen ska låsa in en och ta bort växlaren.
-- **Typografi:** Sofia Sans för rubriker/eyebrows/siffror, Mulish för brödtext, Caveat endast för dekorativa logovarianter.
-- **Fontstorlekar** är responsiva via `clamp()` i CSS-variabler (`--sm-fs-xxl` etc).
-- **Spacing** är ad hoc — vanliga värden: 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96 px. Container max-width 1200 px med 32 px horisontal padding (24 på tablet, 18 på mobil).
-- **Radii:** `--sm-radius` 4 px (chips), `--sm-radius-lg` 10 px (kort). Pill-knappar `999px`. Båskartans rektanglar `2px`.
-- **Brytpunkter:** 900 px (tablet), 640 px (mobil).
-- **Vågdivider** mellan sektioner: SVG, 70 px hög, alternerar riktning via `flip`-prop.
+Hjälpfunktioner i `inc/customizer.php` är källan till sanningen för alla globala värden. Använd dem i mallarna istället för att hårdkoda:
 
-### Båskarta
+- `sm_palette()` — `'havsbla-korall'` etc.
+- `sm_hero_h1_main()`, `sm_hero_h1_accent()`, `sm_hero_body()`
+- `sm_event_date_long()`, `sm_event_hours()`, `sm_event_doors()`, `sm_event_entry()`, `sm_event_tagline()`
+- `sm_venue_name()`, `sm_venue_street()`, `sm_venue_zip()`, `sm_venue_main_email()`, `sm_venue_main_phone()`
+- `sm_booth_map_image_url()`, `sm_booking_email()`, `sm_last_registration_date()`
+- `sm_addon_icon( $addon_id, $variant = null )`
 
-- viewBox `1000×780`. Booth-koordinater i `BOOTHS`-arrayen i `booth-map.jsx`.
-- Färgkodning per storlek: 2×2 m gul, 2×3 m ljusblå, 3×3 m limegrön, N1–N12 (föreningsmontrar) rosa, bokade grå.
-- `DEMO_BOOKED` Set är bara för prototypen. I produktion härleds beläggning från anmälningstabellen — duplicera inte state.
+När du lägger till ett nytt redigerbart fält: lägg till settingen i `sm_customizer_register()` och en hjälpfunktion längst ner i samma fil.
 
-### Anmälningsformulär
+### Custom Post Type "sm_registration"
 
-- Steg 1 Företag → 2 Monter → 3 Tillägg → 4 Scen → 5 Granska
-- Obligatoriska fält i Steg 1: företagsnamn, orgnr, kontaktperson, telefon, e-post kontaktperson, webbplats. Webbplats används i den publika utställarlistan.
-- Tilläggslogik: Bordsstrumpa låst tills ett barbord lagts till; auto-tas bort när barbord når 0.
-- Slutsåld-status togglas via adminpanelen → `localStorage["sm_addon_stock_v1"]` (måste flyttas till backend).
-- Final submit blockerad tills båda checkboxarna (utställarvillkor + GDPR) är ikryssade.
+Varje utställaranmälan blir en post. Metafält (`_sm_*`):
 
-### State (prototyp)
+- `_sm_company`, `_sm_orgnr`, `_sm_invoice_address`, `_sm_invoice_email`
+- `_sm_contact_name`, `_sm_contact_email`, `_sm_contact_phone`
+- `_sm_website`, `_sm_no_website`, `_sm_description`
+- `_sm_booths` (array av booth-ID), `_sm_addons` (qty per addon-id), `_sm_addon_variants` (variant per addon-id)
+- `_sm_stage_slot` (t.ex. `"12:00"`)
+- `_sm_special_requests`, `_sm_is_forening`
+- `_sm_total` (int, kr), `_sm_status` (`'pending'` | `'confirmed'` | `'cancelled'`)
+- `_sm_submitted_at`
 
-- `localStorage["sm-registrations"]` — array av anmälningar
-- `localStorage["sm_addon_stock_v1"]` — `{ [addonId]: boolean }`
-- `localStorage["sm-page"]` — aktuell sida
-- All `localStorage`-användning **måste** ersättas med riktiga API-anrop i produktion.
+Booth-bokningsstatus härleds genom att samla alla `_sm_booths` från CPT-poster där `_sm_status != 'cancelled'`, plus options-listan `sm_blocked_booths` (manuellt blockerade via admin). Se `sm_booked_booth_ids()`.
 
-### Routing
+Scenpass-bokningar härleds på liknande sätt — `sm_taken_stage_slots()`.
 
-Prototypen routar via state. I produktion:
+### Wizard-formulärets flöde
 
-- `/` → För besökare
-- `/program` → Program
-- `/hitta-hit` → Hitta hit
-- `/kontakt` → Kontakt
-- `/for-utstallare` → För utställare
-- `/anmalan` → Anmälningswizard (eller modal)
-- `/admin` → Adminpanel (auth-skyddad)
+Formuläret på `/anmalan/` är en hybrid: HTML-formulär med JS-stepper.
 
-### Innehåll (verbatim-strängar)
+- Alla 5 steg renderas i DOM:en samtidigt; JS togglar `is-active`-klass.
+- `readState()` läser DOM, `computeTotal()` beräknar pris.
+- `canNext(step, state)` validerar per steg. Inga `required`-attribut används — `novalidate` är satt på formuläret eftersom HTML5-validering kraschar på dolda fält.
+- Submit POSTar till `admin-post.php` med `action=sm_register`. Handlern ligger i `inc/registration-handler.php`.
 
-- Tagline: "Mötesplatsen för dig som vill leva hela livet"
-- Datum: "Onsdag 24 februari 2027"
-- Tider: "10.00 – 17.00 (dörrarna öppnar 09.30)"
-- Entré: "100 kr i förköp · 120 kr vid dörren (swish / kort)"
-- Adress: "Engelbrektsgatan 6, 432 41 Varberg"
-- Sista anmälningsdag: 15 augusti 2027
+### Att lägga till ett nytt tillval
 
-### Kontakter (publika kontaktsidan)
+Redigera `sm_addons()` i `inc/booth-data.php`. Flaggor:
 
-- Besökare & program: Gästservice — info@arenavarberg.se — 0340-690200
-- Projektledare: Camilla Bourdette — camilla.bourdette@arenavarberg.se — 0340-690204
-- Försäljning/Utställare: Vivi Strindö — vivi.strindo@arenavarberg.se — 0340-690213
-- Försäljning/Utställare: Susanne Carlsson — susanne.carlsson@arenavarberg.se — 0340-690200
+- `'variants' => [ 'Färg1', ... ]` — visar variant-knappar
+- `'scales_with_booths' => true` — kvantitet räknas automatiskt från antal valda montrar (som montermatta), ingen quantity-input visas
+- `'requires' => 'barbord'` — ej implementerat på UI än, men finns i specen
 
-### Tillgänglighet (att uppfylla i produktion)
+### Innehåll (verbatim-strängar i designen)
 
-- Hero-karusell ska pausa vid `prefers-reduced-motion`
-- Båskartan behöver `aria-label`/roller och en icke-visuell alternativ väljare
-- Verifiera label/input-koppling i alla formulärfält
-- Verifiera kontrast på korall-CTA mot beige bakgrund (WCAG AA)
-- Cookie-banner krävs enligt svensk lag
-- Sidor för integritetspolicy + utställarvillkor saknas och måste skapas
+Dessa är fortfarande hårdkodade i temat på vissa ställen — flytta gärna till Customizer eller CPT när möjligt:
+
+- Områden ("Sex världar att upptäcka") — `front-page.php`, hårdkodade i array
+- Höjdpunkter 2027 — `front-page.php`, hårdkodade i array
+- Programschema — `page-program.php`, hårdkodade i array
+- Kontaktpersoner — `page-kontakt.php`, hårdkodade i array
+- Monterpaket-text på "För utställare" — hårdkodade
+
+### Routing (slugs)
+
+WordPress-sidor som måste finnas:
+
+- `/` (For besökare, satt som statisk startsida) — använder `front-page.php`
+- `/program/` → `page-program.php`
+- `/hitta-hit/` → `page-hitta-hit.php`
+- `/kontakt/` → `page-kontakt.php`
+- `/for-utstallare/` → `page-for-utstallare.php`
+- `/anmalan/` → `page-anmalan.php`
+
+## Server (Oderland)
+
+- **Kontot**: arenavarberg på cPanel, primärdomän `arenavarberg.se`
+- **Domänen**: `seniormassanvarberg.se` ligger som addon-domän
+- **DNS**: pekar fortfarande på Loopia. När fakturan är betald: byt nameservers till Oderlands ns1/ns2/ns3.oderland.com.
+- **Tillfällig åtkomst** under tiden: hosts-fil på utvecklarens Mac mappar `seniormassanvarberg.se` → `91.201.63.11`.
+- **HTTP/HTTPS**: bara HTTP fungerar tills DNS pekar rätt och Let's Encrypt kan utfärda cert. `wp-config.php` har manuellt satt `WP_HOME`/`WP_SITEURL` till `http://...`.
+- **Permalänkar**: "Inläggsnamn" — `.htaccess` skapad manuellt i WP-roten med standard WP-rewrites.
 
 ## Git-konventioner
 
-- Utvecklingsbranch: `claude/create-claude-md-1kiDx` (per session-direktiv)
-- Skapa nya commits hellre än att amenda
-- Använd `git push -u origin <branch>` vid första pushen
+- Utvecklingsbranch: tidigare `claude/create-claude-md-1kiDx`, nu pushas direkt till `main` per användarens önskemål.
+- Skapa nya commits hellre än att amenda.
+- Bumpa `SM_THEME_VERSION` i `functions.php` *och* `Version:` i `style.css`-huvudet vid varje funktionsändring för cache-busting i WP.
