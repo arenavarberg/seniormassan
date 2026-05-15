@@ -253,16 +253,16 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							</label>
 						<?php endforeach; ?>
 
+						<label style="grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; padding: 10px 14px; background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; font-size: 14px; cursor: pointer;">
+							<input type="checkbox" name="sm_no_website" value="1" id="sm-no-website" <?php checked( $saved_no_website ); ?>>
+							<span>Vi har ingen webbplats</span>
+						</label>
+
 						<label style="grid-column: 1 / -1;">
 							<span class="sm-wiz-field-label">
 								Webbplats <span class="sm-wiz-field-required" id="sm-website-required">*</span>
 							</span>
 							<input type="url" name="sm_website" id="sm-website-input" value="<?php echo esc_attr( $input['sm_website'] ?? '' ); ?>" placeholder="https://" class="sm-wiz-input" data-required="1" <?php echo $saved_no_website ? 'disabled' : ''; ?> data-step1-input>
-						</label>
-
-						<label style="grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; padding: 10px 14px; background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; font-size: 14px; cursor: pointer;">
-							<input type="checkbox" name="sm_no_website" value="1" id="sm-no-website" <?php checked( $saved_no_website ); ?>>
-							<span>Vi har ingen webbplats</span>
 						</label>
 
 						<label style="grid-column: 1 / -1;">
@@ -381,7 +381,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					<?php foreach ( $addons_by_cat as $cat => $list ) : ?>
 						<div style="margin-bottom: 24px;">
 							<div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 10px;"><?php echo esc_html( $cat ); ?></div>
-							<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
+							<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 10px;">
 								<?php foreach ( $list as $a ) :
 									$saved_qty     = isset( $saved_addons[ $a['id'] ] ) ? (int) $saved_addons[ $a['id'] ] : 0;
 									$saved_variant = $saved_variants[ $a['id'] ] ?? '';
