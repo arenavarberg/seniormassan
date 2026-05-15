@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SM_THEME_VERSION', '0.2.0' );
+define( 'SM_THEME_VERSION', '0.2.1' );
 
 function sm_theme_setup() {
 	add_theme_support( 'title-tag' );

@@ -61,6 +61,8 @@ $highlights = array(
 	</svg>
 </section>
 
+<?php get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'transparent', 'to' => 'var(--sm-bg)' ) ); ?>
+
 <section style="background: var(--sm-bg);">
 	<div class="sm-container" style="display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 32px 64px; gap: 32px;">
 		<?php foreach ( $stats as $stat ) : ?>
