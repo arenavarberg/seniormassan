@@ -225,7 +225,7 @@ function sm_booked_booth_ids( $exclude_post_id = 0 ) {
  */
 function sm_addons() {
 	return array(
-		array( 'id' => 'matta',     'name' => 'Montermatta',                'price' => 110, 'cat' => 'Mattor & golv', 'variants' => array( 'Blå', 'Röd', 'Grön', 'Grå', 'Svart', 'Orange' ) ),
+		array( 'id' => 'matta',     'name' => 'Montermatta',                'price' => 110, 'cat' => 'Mattor & golv', 'variants' => array( 'Blå', 'Röd', 'Grön', 'Grå', 'Svart', 'Orange' ), 'scales_with_booths' => true, 'price_label' => 'kr/monter' ),
 		array( 'id' => 'stol',      'name' => 'Stol',                       'price' => 60,  'cat' => 'Möbler' ),
 		array( 'id' => 'barstol',   'name' => 'Barstol',                    'price' => 130, 'cat' => 'Möbler' ),
 		array( 'id' => 'bord180',   'name' => 'Bord 180×80 cm',             'price' => 130, 'cat' => 'Möbler' ),

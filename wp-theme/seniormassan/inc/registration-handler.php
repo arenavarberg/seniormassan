@@ -43,15 +43,27 @@ function sm_handle_registration() {
 	$variants_input = isset( $post['sm_addon_variants'] ) && is_array( $post['sm_addon_variants'] ) ? $post['sm_addon_variants'] : array();
 	$addons         = array();
 	$variants       = array();
+	$booth_count    = count( $booths );
 	foreach ( sm_addons() as $a ) {
-		$qty = isset( $addon_input[ $a['id'] ] ) ? max( 0, (int) $addon_input[ $a['id'] ] ) : 0;
+		$variant = '';
+		if ( ! empty( $a['variants'] ) && isset( $variants_input[ $a['id'] ] ) ) {
+			$chosen = sanitize_text_field( $variants_input[ $a['id'] ] );
+			if ( in_array( $chosen, $a['variants'], true ) ) {
+				$variant = $chosen;
+			}
+		}
+
+		if ( ! empty( $a['scales_with_booths'] ) ) {
+			// Skalar med antal montrar — kvantitet sätts av servern, inte av användaren
+			$qty = ( $variant && $booth_count > 0 ) ? $booth_count : 0;
+		} else {
+			$qty = isset( $addon_input[ $a['id'] ] ) ? max( 0, (int) $addon_input[ $a['id'] ] ) : 0;
+		}
+
 		if ( $qty > 0 ) {
 			$addons[ $a['id'] ] = $qty;
-			if ( ! empty( $a['variants'] ) && isset( $variants_input[ $a['id'] ] ) ) {
-				$chosen = sanitize_text_field( $variants_input[ $a['id'] ] );
-				if ( in_array( $chosen, $a['variants'], true ) ) {
-					$variants[ $a['id'] ] = $chosen;
-				}
+			if ( $variant ) {
+				$variants[ $a['id'] ] = $variant;
 			}
 		}
 	}

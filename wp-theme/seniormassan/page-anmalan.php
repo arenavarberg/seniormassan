@@ -87,9 +87,10 @@ foreach ( sm_booths() as $b ) {
 }
 foreach ( sm_addons() as $a ) {
 	$prices_json['addons'][ $a['id'] ] = array(
-		'name'     => $a['name'],
-		'price'    => $a['price'],
-		'variants' => $a['variants'] ?? array(),
+		'name'              => $a['name'],
+		'price'             => $a['price'],
+		'variants'          => $a['variants'] ?? array(),
+		'scales_with_booths' => ! empty( $a['scales_with_booths'] ),
 	);
 }
 
@@ -302,11 +303,6 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 						</div>
 					<?php endif; ?>
 
-					<!-- Status: antal valda -->
-					<div id="sm-booth-status" style="background: var(--sm-primary); color: #fff; padding: 12px 18px; border-radius: 8px; margin-bottom: 16px; font-size: 15px; display: none;">
-						<strong><span id="sm-booth-count">0</span></strong> monter(ar) vald — <span id="sm-booth-list-inline" style="opacity: 0.9;"></span>
-					</div>
-
 					<div style="display: grid; gap: 10px;">
 						<?php foreach ( $by_section as $section => $booths_in_section ) :
 							$first       = $booths_in_section[0];
@@ -354,6 +350,25 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							</div>
 						<?php endforeach; ?>
 					</div>
+
+					<!-- Live-summering längst ner (matchar designens StepBooth) -->
+					<div id="sm-booth-summary" style="margin-top: 24px; background: var(--sm-primary); color: #fff; border-radius: 12px; padding: 24px 28px; display: none; grid-template-columns: 1fr auto; align-items: center; gap: 24px;">
+						<div>
+							<div style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8;">Dina valda montrar</div>
+							<div id="sm-booth-chips" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;"></div>
+							<button type="button" id="sm-booth-clear" style="margin-top: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;">Rensa val</button>
+						</div>
+						<div style="text-align: right;">
+							<div style="font-size: 12px; opacity: 0.8; letter-spacing: 0.1em; text-transform: uppercase;">Montrar</div>
+							<div style="font-family: var(--sm-font-display); font-size: 36px; font-weight: 800; line-height: 1; margin-top: 4px;">
+								<span id="sm-booth-summary-total">0</span> <span style="font-size: 16px; font-weight: 500;">kr</span>
+							</div>
+							<div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">+ 800 kr reg.avg · <span id="sm-booth-summary-moms">exkl. moms</span></div>
+						</div>
+					</div>
+					<div id="sm-booth-summary-empty" style="margin-top: 24px; border: 2px dashed var(--sm-line); border-radius: 12px; padding: 32px 24px; text-align: center; color: var(--sm-ink-soft); font-size: 16px;">
+						Inga montrar valda än. Bocka i minst en monter ovan för att komma vidare.
+					</div>
 				</div>
 
 				<!-- STEG 3: TILLÄGG -->
@@ -368,12 +383,14 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							<div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 10px;"><?php echo esc_html( $cat ); ?></div>
 							<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
 								<?php foreach ( $list as $a ) :
-									$saved_qty       = isset( $saved_addons[ $a['id'] ] ) ? (int) $saved_addons[ $a['id'] ] : 0;
-									$saved_variant   = $saved_variants[ $a['id'] ] ?? '';
-									$icon_url        = sm_addon_icon( $a['id'] );
-									$has_variants    = ! empty( $a['variants'] );
+									$saved_qty     = isset( $saved_addons[ $a['id'] ] ) ? (int) $saved_addons[ $a['id'] ] : 0;
+									$saved_variant = $saved_variants[ $a['id'] ] ?? '';
+									$icon_url      = sm_addon_icon( $a['id'] );
+									$has_variants  = ! empty( $a['variants'] );
+									$scales        = ! empty( $a['scales_with_booths'] );
+									$price_label   = $a['price_label'] ?? 'kr/st';
 									?>
-									<div class="sm-addon-card" data-addon-id="<?php echo esc_attr( $a['id'] ); ?>">
+									<div class="sm-addon-card" data-addon-id="<?php echo esc_attr( $a['id'] ); ?>"<?php echo $scales ? ' data-scales="1"' : ''; ?>>
 										<div class="sm-addon-icon">
 											<?php if ( $icon_url ) : ?>
 												<img src="<?php echo esc_url( $icon_url ); ?>" alt="">
@@ -383,10 +400,16 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 										</div>
 										<div style="flex: 1; min-width: 0;">
 											<div style="font-weight: 700;"><?php echo esc_html( $a['name'] ); ?></div>
-											<div style="font-size: 12px; color: var(--sm-ink-soft);"><?php echo esc_html( $a['price'] ); ?> kr/st</div>
+											<div style="font-size: 12px; color: var(--sm-ink-soft);"><?php echo esc_html( $a['price'] ); ?> <?php echo esc_html( $price_label ); ?></div>
 
 											<?php if ( $has_variants ) : ?>
 												<div class="sm-variant-grid" data-variant-for="<?php echo esc_attr( $a['id'] ); ?>">
+													<?php if ( $scales ) : ?>
+														<button type="button" class="sm-variant-btn<?php echo ! $saved_variant ? ' is-selected' : ''; ?>" data-variant="">
+															<span style="font-size: 18px;">✕</span>
+															<span>Ingen</span>
+														</button>
+													<?php endif; ?>
 													<?php foreach ( $a['variants'] as $v ) :
 														$v_icon = sm_addon_icon( $a['id'], $v );
 														$is_v_sel = ( $saved_variant === $v );
@@ -401,12 +424,23 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 													<input type="hidden" name="sm_addon_variants[<?php echo esc_attr( $a['id'] ); ?>]" value="<?php echo esc_attr( $saved_variant ); ?>" class="sm-variant-value">
 												</div>
 											<?php endif; ?>
+
+											<?php if ( $scales ) : ?>
+												<div style="font-size: 12px; color: var(--sm-muted); margin-top: 8px;">
+													Antalet räknas automatiskt från antal valda montrar.
+												</div>
+											<?php endif; ?>
 										</div>
-										<div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-											<button type="button" class="button sm-qty-btn" data-action="dec" aria-label="Minska" style="width: 30px; height: 30px; border: 1px solid var(--sm-line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 16px;">−</button>
-											<input type="number" name="sm_addons[<?php echo esc_attr( $a['id'] ); ?>]" min="0" max="20" value="<?php echo (int) $saved_qty; ?>" data-sm-addon="<?php echo esc_attr( $a['id'] ); ?>" class="sm-addon-input" style="width: 48px; padding: 4px; border: 1px solid var(--sm-line); border-radius: 4px; font-size: 14px; text-align: center;">
-											<button type="button" class="button sm-qty-btn" data-action="inc" aria-label="Öka" style="width: 30px; height: 30px; border: 1px solid var(--sm-line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 16px;">+</button>
-										</div>
+
+										<?php if ( ! $scales ) : ?>
+											<div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+												<button type="button" class="button sm-qty-btn" data-action="dec" aria-label="Minska" style="width: 30px; height: 30px; border: 1px solid var(--sm-line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 16px;">−</button>
+												<input type="number" name="sm_addons[<?php echo esc_attr( $a['id'] ); ?>]" min="0" max="20" value="<?php echo (int) $saved_qty; ?>" data-sm-addon="<?php echo esc_attr( $a['id'] ); ?>" class="sm-addon-input" style="width: 48px; padding: 4px; border: 1px solid var(--sm-line); border-radius: 4px; font-size: 14px; text-align: center;">
+												<button type="button" class="button sm-qty-btn" data-action="inc" aria-label="Öka" style="width: 30px; height: 30px; border: 1px solid var(--sm-line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 16px;">+</button>
+											</div>
+										<?php else : ?>
+											<input type="hidden" name="sm_addons[<?php echo esc_attr( $a['id'] ); ?>]" value="<?php echo (int) $saved_qty; ?>" data-sm-addon="<?php echo esc_attr( $a['id'] ); ?>" class="sm-addon-input sm-addon-input-auto">
+										<?php endif; ?>
 									</div>
 								<?php endforeach; ?>
 							</div>
@@ -545,16 +579,27 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	function readState() {
 		var booths = [];
 		document.querySelectorAll('.sm-booth-input:checked').forEach(function (i) { booths.push(i.value); });
-		var addons = {};
 		var variants = {};
-		document.querySelectorAll('.sm-addon-input').forEach(function (i) {
-			var qty = parseInt(i.value, 10) || 0;
-			if (qty > 0) addons[i.dataset.smAddon] = qty;
-		});
 		document.querySelectorAll('.sm-variant-value').forEach(function (i) {
 			var name = i.name.match(/\[([^\]]+)\]/);
 			if (name && i.value) variants[name[1]] = i.value;
 		});
+
+		// Uppdatera auto-skalande tillval (matta) innan vi läser kvantiteter
+		Object.keys(data.addons).forEach(function (id) {
+			var info = data.addons[id];
+			if (!info.scales_with_booths) return;
+			var auto = document.querySelector('.sm-addon-input-auto[data-sm-addon="' + id + '"]');
+			if (!auto) return;
+			auto.value = variants[id] ? booths.length : 0;
+		});
+
+		var addons = {};
+		document.querySelectorAll('.sm-addon-input').forEach(function (i) {
+			var qty = parseInt(i.value, 10) || 0;
+			if (qty > 0) addons[i.dataset.smAddon] = qty;
+		});
+
 		var stage = $('sm-stage-slot-value') ? $('sm-stage-slot-value').value : '';
 		var forening = $('sm-is-forening') ? $('sm-is-forening').checked : false;
 		return { booths: booths, addons: addons, variants: variants, stage: stage, forening: forening };
@@ -617,15 +662,34 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		$('sm-footer-total').textContent = nf(total);
 		$('sm-footer-moms').textContent = s.forening ? 'inkl. moms' : 'exkl. moms';
 
-		// Status-banner i monter-steget
-		var statusEl = $('sm-booth-status');
-		if (statusEl) {
+		// Bottom-summering i monter-steget (matchar designens StepBooth)
+		var summaryEl = $('sm-booth-summary');
+		var emptyEl   = $('sm-booth-summary-empty');
+		if (summaryEl && emptyEl) {
 			if (s.booths.length > 0) {
-				statusEl.style.display = 'block';
-				$('sm-booth-count').textContent = s.booths.length;
-				$('sm-booth-list-inline').textContent = s.booths.join(', ');
+				summaryEl.style.display = 'grid';
+				emptyEl.style.display   = 'none';
+				var chips = s.booths.slice().sort().map(function (id) {
+					var b = data.booths[id];
+					var price = (s.forening && id.charAt(0) === 'N') ? data.forening_price : (b ? b.price : 0);
+					var sizeLabel = b ? b.size.replace('x', '×') + ' m' : '';
+					return '<span style="background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;font-family:var(--sm-font-display);font-weight:700;font-size:14px;">' + id + ' <span style="opacity:0.7;font-weight:400;font-size:12px;">· ' + sizeLabel + ' · ' + nf(price) + ' kr</span></span>';
+				});
+				$('sm-booth-chips').innerHTML = chips.join('');
+
+				// Bara monter-priser (utan reg.avg + tillval)
+				var boothOnly = 0;
+				s.booths.forEach(function (id) {
+					var b = data.booths[id];
+					if (!b) return;
+					boothOnly += (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
+				});
+				if (s.forening) boothOnly = Math.round(boothOnly * 1.25);
+				$('sm-booth-summary-total').textContent = nf(boothOnly);
+				$('sm-booth-summary-moms').textContent  = s.forening ? 'inkl. moms' : 'exkl. moms';
 			} else {
-				statusEl.style.display = 'none';
+				summaryEl.style.display = 'none';
+				emptyEl.style.display   = 'block';
 			}
 		}
 
@@ -783,6 +847,15 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			render();
 		});
 	});
+
+	// Rensa val-knapp i monter-summeringen
+	var clearBtn = $('sm-booth-clear');
+	if (clearBtn) {
+		clearBtn.addEventListener('click', function () {
+			document.querySelectorAll('.sm-booth-input:checked').forEach(function (i) { i.checked = false; });
+			render();
+		});
+	}
 
 	$('sm-wiz-back').addEventListener('click', function () { goto(step - 1); });
 	$('sm-wiz-next').addEventListener('click', function () { goto(step + 1); });
