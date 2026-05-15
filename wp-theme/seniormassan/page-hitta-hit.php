@@ -1,0 +1,55 @@
+<?php
+/**
+ * Sidmall för "Hitta hit".
+ */
+
+get_header();
+
+get_template_part( 'template-parts/page-hero', null, array(
+	'eyebrow' => 'Hitta hit',
+	'title'   => 'Arena Varberg — den stadsnära arenan.',
+	'body'    => '15 minuters promenad från stationen. Fri parkering med över 200 platser.',
+	'tone'    => 'primary',
+) );
+?>
+
+<section class="sm-container" style="padding: 48px 32px 96px;">
+	<div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px;">
+		<div style="height: 440px; border-radius: var(--sm-radius-lg); overflow: hidden; border: 1px solid var(--sm-line);">
+			<iframe
+				src="https://www.openstreetmap.org/export/embed.html?bbox=12.244%2C57.103%2C12.262%2C57.112&amp;layer=mapnik&amp;marker=57.10765%2C12.25275"
+				style="width: 100%; height: 100%; border: 0;"
+				title="Karta till Arena Varberg, Engelbrektsgatan 6"
+				loading="lazy"
+				referrerpolicy="no-referrer-when-downgrade"></iframe>
+		</div>
+		<div>
+			<?php
+			get_template_part( 'template-parts/info-block', null, array(
+				'title' => 'Adress',
+				'items' => array(
+					array( '', 'Engelbrektsgatan 6' ),
+					array( '', '432 41 Varberg' ),
+				),
+			) );
+			get_template_part( 'template-parts/info-block', null, array(
+				'title' => 'Fri parkering',
+				'items' => array(
+					array( '', 'Över 200 platser på området' ),
+					array( '', 'Kostnadsfritt under hela mässdagen' ),
+				),
+			) );
+			get_template_part( 'template-parts/info-block', null, array(
+				'title' => 'Tillgänglighet',
+				'items' => array(
+					array( '', 'Ramp till huvudentré' ),
+					array( '', 'Tillgängliga toaletter på plan 1 & 2' ),
+					array( '', 'Ljudslinga i scenområdena' ),
+				),
+			) );
+			?>
+		</div>
+	</div>
+</section>
+
+<?php get_footer(); ?>

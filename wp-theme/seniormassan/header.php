@@ -1,6 +1,6 @@
 <?php
 /**
- * Site header + öppnande av <body>.
+ * Site header — matchar site-shell.jsx SiteHeader.
  */
 ?><!doctype html>
 <html <?php language_attributes(); ?>>
@@ -14,16 +14,21 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
-<header class="sm-site-header" style="background: var(--sm-surface); border-bottom: 1px solid var(--sm-line); position: sticky; top: 0; z-index: 50;">
-	<div class="sm-container" style="display: flex; align-items: center; justify-content: space-between; height: 80px; gap: 24px;">
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" style="display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--sm-ink);">
-			<img src="<?php echo esc_url( sm_image( 'senior-logo-2026-transparent.png' ) ); ?>" alt="Seniormässan" style="height: 48px; width: auto;">
-			<span style="font-family: var(--sm-font-display); font-weight: 800; letter-spacing: 0.18em; font-size: 18px;">MÄSSAN</span>
+<header style="position: sticky; top: 0; z-index: 30; background: rgba(250, 247, 242, 0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--sm-line-soft);">
+	<div class="sm-container" style="display: flex; align-items: center; gap: 32px; padding: 16px 32px;">
+
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" style="background: none; border: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none;">
+			<img src="<?php echo esc_url( sm_image( 'senior-logo-2026-transparent.png' ) ); ?>" alt="Senior" style="height: 44px; width: auto; display: block;">
+			<div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--sm-font-body); font-size: 11px; font-weight: 500; color: var(--sm-primary); margin-top: 2px;">
+				<span style="width: 22px; height: 1px; background: currentColor; opacity: 0.55;"></span>
+				<span style="letter-spacing: 0.65em; padding-left: 0.65em;">MÄSSAN</span>
+				<span style="width: 22px; height: 1px; background: currentColor; opacity: 0.55;"></span>
+			</div>
 		</a>
 
-		<nav style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+		<nav style="display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap;">
 			<?php
-			$current = trim( $_SERVER['REQUEST_URI'] ?? '/', '/' );
+			$current   = trim( $_SERVER['REQUEST_URI'] ?? '/', '/' );
 			$nav_items = array(
 				''               => 'För besökare',
 				'program'        => 'Program',
@@ -34,9 +39,11 @@
 			foreach ( $nav_items as $slug => $label ) {
 				$is_active = ( $slug === $current );
 				$href      = $slug === '' ? home_url( '/' ) : home_url( '/' . $slug . '/' );
-				$style     = 'padding: 10px 14px; border-radius: 999px; text-decoration: none; font-weight: 600; font-size: 16px; color: var(--sm-ink); transition: background 0.15s;';
+				$style     = 'padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 16px;';
 				if ( $is_active ) {
-					$style .= ' background: var(--sm-primary); color: var(--sm-primary-ink);';
+					$style .= ' background: var(--sm-primary-soft); color: var(--sm-primary); font-weight: 700;';
+				} else {
+					$style .= ' background: transparent; color: var(--sm-ink); font-weight: 500;';
 				}
 				printf(
 					'<a href="%s" style="%s">%s</a>',
@@ -46,10 +53,11 @@
 				);
 			}
 			?>
-			<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent sm-btn--small" style="margin-left: 12px;">
-				Boka monter →
-			</a>
 		</nav>
+
+		<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent sm-btn--small">
+			Boka monter →
+		</a>
 	</div>
 </header>
 
