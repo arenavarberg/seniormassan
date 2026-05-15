@@ -209,7 +209,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			<?php endforeach; ?>
 		</div>
 
-		<form method="post" action="<?php echo esc_url( get_permalink() ); ?>" id="sm-reg-form">
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="sm-reg-form">
+			<input type="hidden" name="action" value="sm_register">
 			<?php wp_nonce_field( 'sm_register', 'sm_register_nonce' ); ?>
 
 			<!-- Body -->

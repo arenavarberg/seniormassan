@@ -9,11 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function sm_handle_registration() {
-	if ( empty( $_POST['sm_register_submit'] ) ) {
-		return;
-	}
 	if ( ! isset( $_POST['sm_register_nonce'] ) || ! wp_verify_nonce( $_POST['sm_register_nonce'], 'sm_register' ) ) {
-		wp_die( 'Säkerhetskontrollen misslyckades. Försök igen.' );
+		wp_die( 'Säkerhetskontrollen misslyckades. Gå tillbaka och försök igen.' );
 	}
 
 	$errors = array();
@@ -123,7 +120,8 @@ function sm_handle_registration() {
 	if ( $errors ) {
 		set_transient( 'sm_register_errors_' . sm_session_id(), $errors, 60 * 10 );
 		set_transient( 'sm_register_input_' . sm_session_id(), $post, 60 * 10 );
-		wp_safe_redirect( add_query_arg( 'fel', '1', wp_get_referer() ) );
+		$referer = wp_get_referer() ?: home_url( '/anmalan/' );
+		wp_safe_redirect( add_query_arg( 'fel', '1', $referer ) );
 		exit;
 	}
 
@@ -188,7 +186,8 @@ function sm_handle_registration() {
 	wp_safe_redirect( add_query_arg( 'ref', $post_id, home_url( '/anmalan/' ) ) );
 	exit;
 }
-add_action( 'init', 'sm_handle_registration' );
+add_action( 'admin_post_sm_register',        'sm_handle_registration' );
+add_action( 'admin_post_nopriv_sm_register', 'sm_handle_registration' );
 
 /**
  * En slags session-ID för icke-inloggade användare (cookie-baserat),
