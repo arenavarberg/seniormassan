@@ -17,9 +17,9 @@ get_template_part( 'template-parts/page-hero', null, array(
 	<div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px;">
 		<div style="height: 440px; border-radius: var(--sm-radius-lg); overflow: hidden; border: 1px solid var(--sm-line);">
 			<iframe
-				src="https://www.openstreetmap.org/export/embed.html?bbox=12.244%2C57.103%2C12.262%2C57.112&amp;layer=mapnik&amp;marker=57.10765%2C12.25275"
+				src="https://maps.google.com/maps?q=Arena+Varberg,+Kattegattsv%C3%A4gen+26,+432+50+Varberg&amp;t=&amp;z=15&amp;ie=UTF8&amp;iwloc=&amp;output=embed"
 				style="width: 100%; height: 100%; border: 0;"
-				title="Karta till Arena Varberg, Engelbrektsgatan 6"
+				title="Karta till Arena Varberg, Kattegattsvägen 26"
 				loading="lazy"
 				referrerpolicy="no-referrer-when-downgrade"></iframe>
 		</div>
@@ -28,8 +28,9 @@ get_template_part( 'template-parts/page-hero', null, array(
 			get_template_part( 'template-parts/info-block', null, array(
 				'title' => 'Adress',
 				'items' => array(
-					array( '', 'Engelbrektsgatan 6' ),
-					array( '', '432 41 Varberg' ),
+					array( '', 'Arena Varberg' ),
+					array( '', 'Kattegattsvägen 26' ),
+					array( '', '432 50 Varberg' ),
 				),
 			) );
 			get_template_part( 'template-parts/info-block', null, array(

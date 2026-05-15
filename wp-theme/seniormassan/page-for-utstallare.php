@@ -145,7 +145,7 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 			<div class="sm-eyebrow">Tillägg</div>
 			<h3 style="font-size: 28px; margin-bottom: 8px;">Skräddarsy din monter.</h3>
 			<p style="font-size: 17px; color: var(--sm-ink-soft); margin-bottom: 24px; max-width: 720px; line-height: 1.5;">
-				När du gör din bokning kan du lägga till produkter i din monter — t.ex. golv i olika färger, bord, stolar, utställarlunch m.m.
+				Vill du ha större utrymme kan du välja flera montrar. Du kan också lägga till produkter i din monter — t.ex. golv i olika färger, bord, stolar, utställarlunch m.m.
 			</p>
 			<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--sm-line); border-radius: var(--sm-radius-lg); overflow: hidden; background: var(--sm-bg);">
 				<?php
@@ -164,7 +164,6 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 
 		<div style="text-align: center; margin-top: 56px;">
 			<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent">Anmäl din monter →</a>
-			<div style="margin-top: 14px; font-size: 15px; color: var(--sm-muted);">Sista anmälningsdag: 15 augusti 2027</div>
 		</div>
 	</div>
 </section>

@@ -8,20 +8,11 @@
 <footer style="background: var(--sm-ink); color: rgba(255,255,255,0.82); margin-top: 0;">
 	<div class="sm-container" style="padding: 64px 32px 32px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px;">
 		<div>
-			<div style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px;">
-				<img src="<?php echo esc_url( sm_image( 'senior-logo-2026-transparent.png' ) ); ?>" alt="Senior" style="height: 56px; width: auto; filter: brightness(0) invert(1); opacity: 0.95;">
-				<div style="display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--sm-font-body); font-size: 12px; font-weight: 500; color: #fff; opacity: 0.9;">
-					<span style="width: 28px; height: 1px; background: currentColor; opacity: 0.55;"></span>
-					<span style="letter-spacing: 0.65em; padding-left: 0.65em;">MÄSSAN</span>
-					<span style="width: 28px; height: 1px; background: currentColor; opacity: 0.55;"></span>
-				</div>
-			</div>
-			<div style="font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 16px; opacity: 0.6;">Sedan 2013</div>
+			<div style="font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6;">Sedan 2013</div>
 			<p style="margin-top: 24px; opacity: 0.75; max-width: 360px;">
 				En mötesplats för seniorer i Halland — arrangerad av Arena Varberg.
 			</p>
-			<div style="margin-top: 28px; display: flex; align-items: center; gap: 14px;">
-				<div style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.55;">Arrangör</div>
+			<div style="margin-top: 28px;">
 				<img src="<?php echo esc_url( sm_image( 'arena-varberg-logo-white.png' ) ); ?>" alt="Arena Varberg" style="height: 56px; width: auto;">
 			</div>
 		</div>
