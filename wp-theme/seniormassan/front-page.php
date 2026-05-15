@@ -184,6 +184,10 @@ $highlights = array(
 	</div>
 </section>
 
+<?php get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--sm-bg)', 'to' => 'var(--sm-surface)' ) ); ?>
+
+<?php get_template_part( 'template-parts/exhibitor-list' ); ?>
+
 <script>
 (function () {
 	var slides = document.querySelectorAll('.sm-hero-slide');
