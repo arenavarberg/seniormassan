@@ -39,15 +39,20 @@ function sm_handle_registration() {
 	$accept_terms  = ! empty( $post['sm_accept_terms'] );
 	$accept_gdpr   = ! empty( $post['sm_accept_gdpr'] );
 
-	$addon_input = isset( $post['sm_addons'] ) && is_array( $post['sm_addons'] ) ? $post['sm_addons'] : array();
-	$addons      = array();
+	$addon_input    = isset( $post['sm_addons'] ) && is_array( $post['sm_addons'] ) ? $post['sm_addons'] : array();
+	$variants_input = isset( $post['sm_addon_variants'] ) && is_array( $post['sm_addon_variants'] ) ? $post['sm_addon_variants'] : array();
+	$addons         = array();
+	$variants       = array();
 	foreach ( sm_addons() as $a ) {
 		$qty = isset( $addon_input[ $a['id'] ] ) ? max( 0, (int) $addon_input[ $a['id'] ] ) : 0;
-		if ( ! empty( $a['required'] ) ) {
-			$qty = max( 1, $qty );
-		}
 		if ( $qty > 0 ) {
 			$addons[ $a['id'] ] = $qty;
+			if ( ! empty( $a['variants'] ) && isset( $variants_input[ $a['id'] ] ) ) {
+				$chosen = sanitize_text_field( $variants_input[ $a['id'] ] );
+				if ( in_array( $chosen, $a['variants'], true ) ) {
+					$variants[ $a['id'] ] = $chosen;
+				}
+			}
 		}
 	}
 
@@ -122,7 +127,9 @@ function sm_handle_registration() {
 			$addon_total += $a['price'] * $qty;
 		}
 	}
-	$total = $booth_total + $addon_total;
+	// Registreringsavgift läggs på automatiskt när minst en monter är vald
+	$reg_fee = $booths ? SM_REGISTRATION_FEE : 0;
+	$total   = $booth_total + $addon_total + $reg_fee;
 	if ( $is_forening ) {
 		$total = (int) round( $total * 1.25 ); // moms ingår
 	}
@@ -149,6 +156,7 @@ function sm_handle_registration() {
 	update_post_meta( $post_id, '_sm_description',     $description );
 	update_post_meta( $post_id, '_sm_booths',          $booths );
 	update_post_meta( $post_id, '_sm_addons',          $addons );
+	update_post_meta( $post_id, '_sm_addon_variants',  $variants );
 	update_post_meta( $post_id, '_sm_stage_slot',      $stage_slot );
 	update_post_meta( $post_id, '_sm_no_website',      $no_website ? '1' : '' );
 	update_post_meta( $post_id, '_sm_special_requests',$reqs );

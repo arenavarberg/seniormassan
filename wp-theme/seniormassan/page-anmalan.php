@@ -2,14 +2,7 @@
 /**
  * Sidmall för "Anmälan" — utställaranmälningsformulär i wizard-format.
  *
- * Layouten är en kopia av registration.jsx RegistrationWizard:
- *   - Mörkblå header med titel + stäng-knapp
- *   - Stepper med 5 numrerade flikar (Företag, Monter, Tillägg, Scen, Granska)
- *   - Ett steg synligt åt gången, switchas via JS
- *   - Sticky footer med total + Tillbaka/Nästa/Skicka
- *
- * Formuläret POSTar till samma sida; serverhanteringen ligger i
- * inc/registration-handler.php.
+ * Matchar registration.jsx RegistrationWizard (modal-stil, stepper, sticky footer).
  */
 
 get_header();
@@ -93,7 +86,11 @@ foreach ( sm_booths() as $b ) {
 	$prices_json['booths'][ $b['id'] ] = array( 'size' => $b['size'], 'price' => sm_booth_price( $b['id'] ) );
 }
 foreach ( sm_addons() as $a ) {
-	$prices_json['addons'][ $a['id'] ] = array( 'name' => $a['name'], 'price' => $a['price'] );
+	$prices_json['addons'][ $a['id'] ] = array(
+		'name'     => $a['name'],
+		'price'    => $a['price'],
+		'variants' => $a['variants'] ?? array(),
+	);
 }
 
 $addons_by_cat = array();
@@ -103,6 +100,7 @@ foreach ( sm_addons() as $a ) {
 
 $saved_booths     = is_array( $input['sm_booths'] ?? null ) ? $input['sm_booths'] : array();
 $saved_addons     = is_array( $input['sm_addons'] ?? null ) ? $input['sm_addons'] : array();
+$saved_variants   = is_array( $input['sm_addon_variants'] ?? null ) ? $input['sm_addon_variants'] : array();
 $saved_stage      = $input['sm_stage_slot'] ?? '';
 $saved_no_website = ! empty( $input['sm_no_website'] );
 $saved_forening   = ! empty( $input['sm_is_forening'] );
@@ -130,6 +128,59 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		.sm-wiz-stepper-btn { padding: 12px 6px; font-size: 12px; }
 		.sm-wiz-stepper-btn span:not(.sm-wiz-stepper-circle) { display: none; }
 	}
+
+	/* Collapsible monter-sektioner */
+	.sm-section-toggle {
+		display: flex; justify-content: space-between; align-items: center;
+		width: 100%; padding: 14px 18px; background: #fff;
+		border: 1px solid var(--sm-line); border-radius: 8px; cursor: pointer;
+		font-family: inherit; text-align: left;
+	}
+	.sm-section-toggle:hover { background: #fafafa; }
+	.sm-section-toggle[aria-expanded="true"] { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+	.sm-section-toggle .sm-chevron { transition: transform 0.2s; }
+	.sm-section-toggle[aria-expanded="true"] .sm-chevron { transform: rotate(90deg); }
+	.sm-section-body {
+		display: none;
+		background: #fff; border: 1px solid var(--sm-line); border-top: none;
+		border-radius: 0 0 8px 8px; padding: 16px 18px;
+	}
+	.sm-section-body.is-open { display: block; }
+
+	/* Addon-kort med ikon */
+	.sm-addon-card {
+		display: flex; gap: 14px; padding: 14px; background: #fff;
+		border: 1px solid var(--sm-line); border-radius: 8px; align-items: center;
+	}
+	.sm-addon-icon {
+		width: 56px; height: 56px; border-radius: 6px; background: var(--sm-bg);
+		flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+		overflow: hidden;
+	}
+	.sm-addon-icon img { max-width: 100%; max-height: 100%; }
+	.sm-addon-icon-placeholder { font-size: 24px; color: var(--sm-muted); }
+	.sm-variant-grid {
+		display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+		gap: 6px; margin-top: 8px;
+	}
+	.sm-variant-btn {
+		display: flex; flex-direction: column; align-items: center; gap: 4px;
+		padding: 6px 4px; border: 2px solid var(--sm-line); background: #fff;
+		border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px;
+	}
+	.sm-variant-btn.is-selected { border-color: var(--sm-accent); background: var(--sm-accent-soft); }
+	.sm-variant-btn img { width: 28px; height: 28px; border-radius: 4px; }
+	.sm-variant-btn.is-selected { font-weight: 700; }
+
+	/* Stage time buttons */
+	.sm-stage-btn {
+		padding: 16px 8px; border-radius: 8px; font-size: 18px; font-weight: 700;
+		border: 1px solid var(--sm-line); background: #fff; cursor: pointer;
+		transition: all 0.15s; font-family: inherit;
+	}
+	.sm-stage-btn:hover:not(:disabled) { border-color: var(--sm-primary); }
+	.sm-stage-btn.is-selected { border: 2px solid var(--sm-accent); background: var(--sm-accent); color: #fff; }
+	.sm-stage-btn:disabled { background: #f3f3f3; color: var(--sm-muted); text-decoration: line-through; cursor: not-allowed; opacity: 0.6; }
 </style>
 
 <section style="background: var(--sm-bg); padding: 40px 20px; min-height: 80vh;">
@@ -233,8 +284,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 				<!-- STEG 2: MONTER -->
 				<div class="sm-wiz-step" data-step="1">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Välj monter</h2>
-					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
-						På kartan ser du montrarnas placering. Bocka i en eller flera montrar i listan nedan.
+					<p style="color: var(--sm-ink-soft); margin-bottom: 20px;">
+						På kartan ser du montrarnas placering. Klicka på en sektion nedan för att visa lediga montrar och bocka i en eller flera.
 					</p>
 
 					<?php if ( $map_image ) : ?>
@@ -251,35 +302,54 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 						</div>
 					<?php endif; ?>
 
-					<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 20px;">
+					<!-- Status: antal valda -->
+					<div id="sm-booth-status" style="background: var(--sm-primary); color: #fff; padding: 12px 18px; border-radius: 8px; margin-bottom: 16px; font-size: 15px; display: none;">
+						<strong><span id="sm-booth-count">0</span></strong> monter(ar) vald — <span id="sm-booth-list-inline" style="opacity: 0.9;"></span>
+					</div>
+
+					<div style="display: grid; gap: 10px;">
 						<?php foreach ( $by_section as $section => $booths_in_section ) :
 							$first       = $booths_in_section[0];
 							$is_forening = ( $section === 'N' );
 							$price       = $is_forening ? SM_FORENING_PRICE : SM_BOOTH_PRICES[ $first['size'] ];
 							$label       = $section_labels[ $section ] ?? '';
+							$available   = 0;
+							foreach ( $booths_in_section as $b ) {
+								if ( ! isset( $booked_set[ $b['id'] ] ) ) {
+									$available++;
+								}
+							}
+							$total_in_section = count( $booths_in_section );
 							?>
 							<div>
-								<div style="font-family: var(--sm-font-display); font-size: 17px; font-weight: 800; margin-bottom: 4px;">
-									Sektion <?php echo esc_html( $section ); ?> — <?php echo esc_html( $size_labels[ $first['size'] ] ); ?>
-								</div>
-								<div style="font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 10px;">
-									<?php echo esc_html( $label ); ?><br>
-									<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong>
-									<?php echo $is_forening ? ' exkl. moms' : ' / st'; ?>
-								</div>
-								<div style="display: flex; flex-direction: column; gap: 5px;">
-									<?php foreach ( $booths_in_section as $b ) :
-										$is_booked   = isset( $booked_set[ $b['id'] ] );
-										$is_selected = in_array( $b['id'], $saved_booths, true );
-										?>
-										<label style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: <?php echo $is_booked ? '#f5f5f5' : '#fff'; ?>; border: 1px solid var(--sm-line); border-radius: 4px; cursor: <?php echo $is_booked ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_booked ? '0.55' : '1'; ?>; font-size: 14px;">
-											<input type="checkbox" name="sm_booths[]" value="<?php echo esc_attr( $b['id'] ); ?>" <?php echo $is_booked ? 'disabled' : ''; ?> <?php checked( $is_selected ); ?> data-sm-booth="<?php echo esc_attr( $b['id'] ); ?>" class="sm-booth-input">
-											<span style="<?php echo $is_booked ? 'text-decoration: line-through;' : ''; ?> font-weight: 600;"><?php echo esc_html( $b['id'] ); ?></span>
-											<span style="margin-left: auto; font-size: 11px; color: <?php echo $is_booked ? '#999' : 'var(--sm-success)'; ?>; font-weight: 700; letter-spacing: 0.04em;">
-												<?php echo $is_booked ? 'BOKAD' : 'LEDIG'; ?>
-											</span>
-										</label>
-									<?php endforeach; ?>
+								<button type="button" class="sm-section-toggle" aria-expanded="false" data-section="<?php echo esc_attr( $section ); ?>">
+									<div>
+										<div style="font-family: var(--sm-font-display); font-weight: 800; font-size: 17px;">
+											Sektion <?php echo esc_html( $section ); ?> — <?php echo esc_html( $size_labels[ $first['size'] ] ); ?>
+											<span style="font-weight: 400; font-size: 13px; color: var(--sm-ink-soft); margin-left: 6px;"><?php echo esc_html( $label ); ?></span>
+										</div>
+										<div style="font-size: 13px; color: var(--sm-ink-soft); margin-top: 2px;">
+											<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong><?php echo $is_forening ? ' inkl. moms' : ' / st exkl. moms'; ?>
+											· <span style="color: var(--sm-success); font-weight: 700;"><?php echo (int) $available; ?> lediga</span> av <?php echo (int) $total_in_section; ?>
+										</div>
+									</div>
+									<span class="sm-chevron" style="font-size: 18px; color: var(--sm-muted);">›</span>
+								</button>
+								<div class="sm-section-body" data-section="<?php echo esc_attr( $section ); ?>">
+									<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px;">
+										<?php foreach ( $booths_in_section as $b ) :
+											$is_booked   = isset( $booked_set[ $b['id'] ] );
+											$is_selected = in_array( $b['id'], $saved_booths, true );
+											?>
+											<label style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: <?php echo $is_booked ? '#f5f5f5' : 'var(--sm-bg)'; ?>; border: 1px solid var(--sm-line); border-radius: 4px; cursor: <?php echo $is_booked ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_booked ? '0.55' : '1'; ?>; font-size: 14px;">
+												<input type="checkbox" name="sm_booths[]" value="<?php echo esc_attr( $b['id'] ); ?>" <?php echo $is_booked ? 'disabled' : ''; ?> <?php checked( $is_selected ); ?> data-sm-booth="<?php echo esc_attr( $b['id'] ); ?>" class="sm-booth-input">
+												<span style="<?php echo $is_booked ? 'text-decoration: line-through;' : ''; ?> font-weight: 600;"><?php echo esc_html( $b['id'] ); ?></span>
+												<span style="margin-left: auto; font-size: 11px; color: <?php echo $is_booked ? '#999' : 'var(--sm-success)'; ?>; font-weight: 700; letter-spacing: 0.04em;">
+													<?php echo $is_booked ? 'BOKAD' : 'LEDIG'; ?>
+												</span>
+											</label>
+										<?php endforeach; ?>
+									</div>
 								</div>
 							</div>
 						<?php endforeach; ?>
@@ -290,23 +360,54 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 				<div class="sm-wiz-step" data-step="2">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Tillval</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
-						Skräddarsy din monter. Registreringsavgiften (800 kr) är obligatorisk och redan ikryssad.
+						Skräddarsy din monter. Registreringsavgift (800 kr) ingår automatiskt och visas i sammanfattningen.
 					</p>
 
 					<?php foreach ( $addons_by_cat as $cat => $list ) : ?>
 						<div style="margin-bottom: 24px;">
 							<div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 10px;"><?php echo esc_html( $cat ); ?></div>
-							<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;">
+							<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px;">
 								<?php foreach ( $list as $a ) :
-									$saved_qty = isset( $saved_addons[ $a['id'] ] ) ? (int) $saved_addons[ $a['id'] ] : ( ! empty( $a['required'] ) ? 1 : 0 );
+									$saved_qty       = isset( $saved_addons[ $a['id'] ] ) ? (int) $saved_addons[ $a['id'] ] : 0;
+									$saved_variant   = $saved_variants[ $a['id'] ] ?? '';
+									$icon_url        = sm_addon_icon( $a['id'] );
+									$has_variants    = ! empty( $a['variants'] );
 									?>
-									<label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border: 1px solid var(--sm-line); border-radius: 6px;">
-										<input type="number" name="sm_addons[<?php echo esc_attr( $a['id'] ); ?>]" min="<?php echo ! empty( $a['required'] ) ? '1' : '0'; ?>" max="20" value="<?php echo (int) $saved_qty; ?>" data-sm-addon="<?php echo esc_attr( $a['id'] ); ?>" class="sm-addon-input" style="width: 58px; padding: 6px 8px; border: 1px solid var(--sm-line); border-radius: 4px; font-size: 14px;">
-										<span style="flex: 1;">
-											<strong><?php echo esc_html( $a['name'] ); ?></strong><br>
-											<span style="font-size: 12px; color: var(--sm-ink-soft);"><?php echo esc_html( $a['price'] ); ?> kr/st</span>
-										</span>
-									</label>
+									<div class="sm-addon-card" data-addon-id="<?php echo esc_attr( $a['id'] ); ?>">
+										<div class="sm-addon-icon">
+											<?php if ( $icon_url ) : ?>
+												<img src="<?php echo esc_url( $icon_url ); ?>" alt="">
+											<?php else : ?>
+												<span class="sm-addon-icon-placeholder">·</span>
+											<?php endif; ?>
+										</div>
+										<div style="flex: 1; min-width: 0;">
+											<div style="font-weight: 700;"><?php echo esc_html( $a['name'] ); ?></div>
+											<div style="font-size: 12px; color: var(--sm-ink-soft);"><?php echo esc_html( $a['price'] ); ?> kr/st</div>
+
+											<?php if ( $has_variants ) : ?>
+												<div class="sm-variant-grid" data-variant-for="<?php echo esc_attr( $a['id'] ); ?>">
+													<?php foreach ( $a['variants'] as $v ) :
+														$v_icon = sm_addon_icon( $a['id'], $v );
+														$is_v_sel = ( $saved_variant === $v );
+														?>
+														<button type="button" class="sm-variant-btn<?php echo $is_v_sel ? ' is-selected' : ''; ?>" data-variant="<?php echo esc_attr( $v ); ?>">
+															<?php if ( $v_icon ) : ?>
+																<img src="<?php echo esc_url( $v_icon ); ?>" alt="">
+															<?php endif; ?>
+															<span><?php echo esc_html( $v ); ?></span>
+														</button>
+													<?php endforeach; ?>
+													<input type="hidden" name="sm_addon_variants[<?php echo esc_attr( $a['id'] ); ?>]" value="<?php echo esc_attr( $saved_variant ); ?>" class="sm-variant-value">
+												</div>
+											<?php endif; ?>
+										</div>
+										<div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+											<button type="button" class="button sm-qty-btn" data-action="dec" aria-label="Minska" style="width: 30px; height: 30px; border: 1px solid var(--sm-line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 16px;">−</button>
+											<input type="number" name="sm_addons[<?php echo esc_attr( $a['id'] ); ?>]" min="0" max="20" value="<?php echo (int) $saved_qty; ?>" data-sm-addon="<?php echo esc_attr( $a['id'] ); ?>" class="sm-addon-input" style="width: 48px; padding: 4px; border: 1px solid var(--sm-line); border-radius: 4px; font-size: 14px; text-align: center;">
+											<button type="button" class="button sm-qty-btn" data-action="inc" aria-label="Öka" style="width: 30px; height: 30px; border: 1px solid var(--sm-line); background: #fff; border-radius: 4px; cursor: pointer; font-size: 16px;">+</button>
+										</div>
+									</div>
 								<?php endforeach; ?>
 							</div>
 						</div>
@@ -318,90 +419,98 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					</label>
 				</div>
 
-				<!-- STEG 4: SCEN -->
+				<!-- STEG 4: SCEN (matchar designens StepStage) -->
 				<div class="sm-wiz-step" data-step="3">
-					<h2 style="font-size: 28px; margin-bottom: 8px;">Utställarscen — boka tid</h2>
-					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
-						15 minuters scenpass. Kostnadsfritt men bindande — först till kvarn. Du kan hoppa över detta steg.
+					<h2 style="font-size: 28px; margin-bottom: 8px;">Utställarscen — boka tid (frivilligt)</h2>
+					<p style="color: var(--sm-ink-soft); margin-bottom: 24px; max-width: 720px; line-height: 1.55;">
+						Ta chansen och nå ut med ditt budskap i 15 min på utställarscenen. Skärm för presentation och ljud finns på plats. Utställarscenens program syns i vår marknadsföring.
+						<br><br>
+						<strong>Kostnadsfri bindande anmälan</strong> — vid avbokning kan kostnader tillkomma.
 					</p>
 
-					<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px;">
-						<label style="display: flex; align-items: center; justify-content: center; padding: 14px; background: <?php echo ! $saved_stage ? 'var(--sm-primary-soft)' : '#fff'; ?>; border: 2px solid <?php echo ! $saved_stage ? 'var(--sm-primary)' : 'var(--sm-line)'; ?>; border-radius: 6px; cursor: pointer; font-weight: 600;">
-							<input type="radio" name="sm_stage_slot" value="" <?php checked( ! $saved_stage ); ?> style="margin-right: 8px;">
-							Hoppa över
-						</label>
-						<?php foreach ( sm_stage_slots() as $slot ) :
-							$is_taken    = in_array( $slot, $taken_slots, true );
-							$is_selected = ( $slot === $saved_stage );
-							?>
-							<label style="display: flex; flex-direction: column; align-items: center; padding: 14px; background: <?php echo $is_taken ? '#f5f5f5' : ( $is_selected ? 'var(--sm-accent)' : '#fff' ); ?>; color: <?php echo $is_selected ? '#fff' : 'inherit'; ?>; border: 2px solid <?php echo $is_taken ? '#ccc' : ( $is_selected ? 'var(--sm-accent)' : 'var(--sm-line)' ); ?>; border-radius: 6px; cursor: <?php echo $is_taken ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_taken ? '0.6' : '1'; ?>; font-weight: 700;">
-								<input type="radio" name="sm_stage_slot" value="<?php echo esc_attr( $slot ); ?>" <?php echo $is_taken ? 'disabled' : ''; ?> <?php checked( $is_selected ); ?> style="display: none;">
-								<span style="<?php echo $is_taken ? 'text-decoration: line-through;' : ''; ?>"><?php echo esc_html( $slot ); ?></span>
-								<?php if ( $is_taken ) : ?>
-									<span style="font-size: 10px; opacity: 0.7; letter-spacing: 0.08em;">UPPTAGEN</span>
-								<?php endif; ?>
-							</label>
-						<?php endforeach; ?>
+					<div style="background: #fff; border: 1px solid var(--sm-line); border-radius: 10px; padding: 24px;">
+						<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-muted); margin-bottom: 16px;">
+							Lediga tider · Onsdag 24 februari 2027
+						</div>
+						<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;" class="sm-stage-grid">
+							<?php foreach ( sm_stage_slots() as $slot ) :
+								$is_taken    = in_array( $slot, $taken_slots, true );
+								$is_selected = ( $slot === $saved_stage );
+								?>
+								<button type="button" class="sm-stage-btn<?php echo $is_selected ? ' is-selected' : ''; ?>" data-slot="<?php echo esc_attr( $slot ); ?>" <?php echo $is_taken ? 'disabled' : ''; ?>>
+									<?php echo esc_html( $slot ); ?>
+									<?php if ( $is_taken ) : ?>
+										<div style="font-size: 11px; font-weight: 500; margin-top: 4px; letter-spacing: 0.04em;">UPPTAGEN</div>
+									<?php endif; ?>
+								</button>
+							<?php endforeach; ?>
+						</div>
+						<input type="hidden" name="sm_stage_slot" id="sm-stage-slot-value" value="<?php echo esc_attr( $saved_stage ); ?>">
+
+						<div id="sm-stage-selected" style="margin-top: 20px; padding: 14px; background: var(--sm-bg); border-radius: 8px; font-size: 15px; display: <?php echo $saved_stage ? 'flex' : 'none'; ?>; justify-content: space-between; align-items: center;">
+							<span>Vald tid: <strong id="sm-stage-selected-time"><?php echo esc_html( $saved_stage ); ?></strong> · 15 min</span>
+							<button type="button" id="sm-stage-clear" style="background: transparent; border: none; color: var(--sm-ink-soft); cursor: pointer; font-size: 14px; text-decoration: underline;">Ta bort</button>
+						</div>
+						<div id="sm-stage-empty" style="margin-top: 20px; font-size: 14px; color: var(--sm-muted); display: <?php echo $saved_stage ? 'none' : 'block'; ?>;">
+							Ingen tid vald — du kan hoppa över detta steg om du inte vill boka scen.
+						</div>
 					</div>
 				</div>
 
-				<!-- STEG 5: GRANSKA -->
+				<!-- STEG 5: GRANSKA (matchar designens StepReview) -->
 				<div class="sm-wiz-step" data-step="4">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Granska och skicka</h2>
-					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
-						Kontrollera nedan att allt stämmer. Tryck sen "Skicka anmälan" — vi mejlar bekräftelse direkt.
-					</p>
+					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">Du får en bekräftelse på e-post direkt.</p>
 
 					<div id="sm-review-empty" style="display: none; padding: 32px; background: #fff; border: 1px dashed var(--sm-line); border-radius: 8px; text-align: center; color: var(--sm-ink-soft);">
 						Gå tillbaka och fyll i företagsuppgifter samt välj minst en monter.
 					</div>
 
-					<div id="sm-review-content" style="display: grid; gap: 20px;">
-						<div style="background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; padding: 20px 24px;">
-							<div style="text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 12px;">Företag</div>
-							<div id="sm-review-company" style="font-size: 16px; line-height: 1.7;"></div>
+					<div id="sm-review-content">
+						<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="sm-review-grid">
+							<div style="background: #fff; border: 1px solid var(--sm-line); border-radius: 10px; padding: 20px;">
+								<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-muted); margin-bottom: 12px;">Företag</div>
+								<div id="sm-review-company"></div>
+							</div>
+							<div style="background: #fff; border: 1px solid var(--sm-line); border-radius: 10px; padding: 20px;">
+								<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-muted); margin-bottom: 12px;" id="sm-review-booths-title">Montrar</div>
+								<div id="sm-review-booths"></div>
+							</div>
 						</div>
 
-						<div style="background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; padding: 20px 24px;">
-							<div style="text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 12px;">Montrar</div>
-							<div id="sm-review-booths" style="font-size: 16px; line-height: 1.8;"></div>
+						<div id="sm-review-addons-wrap" style="margin-top: 24px; padding: 20px; background: #fff; border: 1px solid var(--sm-line); border-radius: 10px; display: none;">
+							<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-muted); margin-bottom: 12px;">Tillägg</div>
+							<div id="sm-review-addons"></div>
 						</div>
 
-						<div id="sm-review-addons-wrap" style="background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; padding: 20px 24px;">
-							<div style="text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 12px;">Tillval</div>
-							<div id="sm-review-addons" style="font-size: 16px; line-height: 1.8;"></div>
+						<div id="sm-review-stage-wrap" style="margin-top: 24px; padding: 20px; background: #fff; border: 1px solid var(--sm-line); border-radius: 10px; display: none;">
+							<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-muted); margin-bottom: 8px;">Utställarscen</div>
+							<div id="sm-review-stage" style="font-size: 17px;"></div>
+							<div style="font-size: 13px; color: var(--sm-ink-soft); margin-top: 4px;">Kostnadsfritt · bindande anmälan</div>
 						</div>
 
-						<div id="sm-review-stage-wrap" style="background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; padding: 20px 24px; display: none;">
-							<div style="text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--sm-ink-soft); margin-bottom: 12px;">Scenpass</div>
-							<div id="sm-review-stage" style="font-size: 16px;"></div>
-						</div>
-
-						<div id="sm-review-tickets-wrap" style="background: var(--sm-primary-soft); border: 1px solid var(--sm-primary); border-radius: 8px; padding: 20px 24px;">
-							<div style="text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; color: var(--sm-primary); margin-bottom: 8px;">Ingår</div>
+						<div id="sm-review-tickets-wrap" style="margin-top: 24px; padding: 16px 20px; background: var(--sm-primary-soft); border: 1px solid var(--sm-primary); border-radius: 10px;">
 							<div style="display: flex; justify-content: space-between; align-items: baseline;">
-								<span style="font-size: 16px; font-weight: 600;">5 digitala entrébiljetter</span>
+								<span style="font-size: 16px;"><strong>5 digitala entrébiljetter</strong> — bjud in dina kunder</span>
 								<span style="color: var(--sm-primary); font-weight: 700;">0 kr</span>
 							</div>
 						</div>
 
-						<div style="background: var(--sm-primary); color: #fff; border-radius: 8px; padding: 24px;">
-							<div style="display: flex; justify-content: space-between; align-items: baseline;">
-								<span style="font-size: 18px; opacity: 0.9;">Totalsumma <span id="sm-review-moms">exkl. moms</span></span>
-								<span style="font-family: var(--sm-font-display); font-size: 36px; font-weight: 800;"><span id="sm-review-total">0</span> kr</span>
-							</div>
+						<div style="margin-top: 24px; padding: 20px 24px; background: var(--sm-primary); color: #fff; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
+							<span style="font-size: 18px;">Totalsumma <span id="sm-review-moms">exkl. moms</span></span>
+							<span style="font-family: var(--sm-font-display); font-size: 32px; font-weight: 800;"><span id="sm-review-total">0</span> kr</span>
 						</div>
-					</div>
 
-					<div style="margin-top: 28px;">
-						<label style="display: flex; gap: 12px; padding: 14px; background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; margin-bottom: 10px; cursor: pointer;">
-							<input type="checkbox" name="sm_accept_terms" value="1" required id="sm-accept-terms">
-							<span>Jag har läst och godkänner utställarvillkoren.</span>
-						</label>
-						<label style="display: flex; gap: 12px; padding: 14px; background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; cursor: pointer;">
-							<input type="checkbox" name="sm_accept_gdpr" value="1" required id="sm-accept-gdpr">
-							<span>Jag samtycker till att Arena Varberg behandlar mina uppgifter enligt GDPR för att hantera anmälan.</span>
-						</label>
+						<div style="margin-top: 28px; display: flex; flex-direction: column; gap: 12px;">
+							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
+								<input type="checkbox" name="sm_accept_terms" value="1" required id="sm-accept-terms" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
+								<span style="font-size: 16px;">Jag godkänner utställarvillkoren och faktureringsvillkoren (30 dagar netto).</span>
+							</label>
+							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
+								<input type="checkbox" name="sm_accept_gdpr" value="1" required id="sm-accept-gdpr" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
+								<span style="font-size: 16px;">Jag samtycker till att uppgifterna hanteras enligt GDPR och visas i utställarlistan på webben.</span>
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -427,7 +536,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	var TOTAL_STEPS = 5;
 	var completed = [false, false, false, false, false];
 	<?php if ( $errors ) : ?>
-	step = 4; // Servern returnerade fel — visa granska-steget igen
+	step = 4;
 	<?php endif; ?>
 
 	function $(id) { return document.getElementById(id); }
@@ -437,15 +546,18 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		var booths = [];
 		document.querySelectorAll('.sm-booth-input:checked').forEach(function (i) { booths.push(i.value); });
 		var addons = {};
+		var variants = {};
 		document.querySelectorAll('.sm-addon-input').forEach(function (i) {
 			var qty = parseInt(i.value, 10) || 0;
 			if (qty > 0) addons[i.dataset.smAddon] = qty;
 		});
-		var stage = '';
-		var sel = document.querySelector('input[name=sm_stage_slot]:checked');
-		if (sel) stage = sel.value;
+		document.querySelectorAll('.sm-variant-value').forEach(function (i) {
+			var name = i.name.match(/\[([^\]]+)\]/);
+			if (name && i.value) variants[name[1]] = i.value;
+		});
+		var stage = $('sm-stage-slot-value') ? $('sm-stage-slot-value').value : '';
 		var forening = $('sm-is-forening') ? $('sm-is-forening').checked : false;
-		return { booths: booths, addons: addons, stage: stage, forening: forening };
+		return { booths: booths, addons: addons, variants: variants, stage: stage, forening: forening };
 	}
 
 	function computeTotal(s) {
@@ -455,7 +567,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			if (!b) return;
 			t += (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
 		});
-		if (t > 0) t += data.registration_fee;
+		if (s.booths.length > 0) t += data.registration_fee;
 		Object.keys(s.addons).forEach(function (id) {
 			var a = data.addons[id];
 			if (a) t += a.price * s.addons[id];
@@ -474,24 +586,22 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		}
 		if (currentStep === 1) return s.booths.length > 0;
 		if (currentStep === 2) return true;
-		if (currentStep === 3) return true;
+		if (currentStep === 3) return true; // scen är valfritt
 		if (currentStep === 4) return $('sm-accept-terms').checked && $('sm-accept-gdpr').checked;
 		return true;
 	}
 
 	function render() {
-		// Steps
 		document.querySelectorAll('.sm-wiz-step').forEach(function (el) {
 			el.classList.toggle('is-active', parseInt(el.dataset.step, 10) === step);
 		});
-		// Stepper
 		document.querySelectorAll('#sm-wiz-stepper .sm-wiz-stepper-btn').forEach(function (btn) {
 			var i = parseInt(btn.dataset.step, 10);
 			btn.classList.toggle('is-active', i === step);
 			btn.classList.toggle('is-done', i < step || completed[i]);
 			btn.disabled = (i > step && !completed[i]);
 		});
-		// Knappar
+
 		$('sm-wiz-back').style.display = step > 0 ? 'inline-flex' : 'none';
 		$('sm-wiz-next').style.display = step < TOTAL_STEPS - 1 ? 'inline-flex' : 'none';
 		$('sm-wiz-submit').style.display = step === TOTAL_STEPS - 1 ? 'inline-flex' : 'none';
@@ -499,79 +609,96 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		var s = readState();
 		var canProceed = canNext(step, s);
 		$('sm-wiz-next').style.opacity = canProceed ? '1' : '0.4';
+		$('sm-wiz-next').style.pointerEvents = canProceed ? 'auto' : 'none';
 		$('sm-wiz-submit').style.opacity = canProceed ? '1' : '0.4';
+		$('sm-wiz-submit').style.pointerEvents = canProceed ? 'auto' : 'none';
 
-		// Total i footer
 		var total = computeTotal(s);
 		$('sm-footer-total').textContent = nf(total);
 		$('sm-footer-moms').textContent = s.forening ? 'inkl. moms' : 'exkl. moms';
 
-		// Granska-stegets innehåll
+		// Status-banner i monter-steget
+		var statusEl = $('sm-booth-status');
+		if (statusEl) {
+			if (s.booths.length > 0) {
+				statusEl.style.display = 'block';
+				$('sm-booth-count').textContent = s.booths.length;
+				$('sm-booth-list-inline').textContent = s.booths.join(', ');
+			} else {
+				statusEl.style.display = 'none';
+			}
+		}
+
 		if (step === 4) renderReview(s, total);
 	}
 
 	function renderReview(s, total) {
-		// Företag
-		var companyEl = $('sm-review-company');
-		var inputs = ['sm_company', 'sm_orgnr', 'sm_contact_name', 'sm_contact_phone', 'sm_contact_email', 'sm_website'];
-		var lines = [];
-		inputs.forEach(function (n) {
-			var el = document.querySelector('[name=' + n + ']');
-			if (!el || !el.value) return;
-			lines.push('<div>' + el.value + '</div>');
+		// Företag som rader (key/value)
+		var fields = [
+			['Namn', 'sm_company'],
+			['Org.nr', 'sm_orgnr'],
+			['Kontakt', 'sm_contact_name'],
+			['E-post', 'sm_contact_email'],
+			['Telefon', 'sm_contact_phone'],
+			['Webbplats', 'sm_website'],
+		];
+		var rows = fields.map(function (f) {
+			var el = document.querySelector('[name=' + f[1] + ']');
+			var val = el ? (el.value || '—') : '—';
+			if (f[1] === 'sm_website' && $('sm-no-website').checked) val = '— Ingen webbplats';
+			return '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">' + f[0] + '</span><span style="font-weight:600;text-align:right;">' + val + '</span></div>';
 		});
-		if ($('sm-no-website').checked) lines.push('<div style="color:var(--sm-muted);">— Ingen webbplats</div>');
-		companyEl.innerHTML = lines.join('') || '— Saknar uppgifter';
+		$('sm-review-company').innerHTML = rows.join('');
 
-		// Båspriser
+		// Montrar med priser, sen registreringsavgift
 		var boothLines = [];
 		s.booths.forEach(function (id) {
 			var b = data.booths[id];
 			if (!b) return;
 			var price = (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
-			boothLines.push('<div style="display:flex;justify-content:space-between;"><span>' + id + ' (' + b.size.replace('x', '×') + ' m)</span><span>' + nf(price) + ' kr</span></div>');
+			var label = id.charAt(0) === 'N' ? id + ' (förenings-monter)' : id + ' (' + b.size.replace('x', '×') + ' m)';
+			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">' + label + '</span><span style="font-weight:600;">' + nf(price) + ' kr</span></div>');
 		});
 		if (s.booths.length > 0) {
-			boothLines.push('<div style="display:flex;justify-content:space-between;border-top:1px solid var(--sm-line);padding-top:8px;margin-top:8px;"><span>Registreringsavgift</span><span>' + nf(data.registration_fee) + ' kr</span></div>');
+			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">Registreringsavgift</span><span style="font-weight:600;">' + nf(data.registration_fee) + ' kr</span></div>');
 		}
-		$('sm-review-booths').innerHTML = boothLines.join('') || '— Inga montrar valda';
+		$('sm-review-booths').innerHTML = boothLines.join('') || '<div style="color:var(--sm-muted);">— Inga montrar valda</div>';
+		$('sm-review-booths-title').textContent = 'Montrar (' + s.booths.length + ')';
 
 		// Tillval
 		var addonLines = [];
 		Object.keys(s.addons).forEach(function (id) {
 			var a = data.addons[id];
 			if (!a) return;
-			addonLines.push('<div style="display:flex;justify-content:space-between;"><span>' + a.name + ' × ' + s.addons[id] + '</span><span>' + nf(a.price * s.addons[id]) + ' kr</span></div>');
+			var variant = s.variants[id] ? ' (' + s.variants[id] + ')' : '';
+			addonLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:17px;"><span>' + a.name + variant + ' × ' + s.addons[id] + '</span><span style="font-weight:700;">' + nf(a.price * s.addons[id]) + ' kr</span></div>');
 		});
-		$('sm-review-addons').innerHTML = addonLines.join('') || '— Inga tillval';
+		$('sm-review-addons').innerHTML = addonLines.join('');
 		$('sm-review-addons-wrap').style.display = addonLines.length ? 'block' : 'none';
 
-		// Scen
-		var stageWrap = $('sm-review-stage-wrap');
+		// Scenpass
 		if (s.stage) {
-			stageWrap.style.display = 'block';
-			$('sm-review-stage').textContent = s.stage + ' (15 min, kostnadsfritt)';
+			$('sm-review-stage-wrap').style.display = 'block';
+			$('sm-review-stage').innerHTML = '<strong>' + s.stage + '</strong> — 15 min · Onsdag 24 februari 2027';
 		} else {
-			stageWrap.style.display = 'none';
+			$('sm-review-stage-wrap').style.display = 'none';
 		}
 
-		// Entrébiljetter — bara för icke-föreningar med minst en monter
+		// 5 entrébiljetter — endast icke-föreningar med minst en monter
 		$('sm-review-tickets-wrap').style.display = ( ! s.forening && s.booths.length > 0 ) ? 'block' : 'none';
 
-		// Total
 		$('sm-review-total').textContent = nf(total);
 		$('sm-review-moms').textContent = s.forening ? 'inkl. moms' : 'exkl. moms';
 
-		// Visa "tomt"-meddelande om inget är ifyllt
-		var anyData = s.booths.length > 0 || lines.length > 0;
+		// Tomt-state
+		var anyData = s.booths.length > 0 || (document.querySelector('[name=sm_company]') && document.querySelector('[name=sm_company]').value);
 		$('sm-review-empty').style.display = anyData ? 'none' : 'block';
-		$('sm-review-content').style.display = anyData ? 'grid' : 'none';
+		$('sm-review-content').style.display = anyData ? 'block' : 'none';
 	}
 
 	function goto(newStep) {
 		if (newStep < 0 || newStep >= TOTAL_STEPS) return;
 		var s = readState();
-		// Bara framåt om aktuellt steg är validerat
 		if (newStep > step && !canNext(step, s)) return;
 		if (newStep > step) completed[step] = true;
 		step = newStep;
@@ -596,6 +723,67 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		}
 	}
 
+	// Collapsible monter-sektioner
+	document.querySelectorAll('.sm-section-toggle').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var expanded = btn.getAttribute('aria-expanded') === 'true';
+			btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+			var body = document.querySelector('.sm-section-body[data-section="' + btn.dataset.section + '"]');
+			if (body) body.classList.toggle('is-open', !expanded);
+		});
+	});
+
+	// Stage-knappar
+	document.querySelectorAll('.sm-stage-btn').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			if (btn.disabled) return;
+			var slot = btn.dataset.slot;
+			var current = $('sm-stage-slot-value').value;
+			var newValue = (current === slot) ? '' : slot;
+			$('sm-stage-slot-value').value = newValue;
+			document.querySelectorAll('.sm-stage-btn').forEach(function (b) { b.classList.remove('is-selected'); });
+			if (newValue) {
+				btn.classList.add('is-selected');
+				$('sm-stage-selected').style.display = 'flex';
+				$('sm-stage-empty').style.display = 'none';
+				$('sm-stage-selected-time').textContent = newValue;
+			} else {
+				$('sm-stage-selected').style.display = 'none';
+				$('sm-stage-empty').style.display = 'block';
+			}
+			render();
+		});
+	});
+	$('sm-stage-clear').addEventListener('click', function () {
+		$('sm-stage-slot-value').value = '';
+		document.querySelectorAll('.sm-stage-btn').forEach(function (b) { b.classList.remove('is-selected'); });
+		$('sm-stage-selected').style.display = 'none';
+		$('sm-stage-empty').style.display = 'block';
+		render();
+	});
+
+	// Quantity +/- knappar
+	document.querySelectorAll('.sm-qty-btn').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var card = btn.closest('.sm-addon-card');
+			var input = card.querySelector('.sm-addon-input');
+			var cur = parseInt(input.value, 10) || 0;
+			input.value = btn.dataset.action === 'inc' ? Math.min(cur + 1, 20) : Math.max(cur - 1, 0);
+			input.dispatchEvent(new Event('change', { bubbles: true }));
+		});
+	});
+
+	// Variant-knappar
+	document.querySelectorAll('.sm-variant-btn').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var grid = btn.closest('.sm-variant-grid');
+			grid.querySelectorAll('.sm-variant-btn').forEach(function (b) { b.classList.remove('is-selected'); });
+			btn.classList.add('is-selected');
+			grid.querySelector('.sm-variant-value').value = btn.dataset.variant;
+			render();
+		});
+	});
+
 	$('sm-wiz-back').addEventListener('click', function () { goto(step - 1); });
 	$('sm-wiz-next').addEventListener('click', function () { goto(step + 1); });
 	document.querySelectorAll('#sm-wiz-stepper .sm-wiz-stepper-btn').forEach(function (btn) {
@@ -605,7 +793,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		});
 	});
 	document.addEventListener('change', function (e) {
-		if (e.target.matches('.sm-booth-input, .sm-addon-input, input[name=sm_stage_slot], #sm-is-forening, #sm-accept-terms, #sm-accept-gdpr')) {
+		if (e.target.matches('.sm-booth-input, .sm-addon-input, #sm-is-forening, #sm-accept-terms, #sm-accept-gdpr')) {
 			render();
 		}
 		if (e.target.id === 'sm-no-website') {

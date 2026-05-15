@@ -217,22 +217,28 @@ function sm_booked_booth_ids( $exclude_post_id = 0 ) {
 
 /**
  * Tillvalsprodukter — speglar designens addons.
+ *
+ * Registreringsavgift (800 kr) är INTE ett tillval — den läggs på automatiskt
+ * när minst en monter är vald.
+ *
+ * 'variants' = lista av färgval/varianter att välja mellan.
  */
 function sm_addons() {
 	return array(
-		array( 'id' => 'reg',     'name' => 'Registreringsavgift (obligatorisk)', 'price' => 800,  'required' => true,  'cat' => 'Obligatoriskt' ),
-		array( 'id' => 'matta',   'name' => 'Montermatta',                         'price' => 110,  'cat' => 'Möbler' ),
-		array( 'id' => 'wifi',    'name' => 'Wifi (premium)',                      'price' => 450,  'cat' => 'El & belysning' ),
-		array( 'id' => 'bord180', 'name' => 'Bord 180×80 cm',                      'price' => 350,  'cat' => 'Möbler' ),
-		array( 'id' => 'bord120', 'name' => 'Bord 120×50 cm',                      'price' => 250,  'cat' => 'Möbler' ),
-		array( 'id' => 'stol',    'name' => 'Stol',                                'price' => 120,  'cat' => 'Möbler' ),
-		array( 'id' => 'barstol', 'name' => 'Barstol',                             'price' => 130,  'cat' => 'Möbler' ),
-		array( 'id' => 'barbord', 'name' => 'Barbord',                             'price' => 130,  'cat' => 'Möbler' ),
-		array( 'id' => 'el16',    'name' => 'Anslutning 16 amp 3-fas',             'price' => 463,  'cat' => 'El & belysning' ),
-		array( 'id' => 'belys',   'name' => 'Belysning monter',                    'price' => 110,  'cat' => 'El & belysning' ),
-		array( 'id' => 'lunch',   'name' => 'Lunch utställare',                    'price' => 180,  'cat' => 'Mat & fika' ),
-		array( 'id' => 'fika_fm', 'name' => 'Förmiddagsfika',                      'price' => 95,   'cat' => 'Mat & fika' ),
-		array( 'id' => 'fika_em', 'name' => 'Eftermiddagsfika',                    'price' => 95,   'cat' => 'Mat & fika' ),
+		array( 'id' => 'matta',     'name' => 'Montermatta',                'price' => 110, 'cat' => 'Mattor & golv', 'variants' => array( 'Blå', 'Röd', 'Grön', 'Grå', 'Svart', 'Orange' ) ),
+		array( 'id' => 'stol',      'name' => 'Stol',                       'price' => 60,  'cat' => 'Möbler' ),
+		array( 'id' => 'barstol',   'name' => 'Barstol',                    'price' => 130, 'cat' => 'Möbler' ),
+		array( 'id' => 'bord180',   'name' => 'Bord 180×80 cm',             'price' => 130, 'cat' => 'Möbler' ),
+		array( 'id' => 'bord120',   'name' => 'Bord 120×50 cm',             'price' => 110, 'cat' => 'Möbler' ),
+		array( 'id' => 'rullbox',   'name' => 'Rullbox',                    'price' => 657, 'cat' => 'Möbler' ),
+		array( 'id' => 'barbord',   'name' => 'Barbord',                    'price' => 130, 'cat' => 'Möbler' ),
+		array( 'id' => 'strumpa',   'name' => 'Bordsstrumpa till barbord',  'price' => 100, 'cat' => 'Möbler', 'variants' => array( 'Vit', 'Svart' ), 'requires' => 'barbord' ),
+		array( 'id' => 'belysning', 'name' => 'Belysning monter',           'price' => 110, 'cat' => 'El & belysning' ),
+		array( 'id' => 'el16',      'name' => 'Anslutning 16 amp 3-fas',    'price' => 463, 'cat' => 'El & belysning' ),
+		array( 'id' => 'grenkontakt','name' => 'Grenkontakt',                'price' => 110, 'cat' => 'El & belysning' ),
+		array( 'id' => 'fika_fm',   'name' => 'Förmiddagsfika',             'price' => 95,  'cat' => 'Mat & fika' ),
+		array( 'id' => 'lunch',     'name' => 'Lunch utställare',           'price' => 180, 'cat' => 'Mat & fika' ),
+		array( 'id' => 'fika_em',   'name' => 'Eftermiddagsfika',           'price' => 95,  'cat' => 'Mat & fika' ),
 	);
 }
 
@@ -243,6 +249,18 @@ function sm_addon( $id ) {
 		}
 	}
 	return null;
+}
+
+/**
+ * Hämtar ikon-URL för ett tillval (eller en specifik variant).
+ * Sparade via admin-sidan "Tillval-ikoner".
+ */
+function sm_addon_icon( $addon_id, $variant = null ) {
+	$icons = get_option( 'sm_addon_icons', array() );
+	if ( $variant ) {
+		return $icons[ $addon_id ]['variants'][ $variant ] ?? '';
+	}
+	return $icons[ $addon_id ]['main'] ?? '';
 }
 
 /**
