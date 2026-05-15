@@ -8,8 +8,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const SM_BOOKING_EMAIL = 'bokning@arenavarberg.se';
-
 function sm_handle_registration() {
 	if ( empty( $_POST['sm_register_submit'] ) ) {
 		return;
@@ -29,11 +27,13 @@ function sm_handle_registration() {
 	$contact_name  = sanitize_text_field( $post['sm_contact_name'] ?? '' );
 	$contact_email = sanitize_email( $post['sm_contact_email'] ?? '' );
 	$contact_phone = sanitize_text_field( $post['sm_contact_phone'] ?? '' );
-	$website       = esc_url_raw( $post['sm_website'] ?? '' );
+	$no_website    = ! empty( $post['sm_no_website'] );
+	$website       = $no_website ? '' : esc_url_raw( $post['sm_website'] ?? '' );
 	$description   = sanitize_textarea_field( $post['sm_description'] ?? '' );
 	$booths        = isset( $post['sm_booths'] ) && is_array( $post['sm_booths'] )
 		? array_map( 'sanitize_text_field', $post['sm_booths'] )
 		: array();
+	$stage_slot    = sanitize_text_field( $post['sm_stage_slot'] ?? '' );
 	$reqs          = sanitize_textarea_field( $post['sm_special_requests'] ?? '' );
 	$is_forening   = ! empty( $post['sm_is_forening'] );
 	$accept_terms  = ! empty( $post['sm_accept_terms'] );
@@ -67,11 +67,21 @@ function sm_handle_registration() {
 	if ( ! $contact_phone ) {
 		$errors[] = 'Telefonnummer krävs.';
 	}
-	if ( ! $website ) {
-		$errors[] = 'Webbplats krävs (visas i den publika utställarlistan).';
+	if ( ! $no_website && ! $website ) {
+		$errors[] = 'Ange webbplats eller bocka i "Vi har ingen webbplats".';
 	}
 	if ( empty( $booths ) ) {
 		$errors[] = 'Välj minst en monter.';
+	}
+	// Verifiera att scenpasset inte redan är taget
+	if ( $stage_slot ) {
+		$taken_slots = sm_taken_stage_slots();
+		if ( in_array( $stage_slot, $taken_slots, true ) ) {
+			$errors[] = "Scenpasset $stage_slot är redan upptaget. Välj en annan tid eller hoppa över scenen.";
+		}
+		if ( ! in_array( $stage_slot, sm_stage_slots(), true ) ) {
+			$errors[] = 'Ogiltigt scenpass.';
+		}
 	}
 	if ( ! $accept_terms || ! $accept_gdpr ) {
 		$errors[] = 'Du måste godkänna utställarvillkor och GDPR.';
@@ -139,6 +149,8 @@ function sm_handle_registration() {
 	update_post_meta( $post_id, '_sm_description',     $description );
 	update_post_meta( $post_id, '_sm_booths',          $booths );
 	update_post_meta( $post_id, '_sm_addons',          $addons );
+	update_post_meta( $post_id, '_sm_stage_slot',      $stage_slot );
+	update_post_meta( $post_id, '_sm_no_website',      $no_website ? '1' : '' );
 	update_post_meta( $post_id, '_sm_special_requests',$reqs );
 	update_post_meta( $post_id, '_sm_is_forening',     $is_forening ? '1' : '' );
 	update_post_meta( $post_id, '_sm_total',           $total );
@@ -186,6 +198,8 @@ function sm_send_registration_emails( $post_id ) {
 	$is_for        = get_post_meta( $post_id, '_sm_is_forening', true );
 	$reqs          = get_post_meta( $post_id, '_sm_special_requests', true );
 
+	$stage_slot = get_post_meta( $post_id, '_sm_stage_slot', true );
+
 	$booths_str = implode( ', ', $booths );
 	$addons_str = '';
 	foreach ( $addons as $id => $qty ) {
@@ -205,12 +219,13 @@ function sm_send_registration_emails( $post_id ) {
 		. "E-post: $contact_email\n"
 		. "Telefon: $contact_phone\n"
 		. "Montrar: $booths_str\n"
+		. ( $stage_slot ? "Scenpass: $stage_slot\n" : '' )
 		. ( $reqs ? "\nÖnskemål:\n$reqs\n" : '' )
 		. ( $addons_str ? "\nTillval:$addons_str\n" : '' )
 		. "\nTotalsumma: " . number_format( $total, 0, ',', "\u{00A0}" ) . " kr ($moms_label)\n\n"
 		. "Hantera i admin: $edit_url\n";
 
-	wp_mail( SM_BOOKING_EMAIL, $admin_subject, $admin_body );
+	wp_mail( sm_booking_email(), $admin_subject, $admin_body );
 
 	// Bekräftelse till utställaren
 	if ( $contact_email ) {

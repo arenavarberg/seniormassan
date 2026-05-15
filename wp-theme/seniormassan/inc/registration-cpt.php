@@ -153,6 +153,9 @@ function sm_registration_meta_box_html( $post ) {
 
 	echo '<label>Montrar</label><div>' . esc_html( implode( ', ', (array) $booths ) ) . '</div>';
 
+	$stage_slot = get_post_meta( $post->ID, '_sm_stage_slot', true );
+	echo '<label>Scenpass</label><div>' . esc_html( $stage_slot ?: '— (ej bokat)' ) . '</div>';
+
 	echo '<label>Tillval</label><div>';
 	if ( is_array( $addons ) && $addons ) {
 		echo '<ul style="margin:0;padding-left:18px;">';

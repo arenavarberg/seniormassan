@@ -244,3 +244,44 @@ function sm_addon( $id ) {
 	}
 	return null;
 }
+
+/**
+ * Tider för utställarscenen (15-min slots).
+ */
+function sm_stage_slots() {
+	return array(
+		'11:00', '11:30', '12:00', '12:30',
+		'13:00', '13:30', '14:00', '14:30',
+		'15:00', '15:30', '16:00',
+	);
+}
+
+/**
+ * Tider som redan är upptagna — härleds från CPT-anmälningar.
+ */
+function sm_taken_stage_slots( $exclude_post_id = 0 ) {
+	$query = new WP_Query( array(
+		'post_type'      => 'sm_registration',
+		'post_status'    => array( 'publish', 'draft', 'pending' ),
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'meta_query'     => array(
+			array(
+				'key'     => '_sm_status',
+				'value'   => 'cancelled',
+				'compare' => '!=',
+			),
+		),
+	) );
+	$taken = array();
+	foreach ( $query->posts as $post_id ) {
+		if ( $post_id === (int) $exclude_post_id ) {
+			continue;
+		}
+		$slot = get_post_meta( $post_id, '_sm_stage_slot', true );
+		if ( $slot ) {
+			$taken[] = $slot;
+		}
+	}
+	return array_values( array_unique( $taken ) );
+}
