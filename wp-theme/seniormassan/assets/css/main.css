@@ -1,0 +1,440 @@
+/* ─────────────────────────────────────────────────────────────
+   Seniormässan — Design tokens + utilities
+   Typografi: Mulish + Sofia Sans (from Google Fonts)
+   Stor text, hög kontrast, generös vitrymd
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Default palette — Arena Varberg Teal (ur grafisk profil) */
+  --sm-bg: #faf7f2;
+  --sm-surface: #ffffff;
+  --sm-ink: #2a2a2a;
+  --sm-ink-soft: #555555;
+  --sm-muted: #8a8a8a;
+  --sm-line: #efe9dd;
+  --sm-line-soft: rgba(90, 80, 60, 0.08);
+
+  --sm-primary: #007765;      /* Arena Varberg teal */
+  --sm-primary-ink: #ffffff;
+  --sm-primary-soft: #e0efec;
+
+  --sm-accent: #C6371D;       /* Arena Varberg röd */
+  --sm-accent-soft: #fbe3dd;
+
+  --sm-gold: #E89A6B;         /* Hero-textaccent (varm terrakotta — harmonierar med röd CTA) */
+  --sm-success: #008932;      /* Arena Varberg grön */
+
+  /* Typografi */
+  --sm-font-display: "Sofia Sans", "Mulish", system-ui, sans-serif;
+  --sm-font-body: "Mulish", system-ui, sans-serif;
+
+  /* Textstorlekar (något större än standard — seniorer) */
+  --sm-fs-xxl: clamp(44px, 6vw, 88px);
+  --sm-fs-xl: clamp(32px, 4vw, 52px);
+  --sm-fs-lg: clamp(24px, 2.4vw, 32px);
+  --sm-fs-md: 20px;
+  --sm-fs-body: 18px;
+  --sm-fs-small: 16px;
+
+  --sm-radius: 4px;
+  --sm-radius-lg: 10px;
+  --sm-shadow-sm: 0 1px 2px rgba(20, 30, 30, 0.06), 0 2px 6px rgba(20, 30, 30, 0.04);
+  --sm-shadow-md: 0 4px 14px rgba(20, 30, 30, 0.08), 0 8px 32px rgba(20, 30, 30, 0.06);
+
+  --sm-container: 1200px;
+}
+
+/* Palette variants triggered by [data-palette]
+   Varje palett har en samspelad accent + en hero-glow som matchar.
+   --sm-gold används som accentfärg i hero-texten ("leva hela livet") och
+   --sm-accent är knapp/CTA-färgen — de hör ihop. */
+
+/* Default (teal) — uppdaterad: hero-glow matchar nu CTA-röd istället för gul */
+:root {
+  /* (sm-gold ovan kvar för att inte bryta andra ställen, men hero-glow tar över) */
+}
+
+[data-palette="havsbla"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #E8A33D;
+  --sm-accent-soft: #faedd2;
+  --sm-gold: #F4C26B;
+}
+[data-palette="havsbla-korall"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #D96E5F;
+  --sm-accent-soft: #f5d6d0;
+  --sm-gold: #F0A28D;
+}
+[data-palette="havsbla-rost"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #B8542B;
+  --sm-accent-soft: #ecd0bf;
+  --sm-gold: #DD8757;
+}
+[data-palette="havsbla-rosa"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #C46A8C;
+  --sm-accent-soft: #ecd1dd;
+  --sm-gold: #E89BAF;
+}
+[data-palette="havsbla-salvia"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #6B8E6B;
+  --sm-accent-soft: #d8e2d8;
+  --sm-gold: #98B898;
+}
+[data-palette="havsbla-koppar"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #A8553A;
+  --sm-accent-soft: #ead0c5;
+  --sm-gold: #D17A57;
+}
+[data-palette="havsbla-creme"] {
+  --sm-primary: #003D5B;
+  --sm-primary-soft: #d6e2ea;
+  --sm-accent: #C9A66B;
+  --sm-accent-soft: #efe2cb;
+  --sm-gold: #E0C291;
+}
+[data-palette="terrakotta"] {
+  --sm-primary: #2F5D50;
+  --sm-primary-soft: #d6e3df;
+  --sm-accent: #C97B5A;
+  --sm-accent-soft: #f3dccd;
+  --sm-gold: #E5A983;
+}
+[data-palette="plommon"] {
+  --sm-primary: #4A2545;
+  --sm-primary-soft: #e4d8e2;
+  --sm-accent: #D88B6E;
+  --sm-accent-soft: #f5dccf;
+  --sm-gold: #F0B999;
+}
+[data-palette="skog"] {
+  --sm-primary: #1F3A2E;
+  --sm-primary-soft: #d3dcd6;
+  --sm-accent: #C6914B;
+  --sm-accent-soft: #efdcbe;
+  --sm-gold: #DDB57E;
+}
+[data-palette="kust"] {
+  --sm-primary: #38618C;
+  --sm-primary-soft: #dde6ef;
+  --sm-accent: #D88259;
+  --sm-accent-soft: #f5d8c6;
+  --sm-gold: #E8A781;
+}
+[data-palette="varmgra"] {
+  --sm-primary: #3D3935;
+  --sm-primary-soft: #e1ddd7;
+  --sm-accent: #B8714D;
+  --sm-accent-soft: #ecd1bf;
+  --sm-gold: #D49A78;
+}
+/* Duvgrå · korall — mjuk, dämpad palett ur användarens moodboard
+   Primär: dämpad gråblå #8A9DB1
+   Accent: korall — mörkare variant av #ECC5C6 för läsbarhet på vit
+   Surface: varm crème #F5E9E7
+   Ink-soft / mörk text: varmt mossgrönt #837D68
+   Line: varmgrå #C1C0C2 */
+[data-palette="duvgra-korall"] {
+  --sm-bg: #FAF7F4;
+  --sm-surface: #FFFFFF;
+  --sm-ink: #2E2A26;
+  --sm-ink-soft: #837D68;
+  --sm-muted: #9C9788;
+  --sm-line: #E8E1DA;
+  --sm-line-soft: rgba(131, 125, 104, 0.12);
+
+  --sm-primary: #8A9DB1;          /* duvgrå-blå direkt ur moodboard */
+  --sm-primary-ink: #ffffff;
+  --sm-primary-soft: #DCE3EA;
+
+  --sm-accent: #C98A8C;           /* mörkare korall, läsbar på vit */
+  --sm-accent-soft: #F5E0E1;
+
+  --sm-gold: #ECC5C6;             /* hero-glow: ljus korall */
+}
+
+/* Text size modifiers */
+[data-text-size="lg"] {
+  --sm-fs-body: 20px;
+  --sm-fs-md: 22px;
+  --sm-fs-small: 18px;
+}
+[data-text-size="xl"] {
+  --sm-fs-body: 22px;
+  --sm-fs-md: 24px;
+  --sm-fs-small: 19px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--sm-font-body);
+  font-size: var(--sm-fs-body);
+  color: var(--sm-ink);
+  background: var(--sm-bg);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--sm-font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { text-wrap: pretty; margin: 0 0 1em; }
+
+a { color: var(--sm-primary); text-underline-offset: 3px; }
+
+button { font-family: inherit; font-size: inherit; cursor: pointer; }
+
+.sm-container {
+  max-width: var(--sm-container);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* Buttons */
+.sm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 32px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background: var(--sm-primary);
+  color: var(--sm-primary-ink);
+  font-weight: 700;
+  font-size: var(--sm-fs-md);
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+  min-height: 56px;
+}
+.sm-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(15, 81, 89, 0.25); }
+.sm-btn:active { transform: translateY(0); }
+
+.sm-btn--accent { background: var(--sm-accent); color: #fff; }
+.sm-btn--accent:hover { box-shadow: 0 6px 18px rgba(232, 122, 93, 0.35); }
+
+.sm-btn--ghost {
+  background: transparent;
+  color: var(--sm-ink);
+  border-color: var(--sm-ink);
+}
+.sm-btn--ghost:hover { background: var(--sm-ink); color: #fff; }
+
+.sm-btn--small { padding: 10px 20px; min-height: 40px; font-size: var(--sm-fs-small); }
+
+/* Eyebrow / small caps label */
+.sm-eyebrow {
+  font-family: var(--sm-font-body);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--sm-accent);
+  margin-bottom: 16px;
+}
+
+/* Card */
+.sm-card {
+  background: var(--sm-surface);
+  border: 1px solid var(--sm-line);
+  border-radius: var(--sm-radius-lg);
+  padding: 32px;
+  box-shadow: var(--sm-shadow-sm);
+}
+
+/* Utility */
+.sm-divider {
+  width: 64px;
+  height: 4px;
+  background: var(--sm-accent);
+  border-radius: 2px;
+  margin-bottom: 24px;
+}
+
+/* Placeholder image — striped SVG-like look with monospace caption */
+.sm-placeholder {
+  position: relative;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(15, 81, 89, 0.07) 0 14px,
+      rgba(15, 81, 89, 0.03) 14px 28px
+    ),
+    var(--sm-primary-soft);
+  border: 1px solid var(--sm-line);
+  border-radius: var(--sm-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sm-primary);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  text-align: center;
+  padding: 24px;
+  overflow: hidden;
+}
+.sm-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px dashed rgba(15, 81, 89, 0.25);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.sm-placeholder > span { position: relative; z-index: 1; max-width: 80%; line-height: 1.4; }
+
+/* Scrollbars in artboards — hidden (canvas-style) */
+.sm-scroll::-webkit-scrollbar { width: 6px; }
+.sm-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+/* Accessibility helpers */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* Focus rings */
+:focus-visible {
+  outline: 3px solid var(--sm-accent);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Responsive — tablet (≤900px) och mobil (≤640px)
+   ───────────────────────────────────────────────────────────── */
+
+/* Tablet */
+@media (max-width: 900px) {
+  :root {
+    --sm-fs-xxl: clamp(40px, 7vw, 56px);
+    --sm-fs-xl: clamp(32px, 5vw, 44px);
+    --sm-fs-lg: clamp(24px, 4vw, 32px);
+  }
+  .sm-container { padding: 0 24px; }
+
+  /* Alla 2-3-4-kolumns-grid → 2 kolumner eller 1 */
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="gridTemplateColumns: \"1fr 1fr\""] {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  [style*="repeat(3, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+  [style*="repeat(4, 1fr)"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  [style*="1.4fr 1fr"],
+  [style*="1.2fr 1fr"],
+  [style*="1fr 1.3fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  [style*="260px 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    text-align: center;
+  }
+  [style*="auto 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+/* Mobil */
+@media (max-width: 640px) {
+  :root {
+    --sm-fs-xxl: clamp(32px, 9vw, 44px);
+    --sm-fs-xl: 28px;
+    --sm-fs-lg: 22px;
+    --sm-fs-md: 17px;
+  }
+  body { font-size: 16px; }
+
+  .sm-container { padding: 0 18px; }
+
+  /* Allt med många kolumner går till 1 eller 2 */
+  [style*="repeat(2, 1fr)"],
+  [style*="repeat(3, 1fr)"],
+  [style*="repeat(4, 1fr)"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Sektion-padding mindre */
+  section [class="sm-container"][style*="padding"] {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  /* Hero-padding */
+  [style*="80px 32px 88px"],
+  [style*="96px 32px"],
+  [style*="80px 32px"],
+  [style*="64px 32px"] {
+    padding: 56px 18px !important;
+  }
+
+  /* Knappar — full bredd och mindre padding */
+  .sm-btn { padding: 14px 22px; min-height: 50px; font-size: 16px; }
+  .sm-btn--small { padding: 10px 16px; min-height: 40px; }
+
+  /* Header/nav — kompakt */
+  header nav { gap: 8px !important; }
+  header nav button {
+    font-size: 14px !important;
+    padding: 6px 10px !important;
+  }
+  header [style*="height: 80px"] { height: 64px !important; }
+
+  /* Bilder höjd ned */
+  [style*="height: 480"] { height: 280px !important; }
+  [style*="height: 440"] { height: 280px !important; }
+  [style*="height: 400"] { height: 240px !important; }
+
+  /* Anmälningsformulär — modal full bredd */
+  [style*="maxWidth: 980"] { max-width: 100% !important; border-radius: 0 !important; }
+  [style*="padding: 40px 48px"] { padding: 24px 18px !important; }
+  [style*="padding: 24px 32px"] { padding: 18px 18px !important; }
+  [style*="padding: 20px 48px"] { padding: 14px 18px !important; }
+
+  /* Stepper — kompakt */
+  [style*="padding: 18px 12px"] {
+    padding: 12px 6px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Header-nav scroll på små skärmar */
+@media (max-width: 760px) {
+  header nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+    white-space: nowrap;
+  }
+  header nav::-webkit-scrollbar { display: none; }
+}

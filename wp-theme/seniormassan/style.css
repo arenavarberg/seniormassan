@@ -1,0 +1,13 @@
+/*
+Theme Name: Seniormässan
+Theme URI: https://www.seniormassanvarberg.se
+Author: Arena Varberg
+Description: Tema för Seniormässan på Arena Varberg. Bygger på designhandoffen i samma repo (design_handoff_seniormassan). Palett "havsbla-korall", typografi Sofia Sans + Mulish.
+Version: 0.1.0
+Requires at least: 6.0
+Requires PHP: 8.0
+License: Proprietary
+Text Domain: seniormassan
+*/
+
+/* Faktiska stilar laddas via assets/css/main.css (enqueued i functions.php). */
