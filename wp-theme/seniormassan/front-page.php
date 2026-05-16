@@ -24,20 +24,30 @@ $stats = array(
 	array( '10+ år', 'tradition' ),
 );
 
-$zones = array(
-	array( 'n' => '01', 't' => 'Resor & Upplevelser',  'd' => 'Från bussresor i Europa till kryssningar och kulturresor.' ),
-	array( 'n' => '02', 't' => 'Hälsa & Välmående',    'd' => 'Hörsel, syn, tandvård, fysioterapi och mental hälsa.' ),
-	array( 'n' => '03', 't' => 'Boende',                'd' => 'Seniorboenden, hemtjänst, tillgänglighetsanpassning, flyttfirmor.' ),
-	array( 'n' => '04', 't' => 'Ekonomi & Juridik',    'd' => 'Pension, arv och testamente, bankfrågor och försäkring.' ),
-	array( 'n' => '05', 't' => 'Teknik',                'd' => 'Smartphones, larm, hörselslingor — personlig hjälp i lugn takt.' ),
-	array( 'n' => '06', 't' => 'Kultur & Fritid',       'd' => 'Studieförbund, körer, bokklubbar, golf, boule, dans.' ),
-);
+if ( sm_has_zones() ) {
+	$zones = sm_zones();
+} else {
+	// Fallback tills redaktören har lagt in områden i WP-admin → Områden.
+	$zones = array(
+		array( 'n' => '01', 't' => 'Resor & Upplevelser',  'd' => 'Från bussresor i Europa till kryssningar och kulturresor.' ),
+		array( 'n' => '02', 't' => 'Hälsa & Välmående',    'd' => 'Hörsel, syn, tandvård, fysioterapi och mental hälsa.' ),
+		array( 'n' => '03', 't' => 'Boende',                'd' => 'Seniorboenden, hemtjänst, tillgänglighetsanpassning, flyttfirmor.' ),
+		array( 'n' => '04', 't' => 'Ekonomi & Juridik',    'd' => 'Pension, arv och testamente, bankfrågor och försäkring.' ),
+		array( 'n' => '05', 't' => 'Teknik',                'd' => 'Smartphones, larm, hörselslingor — personlig hjälp i lugn takt.' ),
+		array( 'n' => '06', 't' => 'Kultur & Fritid',       'd' => 'Studieförbund, körer, bokklubbar, golf, boule, dans.' ),
+	);
+}
 
-$highlights = array(
-	array( 'img' => 'scenprogram.jpg',  'k' => 'Scenprogram', 't' => 'Författarsamtal & musik',  'd' => 'Scenprogram som berör. Från livemusik till föreläsningar om det goda livet efter 70.' ),
-	array( 'img' => 'boule.jpg',        'k' => 'Provspring',  't' => 'Testa nya aktiviteter',     'd' => 'Prova curling, boule, linedance, innebandy och mycket mer — helt gratis.' ),
-	array( 'img' => 'resecentrum.jpg',  'k' => 'Resecentrum', 't' => 'Drömresor & bussutflykter', 'd' => 'Plocka hem vårens bästa reseidéer. Mässpriser hos 20+ researrangörer.' ),
-);
+if ( sm_has_highlights() ) {
+	$highlights = sm_highlights();
+} else {
+	// Fallback tills redaktören har lagt in höjdpunkter i WP-admin → Höjdpunkter.
+	$highlights = array(
+		array( 'img_url' => sm_image( 'scenprogram.jpg' ), 'k' => 'Scenprogram', 't' => 'Författarsamtal & musik',  'd' => 'Scenprogram som berör. Från livemusik till föreläsningar om det goda livet efter 70.' ),
+		array( 'img_url' => sm_image( 'boule.jpg' ),       'k' => 'Provspring',  't' => 'Testa nya aktiviteter',     'd' => 'Prova curling, boule, linedance, innebandy och mycket mer — helt gratis.' ),
+		array( 'img_url' => sm_image( 'resecentrum.jpg' ), 'k' => 'Resecentrum', 't' => 'Drömresor & bussutflykter', 'd' => 'Plocka hem vårens bästa reseidéer. Mässpriser hos 20+ researrangörer.' ),
+	);
+}
 ?>
 
 <section class="sm-hero" style="position: relative; background: var(--sm-ink); overflow: hidden;">
@@ -172,7 +182,11 @@ $highlights = array(
 		<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
 			<?php foreach ( $highlights as $h ) : ?>
 				<article style="background: var(--sm-surface); border-radius: var(--sm-radius-lg); overflow: hidden; box-shadow: var(--sm-shadow-sm);">
-					<div style="aspect-ratio: 16/10; background-image: url('<?php echo esc_url( sm_image( $h['img'] ) ); ?>'); background-size: cover; background-position: center;"></div>
+					<?php if ( ! empty( $h['img_url'] ) ) : ?>
+						<div style="aspect-ratio: 16/10; background-image: url('<?php echo esc_url( $h['img_url'] ); ?>'); background-size: cover; background-position: center;"></div>
+					<?php else : ?>
+						<div style="aspect-ratio: 16/10; background: var(--sm-line-soft);"></div>
+					<?php endif; ?>
 					<div style="padding: 28px;">
 						<div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-accent);"><?php echo esc_html( $h['k'] ); ?></div>
 						<h3 style="font-size: 24px; margin-top: 10px; margin-bottom: 12px;"><?php echo esc_html( $h['t'] ); ?></h3>

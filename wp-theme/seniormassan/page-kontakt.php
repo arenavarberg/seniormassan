@@ -5,12 +5,17 @@
 
 get_header();
 
-$contacts = array(
-	array( 'r' => 'Besökare & program',        'n' => 'Gästservice',         'e' => 'info@arenavarberg.se',           'p' => '0340-690200' ),
-	array( 'r' => 'Projektledare',              'n' => 'Camilla Bourdette',   'e' => 'camilla.bourdette@arenavarberg.se', 'p' => '0340-690204' ),
-	array( 'r' => 'Försäljning / Utställare',   'n' => 'Vivi Strindö',        'e' => 'vivi.strindo@arenavarberg.se',   'p' => '0340-690213' ),
-	array( 'r' => 'Försäljning / Utställare',   'n' => 'Susanne Carlsson',    'e' => 'susanne.carlsson@arenavarberg.se','p' => '0340-690200' ),
-);
+if ( sm_has_contacts() ) {
+	$contacts = sm_contacts();
+} else {
+	// Fallback tills redaktören har lagt in kontakter i WP-admin → Kontakter.
+	$contacts = array(
+		array( 'r' => 'Besökare & program',        'n' => 'Gästservice',         'e' => 'info@arenavarberg.se',           'p' => '0340-690200' ),
+		array( 'r' => 'Projektledare',              'n' => 'Camilla Bourdette',   'e' => 'camilla.bourdette@arenavarberg.se', 'p' => '0340-690204' ),
+		array( 'r' => 'Försäljning / Utställare',   'n' => 'Vivi Strindö',        'e' => 'vivi.strindo@arenavarberg.se',   'p' => '0340-690213' ),
+		array( 'r' => 'Försäljning / Utställare',   'n' => 'Susanne Carlsson',    'e' => 'susanne.carlsson@arenavarberg.se','p' => '0340-690200' ),
+	);
+}
 
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Kontakt',
