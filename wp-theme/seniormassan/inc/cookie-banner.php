@@ -106,6 +106,7 @@ function sm_cookie_banner_render() {
 			z-index: 9999;
 			display: none;
 			max-width: 880px; margin: 0 auto;
+			max-height: 80vh; overflow-y: auto;
 			font-family: var(--sm-font-body, system-ui, sans-serif);
 		}
 		#sm-cookie-banner.is-visible { display: block; }

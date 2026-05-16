@@ -361,6 +361,15 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
     grid-template-columns: 1fr !important;
     gap: 24px !important;
   }
+  /* Footer 4-kolumners-grid → 2 kolumner */
+  [style*="1.5fr 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  /* Stora callout-paddings (Nyhet 2027, Utställarscen-rutan) */
+  [style*="padding: 56px"] {
+    padding: 32px !important;
+  }
 }
 
 /* Mobil */
@@ -388,6 +397,24 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
     padding-left: 18px !important;
     padding-right: 18px !important;
   }
+  /* Footer 4-kolumns → 1 kolumn på mobil */
+  [style*="1.5fr 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    text-align: center;
+  }
+  footer .sm-container { padding-left: 24px !important; padding-right: 24px !important; }
+  /* Statistik-siffrorna är 56px — för stort på mobil */
+  [style*="font-size: 56px"] { font-size: 40px !important; }
+  /* Stora callout-paddings (Nyhet 2027, Utställarscen-rutan) */
+  [style*="padding: 56px"] {
+    padding: 24px !important;
+  }
+  /* Hero-knappen i page-hero — full bredd på mobil för bättre tryckyta */
+  section[style*="background: var(--sm-primary)"] a[style*="border-radius: 999px"],
+  section[style*="background: var(--sm-accent)"] a[style*="border-radius: 999px"] {
+    display: block; text-align: center;
+  }
 
   /* Hero-padding */
   [style*="80px 32px 88px"],
@@ -403,11 +430,16 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
 
   /* Header/nav — kompakt */
   header nav { gap: 8px !important; }
+  header nav a,
   header nav button {
     font-size: 14px !important;
     padding: 6px 10px !important;
   }
   header [style*="height: 80px"] { height: 64px !important; }
+  /* Container-padding i header tighter på mobil */
+  header .sm-container { padding-left: 14px !important; padding-right: 14px !important; gap: 12px !important; }
+  /* "Boka monter"-knappen i header får inte tryckas av nav-menyn */
+  header .sm-btn--accent { flex-shrink: 0; }
 
   /* Bilder höjd ned */
   [style*="height: 480"] { height: 280px !important; }
