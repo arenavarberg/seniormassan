@@ -32,17 +32,17 @@ $addons = array(
 );
 
 $reasons = array(
-	array( 'n' => '01', 't' => 'Målgrupp med tid & lust',   'd' => 'Seniorer är en målgrupp som växer varje år — med både tid, nyfikenhet och köpkraft.' ),
-	array( 'n' => '02', 't' => 'Långa kvalitetsmöten',      'd' => 'Besökare stannar många timmar tack vare scen, caféer, bar och lunchservering. Tid för riktiga samtal.' ),
-	array( 'n' => '03', 't' => 'Vi marknadsför åt dig',     'd' => 'Annonser i dagspress, digitala kanaler, vägpratare och via organisationer. 2027 även mot Sjuhärad.' ),
+	array( 'n' => '01', 't' => sm_text( 'sm_why_1_title', 'Målgrupp med tid & lust' ), 'd' => sm_text( 'sm_why_1_body', 'Seniorer är en målgrupp som växer varje år — med både tid, nyfikenhet och köpkraft.' ) ),
+	array( 'n' => '02', 't' => sm_text( 'sm_why_2_title', 'Långa kvalitetsmöten' ),    'd' => sm_text( 'sm_why_2_body', 'Besökare stannar många timmar tack vare scen, caféer, bar och lunchservering. Tid för riktiga samtal.' ) ),
+	array( 'n' => '03', 't' => sm_text( 'sm_why_3_title', 'Vi marknadsför åt dig' ),   'd' => sm_text( 'sm_why_3_body', 'Annonser i dagspress, digitala kanaler, vägpratare och via organisationer. 2027 även mot Sjuhärad.' ) ),
 );
 
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'För utställare',
-	'title'   => 'Möt ~2000 engagerade seniorer.',
-	'body'    => 'Besökare tillbringar många timmar här och har god tid att besöka alla utställare — utan stress. Seniormässan är en etablerad mötesplats i Halland sedan 10+ år.',
+	'title'   => sm_text( 'sm_exhib_hero_title', 'Möt ~2000 engagerade seniorer.' ),
+	'body'    => sm_text( 'sm_exhib_hero_body',  'Besökare tillbringar många timmar här och har god tid att besöka alla utställare — utan stress. Seniormässan är en etablerad mötesplats i Halland sedan 10+ år.' ),
 	'tone'    => 'accent',
-	'cta'     => 'Gå till anmälan →',
+	'cta'     => sm_text( 'sm_exhib_hero_cta', 'Gå till anmälan →' ),
 	'cta_url' => home_url( '/anmalan/' ),
 ) );
 
@@ -54,27 +54,27 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 		<div style="background: var(--sm-surface); border-radius: var(--sm-radius-lg); padding: 56px; display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; box-shadow: var(--sm-shadow-sm); position: relative; overflow: hidden;">
 			<div aria-hidden="true" style="position: absolute; top: -40px; right: -40px; width: 220px; height: 220px; border-radius: 50%; background: var(--sm-gold); opacity: 0.18;"></div>
 			<div style="width: 120px; height: 120px; border-radius: 50%; background: var(--sm-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--sm-font-display); font-weight: 800; font-size: 22px; line-height: 1.05; text-align: center; flex-shrink: 0; transform: rotate(-6deg); box-shadow: 0 6px 18px rgba(198, 55, 29, 0.35);">
-				Nyhet<br>2027
+				<?php echo esc_html( sm_text( 'sm_novelty_badge_1', 'Nyhet' ) ); ?><br><?php echo esc_html( sm_text( 'sm_novelty_badge_2', '2027' ) ); ?>
 			</div>
 			<div style="position: relative; z-index: 1;">
-				<div class="sm-eyebrow" style="margin-bottom: 12px;">Nyhet 2027</div>
+				<div class="sm-eyebrow" style="margin-bottom: 12px;"><?php echo esc_html( sm_text( 'sm_novelty_eyebrow', 'Nyhet 2027' ) ); ?></div>
 				<h2 style="font-size: var(--sm-fs-xl); margin-bottom: 20px; max-width: 720px;">
-					5 digitala entrébiljetter ingår — bjud in dina kunder.
+					<?php echo esc_html( sm_text( 'sm_novelty_title', '5 digitala entrébiljetter ingår — bjud in dina kunder.' ) ); ?>
 				</h2>
 				<p style="font-size: var(--sm-fs-lg); color: var(--sm-ink-soft); max-width: 720px; margin-bottom: 0;">
-					I varje bokad monter ingår 5 stycken kostnadsfria digitala entrébiljetter. Dessa digitala entrébiljetter kan du som utställare dela ut bland kunder, medlemmar eller någon som du önskar bjuda in till mässan.
+					<?php echo esc_html( sm_text( 'sm_novelty_body', 'I varje bokad monter ingår 5 stycken kostnadsfria digitala entrébiljetter. Dessa digitala entrébiljetter kan du som utställare dela ut bland kunder, medlemmar eller någon som du önskar bjuda in till mässan.' ) ); ?>
 				</p>
 			</div>
 		</div>
 	</div>
 </section>
 
-<section style="position: relative; height: 480px; background-image: url('<?php echo esc_url( sm_image( 'senior-wide.jpg' ) ); ?>'); background-size: cover; background-position: center 35%;"></section>
+<section style="position: relative; height: 480px; background-image: url('<?php echo esc_url( sm_image_url( 'sm_exhib_wide_image', 'senior-wide.jpg' ) ); ?>'); background-size: cover; background-position: center 35%;"></section>
 
 <section style="background: var(--sm-bg);">
 	<div class="sm-container" style="padding: 80px 32px 40px;">
-		<div class="sm-eyebrow">Varför ställa ut?</div>
-		<h2 style="font-size: var(--sm-fs-xl); max-width: 800px;">Kvalificerade möten, inte flyktiga förbipasseranden.</h2>
+		<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_why_eyebrow', 'Varför ställa ut?' ) ); ?></div>
+		<h2 style="font-size: var(--sm-fs-xl); max-width: 800px;"><?php echo esc_html( sm_text( 'sm_why_title', 'Kvalificerade möten, inte flyktiga förbipasseranden.' ) ); ?></h2>
 		<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 56px;">
 			<?php foreach ( $reasons as $b ) : ?>
 				<div>
@@ -91,15 +91,15 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 	<div class="sm-container" style="padding: 40px 32px 80px;">
 		<div style="background: var(--sm-surface); border-radius: var(--sm-radius-lg); padding: 56px; border: 1px solid var(--sm-line-soft); display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: center;">
 			<div>
-				<div class="sm-eyebrow" style="margin-bottom: 12px;">Utställarscen</div>
+				<div class="sm-eyebrow" style="margin-bottom: 12px;"><?php echo esc_html( sm_text( 'sm_stage_callout_eyebrow', 'Utställarscen' ) ); ?></div>
 				<h2 style="font-size: var(--sm-fs-xl); margin-bottom: 20px; max-width: 560px;">
-					Nå ut med ditt budskap på vår utställarscen.
+					<?php echo esc_html( sm_text( 'sm_stage_callout_title', 'Nå ut med ditt budskap på vår utställarscen.' ) ); ?>
 				</h2>
 				<p style="font-size: 18px; color: var(--sm-ink-soft); margin: 0; max-width: 560px;">
-					Samtidigt som vi släpper upp monterbokningen släpper vi också upp tidsbokningen till vår utställarscen. Det är kostnadsfritt och först till kvarn som gäller — så passa på och knip dessa eftertraktade platserna.
+					<?php echo esc_html( sm_text( 'sm_stage_callout_body', 'Samtidigt som vi släpper upp monterbokningen släpper vi också upp tidsbokningen till vår utställarscen. Det är kostnadsfritt och först till kvarn som gäller — så passa på och knip dessa eftertraktade platserna.' ) ); ?>
 				</p>
 			</div>
-			<div style="aspect-ratio: 4/3; border-radius: var(--sm-radius-lg); background-image: url('<?php echo esc_url( sm_image( 'scenprogram.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
+			<div style="aspect-ratio: 4/3; border-radius: var(--sm-radius-lg); background-image: url('<?php echo esc_url( sm_image_url( 'sm_stage_callout_image', 'scenprogram.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
 		</div>
 	</div>
 </section>
@@ -108,8 +108,8 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 
 <section style="background: var(--sm-surface);">
 	<div class="sm-container" style="padding: 80px 32px;">
-		<div class="sm-eyebrow">Monterpaket</div>
-		<h2 style="font-size: var(--sm-fs-xl);">Tre storlekar. Alla inklusive det grundläggande.</h2>
+		<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_packages_eyebrow', 'Monterpaket' ) ); ?></div>
+		<h2 style="font-size: var(--sm-fs-xl);"><?php echo esc_html( sm_text( 'sm_packages_title', 'Tre storlekar. Alla inklusive det grundläggande.' ) ); ?></h2>
 		<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 48px;">
 			<?php foreach ( $packages as $p ) :
 				$featured = ! empty( $p['featured'] );
@@ -143,9 +143,9 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 
 		<div style="margin-top: 64px;">
 			<div class="sm-eyebrow">Tillägg</div>
-			<h3 style="font-size: 28px; margin-bottom: 8px;">Skräddarsy din monter.</h3>
+			<h3 style="font-size: 28px; margin-bottom: 8px;"><?php echo esc_html( sm_text( 'sm_addons_title', 'Skräddarsy din monter.' ) ); ?></h3>
 			<p style="font-size: 17px; color: var(--sm-ink-soft); margin-bottom: 24px; max-width: 720px; line-height: 1.5;">
-				Vill du ha större utrymme kan du välja flera montrar. Du kan också lägga till produkter i din monter — t.ex. golv i olika färger, bord, stolar, utställarlunch m.m.
+				<?php echo esc_html( sm_text( 'sm_addons_intro', 'Vill du ha större utrymme kan du välja flera montrar. Du kan också lägga till produkter i din monter — t.ex. golv i olika färger, bord, stolar, utställarlunch m.m.' ) ); ?>
 			</p>
 			<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--sm-line); border-radius: var(--sm-radius-lg); overflow: hidden; background: var(--sm-bg);">
 				<?php
@@ -163,7 +163,7 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 		</div>
 
 		<div style="text-align: center; margin-top: 56px;">
-			<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent">Anmäl din monter →</a>
+			<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent"><?php echo esc_html( sm_text( 'sm_packages_cta', 'Anmäl din monter →' ) ); ?></a>
 		</div>
 	</div>
 </section>
@@ -173,12 +173,12 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 <section style="background: var(--sm-bg);">
 	<div class="sm-container" style="padding: 80px 32px;">
 		<div style="text-align: center; margin-bottom: 32px;">
-			<div class="sm-eyebrow">Stämningen 2025</div>
-			<h2 style="font-size: var(--sm-fs-xl); max-width: 760px; margin: 0 auto;">Så här ser det ut att ställa ut hos oss.</h2>
+			<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_atmosphere_eyebrow', 'Stämningen 2025' ) ); ?></div>
+			<h2 style="font-size: var(--sm-fs-xl); max-width: 760px; margin: 0 auto;"><?php echo esc_html( sm_text( 'sm_atmosphere_title', 'Så här ser det ut att ställa ut hos oss.' ) ); ?></h2>
 		</div>
 		<div style="max-width: 960px; margin: 0 auto;">
 			<div style="position: relative; padding-top: 56.25%; border-radius: var(--sm-radius-lg); overflow: hidden; box-shadow: var(--sm-shadow-md); background: #000;">
-				<iframe src="https://player.vimeo.com/video/1178774214?title=0&byline=0&portrait=0" title="Seniormässan 2025 — för utställare" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+				<iframe src="<?php echo esc_url( sm_text( 'sm_video_url', 'https://player.vimeo.com/video/1178774214' ) ); ?>?title=0&byline=0&portrait=0" title="Seniormässan 2025 — för utställare" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 			</div>
 		</div>
 	</div>
@@ -186,12 +186,16 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 
 <section style="background: var(--sm-bg);">
 	<div class="sm-container" style="padding: 80px 32px;">
+		<?php
+		$quote_author = sm_text( 'sm_quote_author', 'Annett Wiktorsson, Modestugan' );
+		$quote_meta   = sm_text( 'sm_quote_meta',   '(deltagit sedan 2015)' );
+		?>
 		<div style="display: grid; grid-template-columns: 260px 1fr; gap: 48px; align-items: center;">
-			<img src="<?php echo esc_url( sm_image( 'annett-wiktorsson.webp' ) ); ?>" alt="Annett Wiktorsson, Modestugan" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%; box-shadow: var(--sm-shadow-md);">
+			<img src="<?php echo esc_url( sm_image_url( 'sm_quote_image', 'annett-wiktorsson.webp' ) ); ?>" alt="<?php echo esc_attr( $quote_author ); ?>" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 50%; box-shadow: var(--sm-shadow-md);">
 			<blockquote style="margin: 0; max-width: 820px; font-size: 30px; font-family: var(--sm-font-display); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em;">
-				”Många åker till vår butik i Åsa och handlar direkt efter att vi träffats på mässan.”
+				<?php echo esc_html( sm_text( 'sm_quote_text', '”Många åker till vår butik i Åsa och handlar direkt efter att vi träffats på mässan.”' ) ); ?>
 				<footer style="font-size: 16px; font-family: var(--sm-font-body); font-weight: 500; margin-top: 20px; color: var(--sm-ink-soft);">
-					— Annett Wiktorsson, Modestugan <span style="opacity: 0.7;">(deltagit sedan 2015)</span>
+					— <?php echo esc_html( $quote_author ); ?> <?php if ( $quote_meta ) : ?><span style="opacity: 0.7;"><?php echo esc_html( $quote_meta ); ?></span><?php endif; ?>
 				</footer>
 			</blockquote>
 		</div>

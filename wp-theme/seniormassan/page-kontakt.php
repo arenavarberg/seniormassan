@@ -19,8 +19,8 @@ if ( sm_has_contacts() ) {
 
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Kontakt',
-	'title'   => 'Prata med oss.',
-	'body'    => 'Vi svarar inom ett arbetsdygn.',
+	'title'   => sm_text( 'sm_kontakt_hero_title', 'Prata med oss.' ),
+	'body'    => sm_text( 'sm_kontakt_hero_body',  'Vi svarar inom ett arbetsdygn.' ),
 	'tone'    => 'primary',
 ) );
 ?>

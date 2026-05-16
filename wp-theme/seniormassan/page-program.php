@@ -40,7 +40,7 @@ $total_count = count( $stora_scen ) + count( $utstallarscenen );
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Program',
 	'title'   => sprintf( 'En dag, två scener, %d programpunkter.', $total_count ),
-	'body'    => 'Allt ingår i entrén — kom och gå som du vill.',
+	'body'    => sm_text( 'sm_program_hero_body', 'Allt ingår i entrén — kom och gå som du vill.' ),
 	'tone'    => 'primary',
 ) );
 ?>
@@ -51,7 +51,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	</div>
 	<h2 style="font-size: 36px; margin: 0 0 8px; color: var(--sm-primary);"><?php echo esc_html( sm_event_date_long() ); ?></h2>
 	<p style="font-size: 17px; color: var(--sm-ink-soft); margin: 0 0 40px;">
-		Programmet uppdateras löpande inför mässan. Med reservation för ändringar.
+		<?php echo esc_html( sm_text( 'sm_program_intro', 'Programmet uppdateras löpande inför mässan. Med reservation för ändringar.' ) ); ?>
 	</p>
 
 	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">

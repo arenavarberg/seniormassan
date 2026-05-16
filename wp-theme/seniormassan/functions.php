@@ -7,9 +7,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SM_THEME_VERSION', '0.10.0' );
+define( 'SM_THEME_VERSION', '0.11.0' );
 
 require_once get_theme_file_path( 'inc/customizer.php' );
+require_once get_theme_file_path( 'inc/customizer-pages.php' );
 require_once get_theme_file_path( 'inc/booth-data.php' );
 require_once get_theme_file_path( 'inc/registration-cpt.php' );
 require_once get_theme_file_path( 'inc/registration-handler.php' );

@@ -13,7 +13,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ## Status (senast uppdaterad)
 
-**Tema-version: 0.10.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
+**Tema-version: 0.11.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
 
 ### Klart
 - **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
@@ -26,6 +26,13 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
   - Mässans datum, öppettider, dörröppning, entrépris, slogan
   - Plats & adress (namn, gatuadress, postnummer, mejl, växel)
   - Anmälan: hallplan-bild, sista anmälningsdag, notismejl
+- **Editerbarhet v3 (klart)**: Customizer-fält per sida för **alla** rubriker, brödtexter, etiketter, video-URL och sektionsbilder. Grupperade i ~20 sektioner i Anpassa-panelen:
+  - Förstasidan: statistik (4 par), video & intro, Praktiskt (+ bild), Områden-intro (+ bild), CTA-band, Höjdpunkter-intro
+  - Program: hero-undertext, datum-text
+  - Kontakt: hero-rubrik + undertext
+  - Hitta hit: hero + parkering/tillgänglighet-rader
+  - För utställare: hero, Nyhet 2027-callout, bredbild, Varför ställa ut (3 skäl), Utställarscen-ruta (+ bild), Monterpaket-intro, Tillägg-intro, Stämningen 2025, citat (text + författare + porträtt)
+  - Implementerat i `inc/customizer-pages.php` med generiska hjälpare `sm_text( $id, $default )` och `sm_image_url( $id, $fallback_filename )`. Alla fält har defaults så sidan ser exakt likadan ut tills något ändras.
 - **Editerbarhet v2 (klart)**: Custom Post Types för redigerbara listor via WP-admin:
   - `sm_program_item` — programpunkter (tid + scen + namn + beskrivning). Sidan `/program/`.
   - `sm_contact` — kontaktpersoner (roll + namn + e-post + telefon). Sidan `/kontakt/`.

@@ -9,8 +9,8 @@ $venue_query = rawurlencode( sm_venue_name() . ', ' . sm_venue_street() . ', ' .
 
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Hitta hit',
-	'title'   => sm_venue_name() . ' — den stadsnära arenan.',
-	'body'    => '15 minuters promenad från stationen. Fri parkering med över 200 platser.',
+	'title'   => sm_text( 'sm_hitta_hero_title', sm_venue_name() . ' — den stadsnära arenan.' ),
+	'body'    => sm_text( 'sm_hitta_hero_body',  '15 minuters promenad från stationen. Fri parkering med över 200 platser.' ),
 	'tone'    => 'primary',
 ) );
 ?>
@@ -38,16 +38,16 @@ get_template_part( 'template-parts/page-hero', null, array(
 			get_template_part( 'template-parts/info-block', null, array(
 				'title' => 'Fri parkering',
 				'items' => array(
-					array( '', 'Över 200 platser på området' ),
-					array( '', 'Kostnadsfritt under hela mässdagen' ),
+					array( '', sm_text( 'sm_parking_info_1', 'Över 200 platser på området' ) ),
+					array( '', sm_text( 'sm_parking_info_2', 'Kostnadsfritt under hela mässdagen' ) ),
 				),
 			) );
 			get_template_part( 'template-parts/info-block', null, array(
 				'title' => 'Tillgänglighet',
 				'items' => array(
-					array( '', 'Ramp till huvudentré' ),
-					array( '', 'Tillgängliga toaletter på plan 1 & 2' ),
-					array( '', 'Ljudslinga i scenområdena' ),
+					array( '', sm_text( 'sm_access_info_1', 'Ramp till huvudentré' ) ),
+					array( '', sm_text( 'sm_access_info_2', 'Tillgängliga toaletter på plan 1 & 2' ) ),
+					array( '', sm_text( 'sm_access_info_3', 'Ljudslinga i scenområdena' ) ),
 				),
 			) );
 			?>

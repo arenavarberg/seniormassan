@@ -18,10 +18,10 @@ get_header();
 $hero_photos = array( 'hero-5.jpg', 'hero-1.jpg', 'hero-7.jpg', 'hero-2.jpg', 'hero-6.jpg', 'hero-3.jpg', 'hero-4.jpg' );
 
 $stats = array(
-	array( '~90', 'utställare' ),
-	array( '~2000', 'besökare' ),
-	array( '2', 'caféer + bar' ),
-	array( '10+ år', 'tradition' ),
+	array( sm_text( 'sm_stat_1_value', '~90' ),    sm_text( 'sm_stat_1_label', 'utställare' ) ),
+	array( sm_text( 'sm_stat_2_value', '~2000' ),  sm_text( 'sm_stat_2_label', 'besökare' ) ),
+	array( sm_text( 'sm_stat_3_value', '2' ),       sm_text( 'sm_stat_3_label', 'caféer + bar' ) ),
+	array( sm_text( 'sm_stat_4_value', '10+ år' ), sm_text( 'sm_stat_4_label', 'tradition' ) ),
 );
 
 if ( sm_has_zones() ) {
@@ -89,12 +89,12 @@ if ( sm_has_highlights() ) {
 <section style="background: var(--sm-surface);">
 	<div class="sm-container" style="padding: 72px 32px;">
 		<div style="text-align: center; margin-bottom: 32px;">
-			<div class="sm-eyebrow">Så var det 2025</div>
-			<h2 style="font-size: var(--sm-fs-xl); max-width: 720px; margin: 0 auto;">En liten smakbit av förra årets mässa.</h2>
+			<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_video_eyebrow_front', 'Så var det 2025' ) ); ?></div>
+			<h2 style="font-size: var(--sm-fs-xl); max-width: 720px; margin: 0 auto;"><?php echo esc_html( sm_text( 'sm_video_title_front', 'En liten smakbit av förra årets mässa.' ) ); ?></h2>
 		</div>
 		<div style="max-width: 960px; margin: 0 auto;">
 			<div style="position: relative; padding-top: 56.25%; border-radius: var(--sm-radius-lg); overflow: hidden; box-shadow: var(--sm-shadow-md); background: #000;">
-				<iframe src="https://player.vimeo.com/video/1178774214?title=0&byline=0&portrait=0" title="Seniormässan 2025" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+				<iframe src="<?php echo esc_url( sm_text( 'sm_video_url', 'https://player.vimeo.com/video/1178774214' ) ); ?>?title=0&byline=0&portrait=0" title="Seniormässan 2025" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 			</div>
 		</div>
 	</div>
@@ -106,10 +106,10 @@ if ( sm_has_highlights() ) {
 	<div class="sm-container" style="padding: 80px 32px;">
 		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;">
 			<div>
-				<div class="sm-eyebrow">Praktiskt</div>
-				<h2 style="font-size: var(--sm-fs-xl);">Hela dagen i ett svep.</h2>
+				<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_practical_eyebrow', 'Praktiskt' ) ); ?></div>
+				<h2 style="font-size: var(--sm-fs-xl);"><?php echo esc_html( sm_text( 'sm_practical_title', 'Hela dagen i ett svep.' ) ); ?></h2>
 				<p style="font-size: var(--sm-fs-lg); color: var(--sm-ink-soft); margin-top: 16px;">
-					En dag som rymmer allt. Kom när dörrarna öppnar — eller bara en stund när det passar.
+					<?php echo esc_html( sm_text( 'sm_practical_body', 'En dag som rymmer allt. Kom när dörrarna öppnar — eller bara en stund när det passar.' ) ); ?>
 				</p>
 				<div style="margin-top: 32px;">
 					<?php
@@ -120,18 +120,19 @@ if ( sm_has_highlights() ) {
 							array( '', sm_event_doors() ),
 						),
 					) );
+					$bus_text = str_replace( '{plats}', sm_venue_name(), sm_text( 'sm_practical_bus', 'Linje 1, 2 och 4 till {plats}' ) );
 					get_template_part( 'template-parts/info-block', null, array(
 						'title' => 'Hur?',
 						'items' => array(
 							array( 'Entré', sm_event_entry() ),
-							array( 'Fri parkering', 'över 200 platser på området' ),
-							array( 'Buss', 'Linje 1, 2 och 4 till ' . sm_venue_name() ),
+							array( 'Fri parkering', sm_text( 'sm_practical_parking', 'över 200 platser på området' ) ),
+							array( 'Buss', $bus_text ),
 						),
 					) );
 					?>
 				</div>
 			</div>
-			<div style="aspect-ratio: 4/5; border-radius: var(--sm-radius-lg); overflow: hidden; background-image: url('<?php echo esc_url( sm_image( 'hero-1.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
+			<div style="aspect-ratio: 4/5; border-radius: var(--sm-radius-lg); overflow: hidden; background-image: url('<?php echo esc_url( sm_image_url( 'sm_practical_image', 'hero-1.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
 		</div>
 	</div>
 </section>
@@ -141,12 +142,12 @@ if ( sm_has_highlights() ) {
 <section style="background: var(--sm-surface);">
 	<div class="sm-container" style="padding: 96px 32px;">
 		<div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 56px; align-items: center; margin-bottom: 56px;">
-			<div style="aspect-ratio: 4/3; border-radius: var(--sm-radius-lg); overflow: hidden; background-image: url('<?php echo esc_url( sm_image( 'hero-2.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
+			<div style="aspect-ratio: 4/3; border-radius: var(--sm-radius-lg); overflow: hidden; background-image: url('<?php echo esc_url( sm_image_url( 'sm_zones_image', 'hero-2.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
 			<div>
-				<div class="sm-eyebrow">Områden</div>
-				<h2 style="font-size: var(--sm-fs-xl);">Sex världar att upptäcka.</h2>
+				<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_zones_eyebrow', 'Områden' ) ); ?></div>
+				<h2 style="font-size: var(--sm-fs-xl);"><?php echo esc_html( sm_text( 'sm_zones_title', 'Sex världar att upptäcka.' ) ); ?></h2>
 				<p style="font-size: var(--sm-fs-lg); color: var(--sm-ink-soft); margin-top: 16px;">
-					Utställare inom det som berör vardagen — från drömresor till digital hjälp i lugn takt.
+					<?php echo esc_html( sm_text( 'sm_zones_body', 'Utställare inom det som berör vardagen — från drömresor till digital hjälp i lugn takt.' ) ); ?>
 				</p>
 			</div>
 		</div>
@@ -168,8 +169,8 @@ if ( sm_has_highlights() ) {
 
 <section style="background: var(--sm-primary); color: #fff;">
 	<div class="sm-container" style="padding: 64px 32px; text-align: center;">
-		<h2 style="font-size: var(--sm-fs-xl); color: #fff;">Ta med en vän — det blir roligare så.</h2>
-		<p style="font-size: var(--sm-fs-lg); opacity: 0.9; margin-top: 16px; font-weight: 300;">Dela gärna inbjudan. Köp biljett i förköp för 100 kr, eller 120 kr vid dörren.</p>
+		<h2 style="font-size: var(--sm-fs-xl); color: #fff;"><?php echo esc_html( sm_text( 'sm_cta_title', 'Ta med en vän — det blir roligare så.' ) ); ?></h2>
+		<p style="font-size: var(--sm-fs-lg); opacity: 0.9; margin-top: 16px; font-weight: 300;"><?php echo esc_html( sm_text( 'sm_cta_body', 'Dela gärna inbjudan. Köp biljett i förköp för 100 kr, eller 120 kr vid dörren.' ) ); ?></p>
 	</div>
 </section>
 
@@ -177,8 +178,8 @@ if ( sm_has_highlights() ) {
 
 <section style="background: var(--sm-bg);">
 	<div class="sm-container" style="padding: 96px 32px;">
-		<div class="sm-eyebrow">Höjdpunkter 2027</div>
-		<h2 style="font-size: var(--sm-fs-xl); max-width: 700px;">Det du inte vill missa.</h2>
+		<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_highlights_eyebrow', 'Höjdpunkter 2027' ) ); ?></div>
+		<h2 style="font-size: var(--sm-fs-xl); max-width: 700px;"><?php echo esc_html( sm_text( 'sm_highlights_title', 'Det du inte vill missa.' ) ); ?></h2>
 		<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
 			<?php foreach ( $highlights as $h ) : ?>
 				<article style="background: var(--sm-surface); border-radius: var(--sm-radius-lg); overflow: hidden; box-shadow: var(--sm-shadow-sm);">
