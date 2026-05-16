@@ -5,7 +5,6 @@
 
 get_header();
 
-<?php
 $venue_query = rawurlencode( sm_venue_name() . ', ' . sm_venue_street() . ', ' . sm_venue_zip() );
 
 get_template_part( 'template-parts/page-hero', null, array(
