@@ -47,12 +47,12 @@
 		<div>
 			<div style="font-weight: 700; color: #fff; margin-bottom: 14px;">Utställare</div>
 			<?php foreach ( array(
-				array( 'for-utstallare', 'Bli utställare' ),
-				array( 'for-utstallare', 'Priser & paket' ),
-				array( 'for-utstallare', 'Villkor' ),
+				array( '/for-utstallare/', 'Bli utställare' ),
+				array( '/for-utstallare/', 'Priser & paket' ),
+				array( '/villkor/',        'Villkor' ),
 			) as $link ) : ?>
 				<div style="margin-bottom: 8px; opacity: 0.8; font-size: 16px;">
-					<a href="<?php echo esc_url( home_url( '/' . $link[0] . '/' ) ); ?>" style="color: inherit; text-decoration: none;"><?php echo esc_html( $link[1] ); ?></a>
+					<a href="<?php echo esc_url( home_url( $link[0] ) ); ?>" style="color: inherit; text-decoration: none;"><?php echo esc_html( $link[1] ); ?></a>
 				</div>
 			<?php endforeach; ?>
 		</div>
@@ -66,8 +66,12 @@
 			</div>
 		</div>
 	</div>
-	<div style="border-top: 1px solid rgba(255,255,255,0.12); padding: 20px 32px; font-size: 14px; opacity: 0.55; text-align: center;">
-		© <?php echo esc_html( date( 'Y' ) ); ?> Arena Varberg AB
+	<div style="border-top: 1px solid rgba(255,255,255,0.12); padding: 20px 32px; font-size: 14px; opacity: 0.7; text-align: center; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;">
+		<span>© <?php echo esc_html( date( 'Y' ) ); ?> Arena Varberg AB</span>
+		<span aria-hidden="true" style="opacity: 0.5;">·</span>
+		<a href="<?php echo esc_url( home_url( '/integritet/' ) ); ?>" style="color: inherit; text-decoration: none;">Integritetspolicy</a>
+		<span aria-hidden="true" style="opacity: 0.5;">·</span>
+		<a href="<?php echo esc_url( home_url( '/villkor/' ) ); ?>" style="color: inherit; text-decoration: none;">Utställarvillkor</a>
 	</div>
 </footer>
 

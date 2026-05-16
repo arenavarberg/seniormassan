@@ -539,11 +539,11 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 						<div style="margin-top: 28px; display: flex; flex-direction: column; gap: 12px;">
 							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
 								<input type="checkbox" name="sm_accept_terms" value="1" id="sm-accept-terms" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
-								<span style="font-size: 16px;">Jag godkänner utställarvillkoren och faktureringsvillkoren (30 dagar netto).</span>
+								<span style="font-size: 16px;">Jag godkänner <a href="<?php echo esc_url( home_url( '/villkor/' ) ); ?>" target="_blank" rel="noopener" style="color: var(--sm-primary); text-decoration: underline;">utställarvillkoren</a> och faktureringsvillkoren (30 dagar netto).</span>
 							</label>
 							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
 								<input type="checkbox" name="sm_accept_gdpr" value="1" id="sm-accept-gdpr" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
-								<span style="font-size: 16px;">Jag samtycker till att uppgifterna hanteras enligt GDPR och visas i utställarlistan på webben.</span>
+								<span style="font-size: 16px;">Jag samtycker till att uppgifterna hanteras enligt vår <a href="<?php echo esc_url( home_url( '/integritet/' ) ); ?>" target="_blank" rel="noopener" style="color: var(--sm-primary); text-decoration: underline;">integritetspolicy</a> och visas i utställarlistan på webben.</span>
 							</label>
 							<div id="sm-submit-error" style="display: none; padding: 12px 16px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; color: #991b1b; font-size: 14px; margin-top: 8px;">
 								Bocka i båda rutorna ovan för att skicka anmälan.
