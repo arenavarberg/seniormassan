@@ -16,19 +16,19 @@
 get_header();
 
 $packages = array(
-	array( 'size' => '2 × 2 m',  'price' => 3820, 'ideal' => 'Standardmonter för enskild utställare', 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ) ),
-	array( 'size' => '2 × 3 m',  'price' => 5730, 'ideal' => 'Mest populära paketet',                 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ), 'featured' => true ),
-	array( 'size' => '3 × 3 m',  'price' => 8845, 'ideal' => 'Stor monter med extra synlighet',      'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ) ),
-	array( 'size' => 'Förening', 'price' => 2360, 'price_label' => 'inkl. moms', 'ideal' => '2 × 2 m · Föreningspris (ideella föreningar)', 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program' ) ),
+	array( 'size' => '2 × 2 m',  'price' => sm_get_booth_price_for_size( '2x2' ), 'ideal' => 'Standardmonter för enskild utställare', 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ) ),
+	array( 'size' => '2 × 3 m',  'price' => sm_get_booth_price_for_size( '2x3' ), 'ideal' => 'Mest populära paketet',                 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ), 'featured' => true ),
+	array( 'size' => '3 × 3 m',  'price' => sm_get_booth_price_for_size( '3x3' ), 'ideal' => 'Stor monter med extra synlighet',      'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ) ),
+	array( 'size' => 'Förening', 'price' => (int) round( sm_get_forening_price() * 1.25 ), 'price_label' => 'inkl. moms', 'ideal' => '2 × 2 m · Föreningspris (ideella föreningar)', 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program' ) ),
 );
 
 $addons = array(
-	array( 'Registreringsavgift (obligatorisk)', 800 ),
-	array( 'Montermatta', 110 ),
+	array( 'Registreringsavgift (obligatorisk)', sm_get_registration_fee() ),
+	array( 'Montermatta', sm_get_addon_price( 'matta', 110 ) ),
 	array( 'Wifi (premium)', 450 ),
-	array( 'Monterbord', 350 ),
-	array( 'Stol', 120 ),
-	array( 'Matbiljett utställare', 180 ),
+	array( 'Monterbord', sm_get_addon_price( 'bord180', 350 ) ),
+	array( 'Stol', sm_get_addon_price( 'stol', 120 ) ),
+	array( 'Matbiljett utställare', sm_get_addon_price( 'lunch', 180 ) ),
 );
 
 $reasons = array(

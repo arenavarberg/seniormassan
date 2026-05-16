@@ -138,7 +138,7 @@ function sm_handle_registration() {
 		}
 	}
 	// Registreringsavgift läggs på automatiskt när minst en monter är vald
-	$reg_fee = $booths ? SM_REGISTRATION_FEE : 0;
+	$reg_fee = $booths ? sm_get_registration_fee() : 0;
 	$total   = $booth_total + $addon_total + $reg_fee;
 	if ( $is_forening ) {
 		$total = (int) round( $total * 1.25 ); // moms ingår

@@ -13,13 +13,13 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ## Status (senast uppdaterad)
 
-**Tema-version: 0.11.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
+**Tema-version: 0.12.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
 
 ### Klart
 - **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
 - **Auto-populerande utställarlista** på förstasidan (hämtar från `sm_registration`-CPT)
 - **Anmälningsformulär** — wizard-modal med 5 steg, stepper, sticky footer, sammanfattning, scenpassbokning, monter-variantval, matta som skalar med antal montrar
-- **Admin**: Anmälningar i WP-admin med CPT, möjlighet att markera anmälningar som avbokade, manuellt blockera enskilda montrar, ladda upp tillval-ikoner per produkt (+ per färgvariant)
+- **Admin**: Anmälningar i WP-admin med CPT, möjlighet att markera anmälningar som avbokade, ändra eller frigöra scenpass på en bokning, manuellt blockera enskilda montrar, ladda upp tillval-ikoner per produkt (+ per färgvariant), redigera monter- och tillvalspriser via Anmälningar → Priser
 - **Editerbarhet v1** via Customizer (Utseende → Anpassa):
   - Färgpalett (13 paletter att välja mellan)
   - Hero-rubrik och ingress på förstasidan
@@ -41,7 +41,6 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
   Alla läser från CPT med fallback till hårdkodad lista tills första posten är inlagd. Sortering via "Ordning" i Sidattribut. Hjälpfunktioner: `sm_program_items()`, `sm_contacts()`, `sm_highlights()`, `sm_zones()` + motsvarande `sm_has_*()`.
 
 ### Att göra (nästa iterationer)
-- **Tillval-priser** redigerbara via admin (just nu hårdkodade i `inc/booth-data.php`)
 - **SSL** via Let's Encrypt (kräver att DNS pekar rätt först)
 - **Cookie-banner** (krävs enligt svensk lag)
 - **Integritetspolicy + utställarvillkor** (sidor saknas)

@@ -79,8 +79,8 @@ $size_labels = array( '2x2' => '2 × 2 m', '2x3' => '2 × 3 m', '3x3' => '3 × 3
 $prices_json = array(
 	'booths'           => array(),
 	'addons'           => array(),
-	'registration_fee' => SM_REGISTRATION_FEE,
-	'forening_price'   => SM_FORENING_PRICE,
+	'registration_fee' => sm_get_registration_fee(),
+	'forening_price'   => sm_get_forening_price(),
 );
 foreach ( sm_booths() as $b ) {
 	$prices_json['booths'][ $b['id'] ] = array( 'size' => $b['size'], 'price' => sm_booth_price( $b['id'] ) );
@@ -308,7 +308,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 						<?php foreach ( $by_section as $section => $booths_in_section ) :
 							$first       = $booths_in_section[0];
 							$is_forening = ( $section === 'N' );
-							$price       = $is_forening ? SM_FORENING_PRICE : SM_BOOTH_PRICES[ $first['size'] ];
+							$price       = $is_forening ? sm_get_forening_price() : sm_get_booth_price_for_size( $first['size'] );
 							$label       = $section_labels[ $section ] ?? '';
 							$available   = 0;
 							foreach ( $booths_in_section as $b ) {
@@ -364,7 +364,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							<div style="font-family: var(--sm-font-display); font-size: 36px; font-weight: 800; line-height: 1; margin-top: 4px;">
 								<span id="sm-booth-summary-total">0</span> <span style="font-size: 16px; font-weight: 500;">kr</span>
 							</div>
-							<div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">+ 800 kr reg.avg · <span id="sm-booth-summary-moms">exkl. moms</span></div>
+							<div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">+ <?php echo (int) sm_get_registration_fee(); ?> kr reg.avg · <span id="sm-booth-summary-moms">exkl. moms</span></div>
 						</div>
 					</div>
 					<div id="sm-booth-summary-empty" style="margin-top: 24px; border: 2px dashed var(--sm-line); border-radius: 12px; padding: 32px 24px; text-align: center; color: var(--sm-ink-soft); font-size: 16px;">
@@ -376,7 +376,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 				<div class="sm-wiz-step" data-step="2">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Tillval</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
-						Skräddarsy din monter. Registreringsavgift (800 kr) ingår automatiskt och visas i sammanfattningen.
+						Skräddarsy din monter. Registreringsavgift (<?php echo (int) sm_get_registration_fee(); ?> kr) ingår automatiskt och visas i sammanfattningen.
 					</p>
 
 					<?php foreach ( $addons_by_cat as $cat => $list ) : ?>

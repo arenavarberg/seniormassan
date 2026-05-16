@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const SM_FORENING_PRICE = 1888; // 2360 inkl. 25 % moms
+const SM_FORENING_PRICE = 1888; // 2360 inkl. 25 % moms — default; överstyrs av sm_pricing-option
 const SM_BOOTH_PRICES = array(
 	'2x2' => 3820,
 	'2x3' => 5730,
@@ -27,6 +27,44 @@ const SM_BOOTH_COLORS = array(
 	'forening' => '#E8A6C4',
 );
 const SM_REGISTRATION_FEE = 800;
+
+/**
+ * Sammanslagna prisinställningar (admin-overrides + defaults).
+ *
+ * @return array{booth_2x2:int,booth_2x3:int,booth_3x3:int,forening:int,registration_fee:int}
+ */
+function sm_get_pricing() {
+	$defaults = array(
+		'booth_2x2'        => SM_BOOTH_PRICES['2x2'],
+		'booth_2x3'        => SM_BOOTH_PRICES['2x3'],
+		'booth_3x3'        => SM_BOOTH_PRICES['3x3'],
+		'forening'         => SM_FORENING_PRICE,
+		'registration_fee' => SM_REGISTRATION_FEE,
+	);
+	$saved = get_option( 'sm_pricing', array() );
+	return is_array( $saved ) ? array_merge( $defaults, array_intersect_key( $saved, $defaults ) ) : $defaults;
+}
+
+function sm_get_booth_price_for_size( $size ) {
+	$p = sm_get_pricing();
+	return $p[ 'booth_' . $size ] ?? 0;
+}
+
+function sm_get_forening_price() {
+	return sm_get_pricing()['forening'];
+}
+
+function sm_get_registration_fee() {
+	return sm_get_pricing()['registration_fee'];
+}
+
+function sm_get_addon_price( $id, $fallback = 0 ) {
+	$prices = get_option( 'sm_addon_prices', array() );
+	if ( is_array( $prices ) && isset( $prices[ $id ] ) ) {
+		return (int) $prices[ $id ];
+	}
+	return (int) $fallback;
+}
 
 function sm_booths() {
 	return array(
@@ -157,11 +195,11 @@ function sm_is_forening_booth( $id ) {
 
 function sm_booth_price( $id ) {
 	if ( sm_is_forening_booth( $id ) ) {
-		return SM_FORENING_PRICE;
+		return sm_get_forening_price();
 	}
 	foreach ( sm_booths() as $b ) {
 		if ( $b['id'] === $id ) {
-			return SM_BOOTH_PRICES[ $b['size'] ] ?? 0;
+			return sm_get_booth_price_for_size( $b['size'] );
 		}
 	}
 	return 0;
@@ -222,8 +260,11 @@ function sm_booked_booth_ids( $exclude_post_id = 0 ) {
  * när minst en monter är vald.
  *
  * 'variants' = lista av färgval/varianter att välja mellan.
+ *
+ * Priserna här är defaults; admin kan överstyra via Anmälningar → Priser
+ * (sparas i option 'sm_addon_prices').
  */
-function sm_addons() {
+function sm_addons_raw() {
 	return array(
 		array( 'id' => 'matta',     'name' => 'Montermatta',                'price' => 110, 'cat' => 'Mattor & golv', 'variants' => array( 'Blå', 'Röd', 'Grön', 'Grå', 'Svart', 'Orange' ), 'scales_with_booths' => true, 'price_label' => 'kr/monter' ),
 		array( 'id' => 'stol',      'name' => 'Stol',                       'price' => 60,  'cat' => 'Möbler' ),
@@ -240,6 +281,19 @@ function sm_addons() {
 		array( 'id' => 'lunch',     'name' => 'Lunch utställare',           'price' => 180, 'cat' => 'Mat & fika' ),
 		array( 'id' => 'fika_em',   'name' => 'Eftermiddagsfika',           'price' => 95,  'cat' => 'Mat & fika' ),
 	);
+}
+
+/**
+ * Samma som sm_addons_raw(), men varje 'price' överstyrs av admin-värdet
+ * från option 'sm_addon_prices' om sådant finns.
+ */
+function sm_addons() {
+	$out = array();
+	foreach ( sm_addons_raw() as $a ) {
+		$a['price'] = sm_get_addon_price( $a['id'], $a['price'] );
+		$out[]      = $a;
+	}
+	return $out;
 }
 
 function sm_addon( $id ) {

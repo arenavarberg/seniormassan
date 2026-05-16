@@ -153,8 +153,26 @@ function sm_registration_meta_box_html( $post ) {
 
 	echo '<label>Montrar</label><div>' . esc_html( implode( ', ', (array) $booths ) ) . '</div>';
 
-	$stage_slot = get_post_meta( $post->ID, '_sm_stage_slot', true );
-	echo '<label>Scenpass</label><div>' . esc_html( $stage_slot ?: '— (ej bokat)' ) . '</div>';
+	$stage_slot  = get_post_meta( $post->ID, '_sm_stage_slot', true );
+	$taken_other = sm_taken_stage_slots( $post->ID ); // exkludera den här posten själv
+	echo '<label for="sm_stage_slot">Scenpass</label>';
+	echo '<div><select id="sm_stage_slot" name="sm_stage_slot" style="max-width:240px;">';
+	echo '<option value="">— Inget scenpass bokat</option>';
+	foreach ( sm_stage_slots() as $slot ) {
+		$is_taken_by_other = in_array( $slot, $taken_other, true );
+		$disabled          = ( $is_taken_by_other && $slot !== $stage_slot ) ? ' disabled' : '';
+		$label             = $slot . ( $is_taken_by_other && $slot !== $stage_slot ? ' (upptagen av annan anmälan)' : '' );
+		printf(
+			'<option value="%s"%s%s>%s</option>',
+			esc_attr( $slot ),
+			selected( $stage_slot, $slot, false ),
+			$disabled,
+			esc_html( $label )
+		);
+	}
+	echo '</select>';
+	echo '<p class="description" style="margin-top:6px;">Välj "— Inget scenpass bokat" för att frigöra ett tidigare bokat pass.</p>';
+	echo '</div>';
 
 	echo '<label>Tillval</label><div>';
 	if ( is_array( $addons ) && $addons ) {
@@ -194,6 +212,20 @@ function sm_save_registration_meta( $post_id ) {
 		}
 	}
 	update_post_meta( $post_id, '_sm_is_forening', isset( $_POST['sm_is_forening'] ) ? '1' : '' );
+
+	// Scenpass: tomt värde frigör en tidigare bokad tid; annars måste tiden vara
+	// giltig och inte upptagen av en annan anmälan.
+	if ( isset( $_POST['sm_stage_slot'] ) ) {
+		$incoming = sanitize_text_field( wp_unslash( $_POST['sm_stage_slot'] ) );
+		if ( $incoming === '' ) {
+			update_post_meta( $post_id, '_sm_stage_slot', '' );
+		} elseif ( in_array( $incoming, sm_stage_slots(), true ) ) {
+			$taken_other = sm_taken_stage_slots( $post_id );
+			if ( ! in_array( $incoming, $taken_other, true ) ) {
+				update_post_meta( $post_id, '_sm_stage_slot', $incoming );
+			}
+		}
+	}
 }
 add_action( 'save_post_sm_registration', 'sm_save_registration_meta' );
 
