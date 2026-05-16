@@ -26,16 +26,19 @@
 			</div>
 		</a>
 
-		<nav style="display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap;">
+		<?php
+		$current   = trim( $_SERVER['REQUEST_URI'] ?? '/', '/' );
+		$nav_items = array(
+			''               => 'För besökare',
+			'program'        => 'Program',
+			'hitta-hit'      => 'Hitta hit',
+			'kontakt'        => 'Kontakt',
+			'for-utstallare' => 'För utställare',
+		);
+		?>
+
+		<nav class="sm-desktop-nav" style="display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap;">
 			<?php
-			$current   = trim( $_SERVER['REQUEST_URI'] ?? '/', '/' );
-			$nav_items = array(
-				''               => 'För besökare',
-				'program'        => 'Program',
-				'hitta-hit'      => 'Hitta hit',
-				'kontakt'        => 'Kontakt',
-				'for-utstallare' => 'För utställare',
-			);
 			foreach ( $nav_items as $slug => $label ) {
 				$is_active = ( $slug === $current );
 				$href      = $slug === '' ? home_url( '/' ) : home_url( '/' . $slug . '/' );
@@ -46,19 +49,99 @@
 					$style .= ' background: transparent; color: var(--sm-ink); font-weight: 500;';
 				}
 				printf(
-					'<a href="%s" style="%s">%s</a>',
+					'<a href="%s" style="%s"%s>%s</a>',
 					esc_url( $href ),
 					esc_attr( $style ),
+					$is_active ? ' aria-current="page"' : '',
 					esc_html( $label )
 				);
 			}
 			?>
 		</nav>
 
-		<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent sm-btn--small">
+		<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent sm-btn--small sm-header-cta">
 			Boka monter →
 		</a>
+
+		<button type="button" class="sm-mobile-menu-toggle" aria-label="Öppna meny" aria-expanded="false" aria-controls="sm-mobile-drawer">
+			<span class="sm-burger-icon" aria-hidden="true">
+				<span></span><span></span><span></span>
+			</span>
+		</button>
 	</div>
 </header>
+
+<div class="sm-mobile-overlay" hidden></div>
+
+<aside id="sm-mobile-drawer" class="sm-mobile-drawer" aria-hidden="true" aria-label="Huvudmeny">
+	<div class="sm-mobile-drawer-header">
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px;">
+			<img src="<?php echo esc_url( sm_image( 'senior-logo-2026-transparent.png' ) ); ?>" alt="Senior" style="height: 36px; width: auto;">
+		</a>
+		<button type="button" class="sm-mobile-menu-close" aria-label="Stäng meny">×</button>
+	</div>
+	<nav class="sm-mobile-drawer-nav" aria-label="Mobilmeny">
+		<?php
+		foreach ( $nav_items as $slug => $label ) {
+			$is_active = ( $slug === $current );
+			$href      = $slug === '' ? home_url( '/' ) : home_url( '/' . $slug . '/' );
+			printf(
+				'<a href="%s"%s class="%s">%s</a>',
+				esc_url( $href ),
+				$is_active ? ' aria-current="page"' : '',
+				$is_active ? 'is-active' : '',
+				esc_html( $label )
+			);
+		}
+		?>
+	</nav>
+	<div class="sm-mobile-drawer-footer">
+		<a href="<?php echo esc_url( home_url( '/anmalan/' ) ); ?>" class="sm-btn sm-btn--accent" style="width: 100%; text-align: center;">Boka monter →</a>
+	</div>
+</aside>
+
+<script>
+(function () {
+	var toggle  = document.querySelector('.sm-mobile-menu-toggle');
+	var drawer  = document.getElementById('sm-mobile-drawer');
+	var overlay = document.querySelector('.sm-mobile-overlay');
+	var close   = document.querySelector('.sm-mobile-menu-close');
+	if (!toggle || !drawer || !overlay) return;
+
+	function openMenu() {
+		drawer.classList.add('is-active');
+		overlay.hidden = false;
+		// Trigga reflow innan vi sätter is-active så övergången körs
+		void overlay.offsetWidth;
+		overlay.classList.add('is-active');
+		toggle.setAttribute('aria-expanded', 'true');
+		drawer.setAttribute('aria-hidden', 'false');
+		document.body.classList.add('sm-menu-open');
+	}
+	function closeMenu() {
+		drawer.classList.remove('is-active');
+		overlay.classList.remove('is-active');
+		toggle.setAttribute('aria-expanded', 'false');
+		drawer.setAttribute('aria-hidden', 'true');
+		document.body.classList.remove('sm-menu-open');
+		setTimeout(function () {
+			if (!overlay.classList.contains('is-active')) overlay.hidden = true;
+		}, 300);
+		toggle.focus();
+	}
+	toggle.addEventListener('click', function () {
+		(toggle.getAttribute('aria-expanded') === 'true') ? closeMenu() : openMenu();
+	});
+	overlay.addEventListener('click', closeMenu);
+	if (close) close.addEventListener('click', closeMenu);
+	document.addEventListener('keydown', function (e) {
+		if (e.key === 'Escape' && drawer.classList.contains('is-active')) closeMenu();
+	});
+	// Stäng menyn när man klickar på en länk i drawer:n
+	drawer.querySelectorAll('a').forEach(function (a) {
+		a.addEventListener('click', closeMenu);
+	});
+})();
+</script>
 
 <main id="main" class="sm-site-main">
