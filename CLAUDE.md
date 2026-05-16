@@ -13,7 +13,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ## Status (senast uppdaterad)
 
-**Tema-version: 0.12.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
+**Tema-version: 0.13.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
 
 ### Klart
 - **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
@@ -33,6 +33,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
   - Hitta hit: hero + parkering/tillgänglighet-rader
   - För utställare: hero, Nyhet 2027-callout, bredbild, Varför ställa ut (3 skäl), Utställarscen-ruta (+ bild), Monterpaket-intro, Tillägg-intro, Stämningen 2025, citat (text + författare + porträtt)
   - Implementerat i `inc/customizer-pages.php` med generiska hjälpare `sm_text( $id, $default )` och `sm_image_url( $id, $fallback_filename )`. Alla fält har defaults så sidan ser exakt likadan ut tills något ändras.
+- **Cookie-banner** (`inc/cookie-banner.php`): diskret bottenfält tills besökaren klickar Acceptera/Avvisa. Valet sparas i cookie `sm_cookie_consent` i 365 dagar. Google Maps på `/hitta-hit/` gating med `.sm-embed-gated` — placeholder visar text + "Acceptera och visa karta"-knapp + extern länk till maps.google.com tills consent. Vimeo-videor körs med `dnt=1` (Do Not Track-läge, ingen consent krävs enligt Vimeo). Banner-texterna redigerbara via Utseende → Anpassa → Cookie-banner. "Läs mer"-länken pekar på WP:s privacy-page (Inställningar → Privacy) eller på en URL i Customizer.
 - **Editerbarhet v2 (klart)**: Custom Post Types för redigerbara listor via WP-admin:
   - `sm_program_item` — programpunkter (tid + scen + namn + beskrivning). Sidan `/program/`.
   - `sm_contact` — kontaktpersoner (roll + namn + e-post + telefon). Sidan `/kontakt/`.
@@ -42,8 +43,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ### Att göra (nästa iterationer)
 - **SSL** via Let's Encrypt (kräver att DNS pekar rätt först)
-- **Cookie-banner** (krävs enligt svensk lag)
-- **Integritetspolicy + utställarvillkor** (sidor saknas)
+- **Integritetspolicy + utställarvillkor** (sidor saknas — skapa en WP-sida och sätt slug till `integritet`, eller koppla via Inställningar → Privacy så används den automatiskt av cookie-bannerns "Läs mer"-länk)
 - **Tillgänglighetspass** (prefers-reduced-motion på hero-karusell, aria-label på båskartan)
 
 ## Stack

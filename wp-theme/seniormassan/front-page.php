@@ -94,7 +94,7 @@ if ( sm_has_highlights() ) {
 		</div>
 		<div style="max-width: 960px; margin: 0 auto;">
 			<div style="position: relative; padding-top: 56.25%; border-radius: var(--sm-radius-lg); overflow: hidden; box-shadow: var(--sm-shadow-md); background: #000;">
-				<iframe src="<?php echo esc_url( sm_text( 'sm_video_url', 'https://player.vimeo.com/video/1178774214' ) ); ?>?title=0&byline=0&portrait=0" title="Seniormässan 2025" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+				<iframe src="<?php echo esc_url( sm_text( 'sm_video_url', 'https://player.vimeo.com/video/1178774214' ) ); ?>?title=0&byline=0&portrait=0&dnt=1" title="Seniormässan 2025" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 			</div>
 		</div>
 	</div>
