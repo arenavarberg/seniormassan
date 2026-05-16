@@ -13,7 +13,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ## Status (senast uppdaterad)
 
-**Tema-version: 0.8.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
+**Tema-version: 0.9.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
 
 ### Klart
 - **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
@@ -26,9 +26,10 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
   - Mässans datum, öppettider, dörröppning, entrépris, slogan
   - Plats & adress (namn, gatuadress, postnummer, mejl, växel)
   - Anmälan: hallplan-bild, sista anmälningsdag, notismejl
+- **Editerbarhet v2 (påbörjad)**: Custom Post Type `sm_program_item` — programpunkter (tid + scen + namn + beskrivning) redigerbara via WP-admin → Program. Sidan `/program/` läser från CPT med fallback till hårdkodad lista tills första posten är inlagd. Hjälpfunktioner: `sm_program_items( $stage )`, `sm_has_program_items()`, `sm_program_stages()`.
 
 ### Att göra (nästa iterationer)
-- **Editerbarhet v2** — Custom Post Types för listor: program, kontakter, höjdpunkter, områden
+- **Editerbarhet v2 (forts.)** — Custom Post Types för resterande listor: kontakter, höjdpunkter, områden
 - **Tillval-priser** redigerbara via admin (just nu hårdkodade i `inc/booth-data.php`)
 - **SSL** via Let's Encrypt (kräver att DNS pekar rätt först)
 - **Cookie-banner** (krävs enligt svensk lag)

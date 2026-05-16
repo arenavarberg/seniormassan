@@ -7,13 +7,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SM_THEME_VERSION', '0.8.0' );
+define( 'SM_THEME_VERSION', '0.9.0' );
 
 require_once get_theme_file_path( 'inc/customizer.php' );
 require_once get_theme_file_path( 'inc/booth-data.php' );
 require_once get_theme_file_path( 'inc/registration-cpt.php' );
 require_once get_theme_file_path( 'inc/registration-handler.php' );
 require_once get_theme_file_path( 'inc/addon-admin.php' );
+require_once get_theme_file_path( 'inc/program-cpt.php' );
 
 function sm_theme_setup() {
 	add_theme_support( 'title-tag' );

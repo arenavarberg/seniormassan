@@ -5,33 +5,41 @@
 
 get_header();
 
-$stora_scen = array(
-	array( 't' => '10:00', 'n' => 'Peter Börjesson',           'd' => 'Välkomnar från scenen' ),
-	array( 't' => '10:15', 'n' => 'Modevisning',               'd' => 'Rydholms Modehus & Dressmann' ),
-	array( 't' => '11:00', 'n' => 'Lotta Engberg',             'd' => 'Livemusik med pianist' ),
-	array( 't' => '11:45', 'n' => 'Elisabeth Wahlin',          'd' => '100% livslust' ),
-	array( 't' => '13:15', 'n' => 'Linedance',                 'd' => 'Prova på med Tobias Herbertzon' ),
-	array( 't' => '14:00', 'n' => 'Modevisning',               'd' => 'Modestugan visar höstens mode' ),
-	array( 't' => '14:30', 'n' => 'Lotta Engberg',             'd' => 'Livemusik med pianist' ),
-	array( 't' => '15:00', 'n' => 'Föreläsning om svenskt vin','d' => 'Branschorganisationen svenskt vin' ),
-	array( 't' => '15:40', 'n' => 'Peter Börjesson',           'd' => 'Föreläsning om 60-talets Varberg' ),
-	array( 't' => '16:00', 'n' => 'Elisabeth Wahlin',          'd' => '100% livslust' ),
-);
+if ( sm_has_program_items() ) {
+	$stora_scen      = sm_program_items( 'stora_scen' );
+	$utstallarscenen = sm_program_items( 'utstallarscenen' );
+} else {
+	// Fallback tills redaktören har lagt in programpunkter i WP-admin → Program.
+	$stora_scen = array(
+		array( 't' => '10:00', 'n' => 'Peter Börjesson',           'd' => 'Välkomnar från scenen' ),
+		array( 't' => '10:15', 'n' => 'Modevisning',               'd' => 'Rydholms Modehus & Dressmann' ),
+		array( 't' => '11:00', 'n' => 'Lotta Engberg',             'd' => 'Livemusik med pianist' ),
+		array( 't' => '11:45', 'n' => 'Elisabeth Wahlin',          'd' => '100% livslust' ),
+		array( 't' => '13:15', 'n' => 'Linedance',                 'd' => 'Prova på med Tobias Herbertzon' ),
+		array( 't' => '14:00', 'n' => 'Modevisning',               'd' => 'Modestugan visar höstens mode' ),
+		array( 't' => '14:30', 'n' => 'Lotta Engberg',             'd' => 'Livemusik med pianist' ),
+		array( 't' => '15:00', 'n' => 'Föreläsning om svenskt vin','d' => 'Branschorganisationen svenskt vin' ),
+		array( 't' => '15:40', 'n' => 'Peter Börjesson',           'd' => 'Föreläsning om 60-talets Varberg' ),
+		array( 't' => '16:00', 'n' => 'Elisabeth Wahlin',          'd' => '100% livslust' ),
+	);
 
-$utstallarscenen = array(
-	array( 't' => '11:00', 'n' => 'Glaukomföreningen',         'd' => 'Den lömska smygande ögonsjukdomen Glaukom' ),
-	array( 't' => '11:30', 'n' => 'Hantverksmagasinet',        'd' => 'Kan hantverk förändra världen?' ),
-	array( 't' => '12:00', 'n' => 'Teater Halland',            'd' => 'En plats för möten, samtal och starka teaterupplevelser' ),
-	array( 't' => '12:30', 'n' => 'Jourhavande medmänniska',   'd' => 'Informerar om sin verksamhet' ),
-	array( 't' => '13:00', 'n' => 'Varbergs kommun',           'd' => 'Välkommen på en digital promenad i framtidens Västerport!' ),
-	array( 't' => '13:30', 'n' => 'Varberg Energi',            'd' => 'Få bättre koll på din energi — på ett enkelt sätt!' ),
-	array( 't' => '14:00', 'n' => 'Fot & Fin',                 'd' => 'Har vi slutat lita på våra fötter?' ),
-	array( 't' => '14:30', 'n' => 'Samtalsbyrån Varberg',      'd' => 'Sorg genom livet — och vägarna som hjälper oss vidare' ),
-);
+	$utstallarscenen = array(
+		array( 't' => '11:00', 'n' => 'Glaukomföreningen',         'd' => 'Den lömska smygande ögonsjukdomen Glaukom' ),
+		array( 't' => '11:30', 'n' => 'Hantverksmagasinet',        'd' => 'Kan hantverk förändra världen?' ),
+		array( 't' => '12:00', 'n' => 'Teater Halland',            'd' => 'En plats för möten, samtal och starka teaterupplevelser' ),
+		array( 't' => '12:30', 'n' => 'Jourhavande medmänniska',   'd' => 'Informerar om sin verksamhet' ),
+		array( 't' => '13:00', 'n' => 'Varbergs kommun',           'd' => 'Välkommen på en digital promenad i framtidens Västerport!' ),
+		array( 't' => '13:30', 'n' => 'Varberg Energi',            'd' => 'Få bättre koll på din energi — på ett enkelt sätt!' ),
+		array( 't' => '14:00', 'n' => 'Fot & Fin',                 'd' => 'Har vi slutat lita på våra fötter?' ),
+		array( 't' => '14:30', 'n' => 'Samtalsbyrån Varberg',      'd' => 'Sorg genom livet — och vägarna som hjälper oss vidare' ),
+	);
+}
+
+$total_count = count( $stora_scen ) + count( $utstallarscenen );
 
 get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Program',
-	'title'   => 'En dag, två scener, 18 programpunkter.',
+	'title'   => sprintf( 'En dag, två scener, %d programpunkter.', $total_count ),
 	'body'    => 'Allt ingår i entrén — kom och gå som du vill.',
 	'tone'    => 'primary',
 ) );
