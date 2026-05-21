@@ -13,7 +13,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ## Status (senast uppdaterad)
 
-**Tema-version: 0.13.0** — driftsatt på `http://seniormassanvarberg.se` (HTTP fortfarande; SSL kommer när Loopia-fakturan är betald och DNS pekas om till Oderland).
+**Tema-version: 0.13.0** — driftsatt på `https://seniormassanvarberg.se` (HTTPS aktivt via Let's Encrypt; DNS pekar på Oderland).
 
 ### Klart
 - **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
@@ -42,7 +42,6 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
   Alla läser från CPT med fallback till hårdkodad lista tills första posten är inlagd. Sortering via "Ordning" i Sidattribut. Hjälpfunktioner: `sm_program_items()`, `sm_contacts()`, `sm_highlights()`, `sm_zones()` + motsvarande `sm_has_*()`.
 
 ### Att göra (nästa iterationer)
-- **SSL** via Let's Encrypt (kräver att DNS pekar rätt först)
 - **Integritetspolicy + utställarvillkor** (sidor saknas — skapa en WP-sida och sätt slug till `integritet`, eller koppla via Inställningar → Privacy så används den automatiskt av cookie-bannerns "Läs mer"-länk)
 - **Tillgänglighetspass** (prefers-reduced-motion på hero-karusell, aria-label på båskartan)
 
@@ -193,10 +192,10 @@ WordPress-sidor som måste finnas:
 
 - **Kontot**: arenavarberg på cPanel, primärdomän `arenavarberg.se`
 - **Domänen**: `seniormassanvarberg.se` ligger som addon-domän
-- **DNS**: pekar fortfarande på Loopia. När fakturan är betald: byt nameservers till Oderlands ns1/ns2/ns3.oderland.com.
-- **Tillfällig åtkomst** under tiden: hosts-fil på utvecklarens Mac mappar `seniormassanvarberg.se` → `91.201.63.11`.
-- **HTTP/HTTPS**: bara HTTP fungerar tills DNS pekar rätt och Let's Encrypt kan utfärda cert. `wp-config.php` har manuellt satt `WP_HOME`/`WP_SITEURL` till `http://...`.
+- **DNS**: pekar på Oderlands nameservers (ns1/ns2/ns3.oderland.com). Server-IP: `91.201.63.11`.
+- **HTTPS**: aktivt via Let's Encrypt (AutoSSL). `wp-config.php` har `WP_HOME`/`WP_SITEURL` satt till `https://seniormassanvarberg.se`. `.htaccess` tvingar HTTP → HTTPS-redirect.
 - **Permalänkar**: "Inläggsnamn" — `.htaccess` skapad manuellt i WP-roten med standard WP-rewrites.
+- **AutoSSL-varningar**: cPanels auto-genererade service-subdomäner (`webdisk.`, `cpcalendars.`, `cpcontacts.`, `ipv6.`, `seniormassanvarberg.se.arenavarberg.se` osv.) saknar DNS-poster och triggar varningar. Exkluderade från AutoSSL via SSL/TLS Status → Exclude Domains.
 
 ## Git-konventioner
 
