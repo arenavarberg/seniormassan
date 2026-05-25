@@ -129,6 +129,19 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		.sm-wiz-stepper-btn { padding: 12px 6px; font-size: 12px; }
 		.sm-wiz-stepper-btn span:not(.sm-wiz-stepper-circle) { display: none; }
 	}
+	@media (max-width: 600px) {
+		.sm-wiz-header { padding: 18px 18px !important; }
+		.sm-wiz-header-title { font-size: 19px !important; }
+		.sm-wiz-body { padding: 28px 18px !important; min-height: 0 !important; }
+		.sm-wiz-grid-2 { grid-template-columns: 1fr !important; }
+		.sm-review-grid { grid-template-columns: 1fr !important; }
+		.sm-stage-grid { grid-template-columns: repeat(2, 1fr) !important; }
+		.sm-wiz-footer { padding: 16px 18px !important; gap: 10px !important; }
+		.sm-wiz-total { flex: 1 1 100%; }
+		.sm-wiz-spacer { display: none; }
+		.sm-wiz-footer .sm-btn { flex: 1 1 auto; }
+		.sm-wiz-footer #sm-wiz-back { flex: 0 0 auto; }
+	}
 
 	/* Collapsible monter-sektioner */
 	.sm-section-toggle {
@@ -188,10 +201,10 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	<div style="background: var(--sm-bg); width: 100%; max-width: 980px; margin: 0 auto; border-radius: var(--sm-radius-lg); box-shadow: 0 40px 80px rgba(0,0,0,0.15); overflow: hidden;">
 
 		<!-- Header -->
-		<div style="background: var(--sm-primary); color: #fff; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center;">
+		<div class="sm-wiz-header" style="background: var(--sm-primary); color: #fff; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
 			<div>
 				<div style="font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.85;">Utställaranmälan 2027</div>
-				<div style="font-family: var(--sm-font-display); font-size: 26px; font-weight: 800; margin-top: 4px;">Seniormässan · Arena Varberg</div>
+				<div class="sm-wiz-header-title" style="font-family: var(--sm-font-display); font-size: 26px; font-weight: 800; margin-top: 4px;">Seniormässan · Arena Varberg</div>
 			</div>
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="Stäng" style="background: rgba(255,255,255,0.15); color: #fff; border: none; width: 40px; height: 40px; border-radius: 20px; font-size: 20px; text-decoration: none; display: flex; align-items: center; justify-content: center;">×</a>
 		</div>
@@ -214,7 +227,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			<?php wp_nonce_field( 'sm_register', 'sm_register_nonce' ); ?>
 
 			<!-- Body -->
-			<div style="padding: 40px 48px; min-height: 480px; background: var(--sm-bg);">
+			<div class="sm-wiz-body" style="padding: 40px 48px; min-height: 480px; background: var(--sm-bg);">
 
 				<?php if ( $errors && is_array( $errors ) ) : ?>
 					<div style="background: #fee2e2; border: 1px solid #fecaca; border-radius: var(--sm-radius-lg); padding: 16px 20px; margin-bottom: 24px; color: #991b1b;">
@@ -232,7 +245,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Företagsuppgifter</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 28px;">Webbplatsen visas i den publika utställarlistan. Saknar du webbplats — bocka i rutan så hoppar fältet förbi.</p>
 
-					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+					<div class="sm-wiz-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
 						<?php
 						$fields_step1 = array(
 							array( 'sm_company',       'Företagsnamn',          'text',  true ),
@@ -554,11 +567,11 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			</div>
 
 			<!-- Footer -->
-			<div style="padding: 20px 48px; background: #fff; border-top: 1px solid var(--sm-line); display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-				<div style="font-size: 14px; color: var(--sm-muted);">
+			<div class="sm-wiz-footer" style="padding: 20px 48px; background: #fff; border-top: 1px solid var(--sm-line); display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+				<div class="sm-wiz-total" style="font-size: 14px; color: var(--sm-muted);">
 					Total: <strong style="color: var(--sm-primary); font-size: 20px;"><span id="sm-footer-total">0</span> kr</strong> <span id="sm-footer-moms">exkl. moms</span>
 				</div>
-				<div style="flex: 1;"></div>
+				<div class="sm-wiz-spacer" style="flex: 1;"></div>
 				<button type="button" class="sm-btn sm-btn--ghost sm-btn--small" id="sm-wiz-back" style="display: none;">← Tillbaka</button>
 				<button type="button" class="sm-btn sm-btn--small" id="sm-wiz-next">Nästa →</button>
 				<button type="submit" name="sm_register_submit" value="1" class="sm-btn sm-btn--accent sm-btn--small" id="sm-wiz-submit" style="display: none;">Skicka anmälan ✓</button>
