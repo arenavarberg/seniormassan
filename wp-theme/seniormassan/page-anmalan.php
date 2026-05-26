@@ -7,7 +7,8 @@
 
 get_header();
 
-$ref_id = isset( $_GET['ref'] ) ? (int) $_GET['ref'] : 0;
+$ref_id  = isset( $_GET['ref'] ) ? (int) $_GET['ref'] : 0;
+$updated = isset( $_GET['updated'] );
 
 // Bekräftelsesida
 if ( $ref_id ) {
@@ -21,14 +22,16 @@ if ( $ref_id ) {
 		<section style="background: var(--sm-primary); color: #fff;">
 			<div class="sm-container" style="padding: 80px 32px; max-width: 720px; text-align: center;">
 				<div style="font-size: 64px; margin-bottom: 16px;">✓</div>
-				<h1 style="font-size: var(--sm-fs-xl); color: #fff;">Tack för din anmälan!</h1>
+				<h1 style="font-size: var(--sm-fs-xl); color: #fff;"><?php echo $updated ? 'Din bokning är uppdaterad!' : 'Tack för din anmälan!'; ?></h1>
 				<p style="font-size: var(--sm-fs-lg); opacity: 0.9; margin-top: 16px;">
-					Vi har tagit emot anmälan för <strong><?php echo esc_html( $company ); ?></strong>. En bekräftelse är skickad till den angivna e-postadressen.
+					<?php if ( $updated ) : ?>
+						Vi har sparat ändringarna för <strong><?php echo esc_html( $company ); ?></strong>. En uppdaterad bekräftelse är skickad till den angivna e-postadressen.
+					<?php else : ?>
+						Vi har tagit emot anmälan för <strong><?php echo esc_html( $company ); ?></strong>. En bekräftelse är skickad till den angivna e-postadressen.
+					<?php endif; ?>
 				</p>
 				<div style="background: rgba(255,255,255,0.1); border-radius: var(--sm-radius-lg); padding: 24px; margin-top: 32px; text-align: left;">
-					<div style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7; margin-bottom: 8px;">Referensnummer</div>
-					<div style="font-family: var(--sm-font-display); font-size: 28px; font-weight: 700;">#<?php echo (int) $ref_id; ?></div>
-					<div style="margin-top: 16px; font-size: 16px;">
+					<div style="font-size: 16px;">
 						Valda montrar: <strong><?php echo esc_html( implode( ', ', $booths ) ); ?></strong><br>
 						Preliminär totalsumma: <strong><?php echo esc_html( number_format( $total, 0, ',', "\u{00A0}" ) ); ?> kr</strong> <?php echo $is_for ? 'inkl. moms' : 'exkl. moms'; ?>
 					</div>
@@ -47,9 +50,41 @@ if ( $ref_id ) {
 
 $errors      = get_transient( 'sm_register_errors_' . sm_session_id() );
 $input       = get_transient( 'sm_register_input_' . sm_session_id() ) ?: array();
-$booked      = sm_booked_booth_ids();
+
+// Redigeringsläge: giltig boknings-ID + token (från länk eller bevarat över felomladdning).
+$edit_id    = isset( $_GET['booking'] ) ? (int) $_GET['booking'] : (int) ( $input['sm_booking_id'] ?? 0 );
+$edit_token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : (string) ( $input['sm_edit_token'] ?? '' );
+$editing    = sm_valid_edit_request( $edit_id, $edit_token );
+if ( ! $editing ) {
+	$edit_id    = 0;
+	$edit_token = '';
+}
+$self_id = $editing ? $edit_id : 0;
+
+// Förifyll formuläret från den befintliga bokningen vid färsk redigeringsladdning.
+if ( $editing && empty( $input ) ) {
+	$input = array(
+		'sm_company'          => get_post_meta( $edit_id, '_sm_company', true ),
+		'sm_orgnr'            => get_post_meta( $edit_id, '_sm_orgnr', true ),
+		'sm_contact_name'     => get_post_meta( $edit_id, '_sm_contact_name', true ),
+		'sm_contact_phone'    => get_post_meta( $edit_id, '_sm_contact_phone', true ),
+		'sm_contact_email'    => get_post_meta( $edit_id, '_sm_contact_email', true ),
+		'sm_invoice_email'    => get_post_meta( $edit_id, '_sm_invoice_email', true ),
+		'sm_invoice_address'  => get_post_meta( $edit_id, '_sm_invoice_address', true ),
+		'sm_website'          => get_post_meta( $edit_id, '_sm_website', true ),
+		'sm_no_website'       => get_post_meta( $edit_id, '_sm_no_website', true ),
+		'sm_special_requests' => get_post_meta( $edit_id, '_sm_special_requests', true ),
+		'sm_booths'           => get_post_meta( $edit_id, '_sm_booths', true ) ?: array(),
+		'sm_addons'           => get_post_meta( $edit_id, '_sm_addons', true ) ?: array(),
+		'sm_addon_variants'   => get_post_meta( $edit_id, '_sm_addon_variants', true ) ?: array(),
+		'sm_stage_slot'       => get_post_meta( $edit_id, '_sm_stage_slot', true ),
+		'sm_is_forening'      => get_post_meta( $edit_id, '_sm_is_forening', true ),
+	);
+}
+
+$booked      = sm_booked_booth_ids( $self_id );
 $booked_set  = array_flip( $booked );
-$taken_slots = sm_taken_stage_slots();
+$taken_slots = sm_taken_stage_slots( $self_id );
 $map_image   = sm_booth_map_image_url();
 
 $by_section = array();
@@ -119,7 +154,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	.sm-wiz-field-required { color: var(--sm-accent); }
 	.sm-wiz-step { display: none; }
 	.sm-wiz-step.is-active { display: block; }
-	.sm-wiz-stepper-btn { flex: 1; padding: 18px 12px; border: none; background: transparent; border-bottom: 3px solid transparent; color: var(--sm-muted); font-weight: 500; font-size: 15px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; }
+	.sm-wiz-stepper-btn { flex: 1; padding: 18px 12px; border: none; background: transparent; border-bottom: 3px solid transparent; color: var(--sm-muted); font-weight: 500; font-size: 15px; cursor: default; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit; }
 	.sm-wiz-stepper-btn.is-active { color: var(--sm-ink); font-weight: 700; border-bottom-color: var(--sm-accent); cursor: pointer; }
 	.sm-wiz-stepper-btn.is-done { color: var(--sm-ink); cursor: pointer; }
 	.sm-wiz-stepper-circle { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 13px; background: var(--sm-line); color: var(--sm-muted); font-size: 13px; font-weight: 700; }
@@ -136,6 +171,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		.sm-wiz-grid-2 { grid-template-columns: 1fr !important; }
 		.sm-review-grid { grid-template-columns: 1fr !important; }
 		.sm-stage-grid { grid-template-columns: repeat(2, 1fr) !important; }
+		#sm-booth-summary { grid-template-columns: 1fr !important; gap: 16px !important; padding: 20px !important; }
+		#sm-booth-summary > div:last-child { text-align: left !important; }
 		.sm-wiz-footer { padding: 16px 18px !important; gap: 10px !important; }
 		.sm-wiz-total { flex: 1 1 100%; }
 		.sm-wiz-spacer { display: none; }
@@ -212,7 +249,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		<!-- Stepper -->
 		<div style="display: flex; background: #fff; border-bottom: 1px solid var(--sm-line);" id="sm-wiz-stepper">
 			<?php
-			$steps = array( 'Företag', 'Monter', 'Tillägg', 'Scen', 'Granska' );
+			$steps = array( 'Monter', 'Tillägg', 'Scen', 'Företag', 'Granska' );
 			foreach ( $steps as $i => $label ) :
 				?>
 				<button type="button" class="sm-wiz-stepper-btn<?php echo $i === 0 ? ' is-active' : ''; ?>" data-step="<?php echo (int) $i; ?>">
@@ -224,10 +261,21 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="sm-reg-form" novalidate>
 			<input type="hidden" name="action" value="sm_register">
+			<input type="hidden" name="sm_is_forening" id="sm-is-forening" value="<?php echo $saved_forening ? '1' : ''; ?>">
+			<?php if ( $editing ) : ?>
+				<input type="hidden" name="sm_booking_id" value="<?php echo (int) $edit_id; ?>">
+				<input type="hidden" name="sm_edit_token" value="<?php echo esc_attr( $edit_token ); ?>">
+			<?php endif; ?>
 			<?php wp_nonce_field( 'sm_register', 'sm_register_nonce' ); ?>
 
 			<!-- Body -->
 			<div class="sm-wiz-body" style="padding: 40px 48px; min-height: 480px; background: var(--sm-bg);">
+
+				<?php if ( $editing ) : ?>
+					<div style="background: var(--sm-primary-soft); border: 1px solid var(--sm-primary); border-radius: var(--sm-radius-lg); padding: 16px 20px; margin-bottom: 24px; color: var(--sm-primary);">
+						<strong>Du redigerar en befintlig bokning.</strong> Ändra det du vill och gå vidare till sista steget för att spara. Dina nuvarande montrar och scenpass är fortfarande reserverade för dig.
+					</div>
+				<?php endif; ?>
 
 				<?php if ( $errors && is_array( $errors ) ) : ?>
 					<div style="background: #fee2e2; border: 1px solid #fecaca; border-radius: var(--sm-radius-lg); padding: 16px 20px; margin-bottom: 24px; color: #991b1b;">
@@ -240,8 +288,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					</div>
 				<?php endif; ?>
 
-				<!-- STEG 1: FÖRETAG -->
-				<div class="sm-wiz-step is-active" data-step="0">
+				<!-- STEG 4: FÖRETAG -->
+				<div class="sm-wiz-step" data-step="3">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Företagsuppgifter</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 28px;">Webbplatsen visas i den publika utställarlistan. Saknar du webbplats — bocka i rutan så hoppar fältet förbi.</p>
 
@@ -284,20 +332,11 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							<textarea name="sm_invoice_address" rows="2" class="sm-wiz-input"><?php echo esc_textarea( $input['sm_invoice_address'] ?? '' ); ?></textarea>
 						</label>
 
-						<label style="grid-column: 1 / -1;">
-							<span class="sm-wiz-field-label">Kort beskrivning av företaget</span>
-							<textarea name="sm_description" rows="3" maxlength="320" class="sm-wiz-input" placeholder="Beskriv kort vad ni gör — max 320 tecken (frivilligt)"><?php echo esc_textarea( $input['sm_description'] ?? '' ); ?></textarea>
-						</label>
-
-						<label style="grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; padding: 14px; background: #fff; border: 1px solid var(--sm-line); border-radius: 8px; cursor: pointer;">
-							<input type="checkbox" name="sm_is_forening" value="1" id="sm-is-forening" <?php checked( $saved_forening ); ?> style="margin-top: 4px;">
-							<span>Anmälan görs av <strong>ideell förening</strong> (välj då en N-monter i nästa steg — föreningspris 2 360 kr inkl. moms)</span>
-						</label>
 					</div>
 				</div>
 
-				<!-- STEG 2: MONTER -->
-				<div class="sm-wiz-step" data-step="1">
+				<!-- STEG 1: MONTER -->
+				<div class="sm-wiz-step is-active" data-step="0">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Välj monter</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 20px;">
 						På kartan ser du montrarnas placering. Klicka på en sektion nedan för att visa lediga montrar och bocka i en eller flera.
@@ -346,7 +385,23 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 									<span class="sm-chevron" style="font-size: 18px; color: var(--sm-muted);">›</span>
 								</button>
 								<div class="sm-section-body" data-section="<?php echo esc_attr( $section ); ?>">
-									<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px;">
+									<?php if ( $is_forening ) : ?>
+											<div class="sm-forening-gate" style="margin-bottom: 12px;">
+												<div class="sm-forening-q" style="<?php echo $saved_forening ? 'display:none;' : ''; ?> background: var(--sm-accent-soft); border: 1px solid var(--sm-accent); border-radius: 8px; padding: 14px 16px;">
+													<div style="font-weight: 700; margin-bottom: 4px;">Endast för ideella föreningar</div>
+													<p style="margin: 0 0 12px; font-size: 14px; color: var(--sm-ink-soft);">Montrarna i entréhallen (N) är reserverade för ideella föreningar till föreningspris. Är ni en ideell förening?</p>
+													<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+														<button type="button" class="sm-btn sm-btn--small" data-forening-set="1">Ja, vi är en ideell förening</button>
+														<button type="button" class="sm-btn sm-btn--ghost sm-btn--small" data-forening-set="0">Nej</button>
+													</div>
+												</div>
+												<div class="sm-forening-yes" style="<?php echo $saved_forening ? '' : 'display:none;'; ?> background: #e6f4ea; border: 1px solid var(--sm-success); border-radius: 8px; padding: 10px 14px; font-size: 14px;">
+													✓ Föreningspris tillämpas. Välj en N-monter nedan.
+													<button type="button" data-forening-set="0" style="background:none;border:none;color:var(--sm-primary);text-decoration:underline;cursor:pointer;font-size:14px;padding:0;margin-left:6px;">Ångra</button>
+												</div>
+											</div>
+										<?php endif; ?>
+										<div class="sm-booth-grid" style="display: <?php echo ( $is_forening && ! $saved_forening ) ? 'none' : 'grid'; ?>; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px;">
 										<?php foreach ( $booths_in_section as $b ) :
 											$is_booked   = isset( $booked_set[ $b['id'] ] );
 											$is_selected = in_array( $b['id'], $saved_booths, true );
@@ -385,8 +440,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					</div>
 				</div>
 
-				<!-- STEG 3: TILLÄGG -->
-				<div class="sm-wiz-step" data-step="2">
+				<!-- STEG 2: TILLÄGG -->
+				<div class="sm-wiz-step" data-step="1">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Tillval</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
 						Skräddarsy din monter. Registreringsavgift (<?php echo (int) sm_get_registration_fee(); ?> kr) ingår automatiskt och visas i sammanfattningen.
@@ -441,7 +496,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 											<?php if ( $scales ) : ?>
 												<div style="font-size: 12px; color: var(--sm-muted); margin-top: 8px;">
-													Antalet räknas automatiskt från antal valda montrar.
+													Antal m² räknas automatiskt från dina valda montrar (4 m² per 2×2, 6 m² per 2×3, 9 m² per 3×3).
 												</div>
 											<?php endif; ?>
 										</div>
@@ -467,8 +522,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					</label>
 				</div>
 
-				<!-- STEG 4: SCEN (matchar designens StepStage) -->
-				<div class="sm-wiz-step" data-step="3">
+				<!-- STEG 3: SCEN (matchar designens StepStage) -->
+				<div class="sm-wiz-step" data-step="2">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Utställarscen — boka tid (frivilligt)</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 24px; max-width: 720px; line-height: 1.55;">
 						Ta chansen och nå ut med ditt budskap i 15 min på utställarscenen. Skärm för presentation och ljud finns på plats. Utställarscenens program syns i vår marknadsföring.
@@ -552,7 +607,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 						<div style="margin-top: 28px; display: flex; flex-direction: column; gap: 12px;">
 							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
 								<input type="checkbox" name="sm_accept_terms" value="1" id="sm-accept-terms" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
-								<span style="font-size: 16px;">Jag godkänner <a href="<?php echo esc_url( home_url( '/villkor/' ) ); ?>" target="_blank" rel="noopener" style="color: var(--sm-primary); text-decoration: underline;">utställarvillkoren</a> och faktureringsvillkoren (30 dagar netto).</span>
+								<span style="font-size: 16px;">Jag godkänner <a href="<?php echo esc_url( home_url( '/villkor/' ) ); ?>" target="_blank" rel="noopener" style="color: var(--sm-primary); text-decoration: underline;">utställarvillkoren</a> och faktureringsvillkoren (30 dagar netto). <span style="opacity:0.65; font-size:13px;">(länken öppnas i en ny flik)</span></span>
 							</label>
 							<label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start; padding: 8px 0;">
 								<input type="checkbox" name="sm_accept_gdpr" value="1" id="sm-accept-gdpr" style="width: 22px; height: 22px; margin-top: 2px; accent-color: var(--sm-primary);">
@@ -592,6 +647,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 	function $(id) { return document.getElementById(id); }
 	function nf(n) { return n.toLocaleString('sv-SE'); }
+	function smSqm(size) { var p = String(size).split('x'); return (parseInt(p[0], 10) || 0) * (parseInt(p[1], 10) || 0); }
 
 	function readState() {
 		var booths = [];
@@ -608,7 +664,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			if (!info.scales_with_booths) return;
 			var auto = document.querySelector('.sm-addon-input-auto[data-sm-addon="' + id + '"]');
 			if (!auto) return;
-			auto.value = variants[id] ? booths.length : 0;
+			auto.value = variants[id] ? booths.reduce(function (sum, bid) { var b = data.booths[bid]; return sum + (b ? smSqm(b.size) : 0); }, 0) : 0;
 		});
 
 		var addons = {};
@@ -618,7 +674,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		});
 
 		var stage = $('sm-stage-slot-value') ? $('sm-stage-slot-value').value : '';
-		var forening = $('sm-is-forening') ? $('sm-is-forening').checked : false;
+		var forening = $('sm-is-forening') ? ($('sm-is-forening').value === '1') : false;
 		return { booths: booths, addons: addons, variants: variants, stage: stage, forening: forening };
 	}
 
@@ -639,16 +695,16 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	}
 
 	function canNext(currentStep, s) {
-		if (currentStep === 0) {
+		if (currentStep === 0) return s.booths.length > 0; // Monter
+		if (currentStep === 1) return true;                // Tillägg
+		if (currentStep === 2) return true;                // Scen (frivilligt)
+		if (currentStep === 3) {                           // Företag
 			var required = document.querySelectorAll('[data-step1-input][data-required="1"]:not([disabled])');
 			for (var i = 0; i < required.length; i++) {
 				if (!required[i].value.trim()) return false;
 			}
 			return true;
 		}
-		if (currentStep === 1) return s.booths.length > 0;
-		if (currentStep === 2) return true;
-		if (currentStep === 3) return true; // scen är valfritt
 		if (currentStep === 4) return $('sm-accept-terms').checked && $('sm-accept-gdpr').checked;
 		return true;
 	}
@@ -812,6 +868,28 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 			var body = document.querySelector('.sm-section-body[data-section="' + btn.dataset.section + '"]');
 			if (body) body.classList.toggle('is-open', !expanded);
+		});
+	});
+
+	// Förenings-gate i N-sektionen
+	document.querySelectorAll('[data-forening-set]').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var yes = btn.dataset.foreningSet === '1';
+			$('sm-is-forening').value = yes ? '1' : '';
+			var gate = btn.closest('.sm-forening-gate');
+			var body = btn.closest('.sm-section-body');
+			var grid = body ? body.querySelector('.sm-booth-grid') : null;
+			if (gate) {
+				var q = gate.querySelector('.sm-forening-q');
+				var yesBox = gate.querySelector('.sm-forening-yes');
+				if (q) q.style.display = yes ? 'none' : '';
+				if (yesBox) yesBox.style.display = yes ? '' : 'none';
+			}
+			if (grid) {
+				grid.style.display = yes ? 'grid' : 'none';
+				if (!yes) grid.querySelectorAll('.sm-booth-input:checked').forEach(function (i) { i.checked = false; });
+			}
+			render();
 		});
 	});
 

@@ -122,12 +122,13 @@ function sm_registration_meta_box_html( $post ) {
 		'_sm_website'         => 'Webbplats',
 		'_sm_description'     => 'Beskrivning',
 	);
-	$status = get_post_meta( $post->ID, '_sm_status', true ) ?: 'pending';
-	$booths = get_post_meta( $post->ID, '_sm_booths', true ) ?: array();
-	$addons = get_post_meta( $post->ID, '_sm_addons', true ) ?: array();
-	$reqs   = get_post_meta( $post->ID, '_sm_special_requests', true );
-	$total  = (int) get_post_meta( $post->ID, '_sm_total', true );
-	$is_for = get_post_meta( $post->ID, '_sm_is_forening', true );
+	$status   = get_post_meta( $post->ID, '_sm_status', true ) ?: 'pending';
+	$booths   = get_post_meta( $post->ID, '_sm_booths', true ) ?: array();
+	$addons   = get_post_meta( $post->ID, '_sm_addons', true ) ?: array();
+	$variants = get_post_meta( $post->ID, '_sm_addon_variants', true ) ?: array();
+	$reqs     = get_post_meta( $post->ID, '_sm_special_requests', true );
+	$total    = (int) get_post_meta( $post->ID, '_sm_total', true );
+	$is_for   = get_post_meta( $post->ID, '_sm_is_forening', true );
 
 	echo '<style>.sm-meta-grid{display:grid;grid-template-columns:200px 1fr;gap:12px 24px;align-items:start;margin-bottom:16px;}.sm-meta-grid label{font-weight:600;padding-top:6px;}.sm-meta-grid input,.sm-meta-grid textarea,.sm-meta-grid select{width:100%;padding:6px 10px;}</style>';
 
@@ -151,7 +152,35 @@ function sm_registration_meta_box_html( $post ) {
 
 	echo '<label>Förening</label><label><input type="checkbox" name="sm_is_forening" value="1" ' . checked( $is_for, '1', false ) . '> Anmälan från ideell förening (N-monter / inkl. moms)</label>';
 
-	echo '<label>Montrar</label><div>' . esc_html( implode( ', ', (array) $booths ) ) . '</div>';
+	$booked_other     = sm_booked_booth_ids( $post->ID );
+	$booked_other_set = array_flip( $booked_other );
+	$booths_by_sec    = array();
+	foreach ( sm_booths() as $b ) {
+		$booths_by_sec[ substr( $b['id'], 0, 1 ) ][] = $b;
+	}
+	ksort( $booths_by_sec );
+	echo '<label>Montrar</label><div>';
+	echo '<div style="max-height:240px;overflow:auto;border:1px solid #dcdcde;border-radius:4px;padding:10px;">';
+	foreach ( $booths_by_sec as $sec => $list ) {
+		echo '<div style="font-weight:600;margin:6px 0 4px;">Sektion ' . esc_html( $sec ) . ( $sec === 'N' ? ' (förening)' : '' ) . '</div>';
+		echo '<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;">';
+		foreach ( $list as $b ) {
+			$checked    = in_array( $b['id'], (array) $booths, true ) ? 'checked' : '';
+			$taken_else = isset( $booked_other_set[ $b['id'] ] );
+			printf(
+				'<label style="font-size:12px;%s"%s><input type="checkbox" name="sm_admin_booths[]" value="%s" %s> %s</label>',
+				$taken_else ? 'color:#b32d2e;' : '',
+				$taken_else ? ' title="Bokad av en annan anmälan"' : '',
+				esc_attr( $b['id'] ),
+				$checked,
+				esc_html( $b['id'] )
+			);
+		}
+		echo '</div>';
+	}
+	echo '</div>';
+	echo '<p class="description">Bocka i/ur montrar. Röd = redan bokad av en annan anmälan. Totalsumman räknas om när du sparar.</p>';
+	echo '</div>';
 
 	$stage_slot  = get_post_meta( $post->ID, '_sm_stage_slot', true );
 	$taken_other = sm_taken_stage_slots( $post->ID ); // exkludera den här posten själv
@@ -175,22 +204,47 @@ function sm_registration_meta_box_html( $post ) {
 	echo '</div>';
 
 	echo '<label>Tillval</label><div>';
-	if ( is_array( $addons ) && $addons ) {
-		echo '<ul style="margin:0;padding-left:18px;">';
-		foreach ( $addons as $id => $qty ) {
-			$a = sm_addon( $id );
-			if ( $a && (int) $qty > 0 ) {
-				printf( '<li>%s × %d (%s kr/st)</li>', esc_html( $a['name'] ), (int) $qty, esc_html( $a['price'] ) );
+	echo '<table style="width:100%;border-collapse:collapse;max-width:560px;">';
+	foreach ( sm_addons() as $a ) {
+		$id     = $a['id'];
+		$qty    = isset( $addons[ $id ] ) ? (int) $addons[ $id ] : 0;
+		$scales = ! empty( $a['scales_with_booths'] );
+		$unit   = $a['price_label'] ?? 'kr/st';
+		echo '<tr style="border-bottom:1px solid #f0f0f1;">';
+		printf(
+			'<td style="padding:4px 8px 4px 0;">%s <span style="color:#646970;">(%s %s)</span></td>',
+			esc_html( $a['name'] ),
+			esc_html( $a['price'] ),
+			esc_html( $unit )
+		);
+		if ( ! empty( $a['variants'] ) ) {
+			$cur_v = $variants[ $id ] ?? '';
+			echo '<td style="padding:4px 8px;"><select name="sm_admin_addon_variants[' . esc_attr( $id ) . ']" style="min-width:110px;"><option value="">— ingen —</option>';
+			foreach ( $a['variants'] as $v ) {
+				printf( '<option value="%s"%s>%s</option>', esc_attr( $v ), selected( $cur_v, $v, false ), esc_html( $v ) );
 			}
+			echo '</select></td>';
+		} else {
+			echo '<td></td>';
 		}
-		echo '</ul>';
-	} else {
-		echo '—';
+		if ( $scales ) {
+			printf( '<td style="padding:4px 8px;color:#646970;font-size:12px;">%s m² — räknas från montrarna</td>', (int) $qty );
+		} else {
+			printf( '<td style="padding:4px 8px;"><input type="number" min="0" max="99" name="sm_admin_addons[%s]" value="%d" style="width:64px;"></td>', esc_attr( $id ), $qty );
+		}
+		echo '</tr>';
 	}
+	echo '</table>';
+	echo '<p class="description">Ändra antal/variant. Montermattan räknas automatiskt per m² från valda montrar när en färg är vald.</p>';
 	echo '</div>';
 
 	echo '<label>Önskemål</label><div style="white-space:pre-wrap;">' . esc_html( $reqs ?: '—' ) . '</div>';
-	echo '<label>Totalsumma</label><div><strong>' . esc_html( number_format( $total, 0, ',', "\u{00A0}" ) ) . ' kr</strong> ' . ( $is_for ? 'inkl. moms' : 'exkl. moms' ) . '</div>';
+	echo '<label>Totalsumma</label><div><strong>' . esc_html( number_format( $total, 0, ',', "\u{00A0}" ) ) . ' kr</strong> ' . ( $is_for ? 'inkl. moms' : 'exkl. moms' ) . ' <span class="description">(räknas om vid sparning)</span></div>';
+
+	if ( function_exists( 'sm_booking_edit_url' ) ) {
+		$edit_link = sm_booking_edit_url( $post->ID );
+		echo '<label>Ändra-länk</label><div><input type="text" readonly value="' . esc_attr( $edit_link ) . '" style="width:100%;" onclick="this.select();"><p class="description">Personlig länk där utställaren själv kan ändra sin bokning (skickas i bekräftelsemejlet).</p></div>';
+	}
 	echo '</div>';
 }
 
@@ -211,7 +265,44 @@ function sm_save_registration_meta( $post_id ) {
 			update_post_meta( $post_id, '_sm_' . $k, sanitize_textarea_field( wp_unslash( $_POST[ 'sm_' . $k ] ) ) );
 		}
 	}
-	update_post_meta( $post_id, '_sm_is_forening', isset( $_POST['sm_is_forening'] ) ? '1' : '' );
+	$is_for = isset( $_POST['sm_is_forening'] );
+	update_post_meta( $post_id, '_sm_is_forening', $is_for ? '1' : '' );
+
+	// Montrar
+	$new_booths = ( isset( $_POST['sm_admin_booths'] ) && is_array( $_POST['sm_admin_booths'] ) )
+		? array_values( array_map( 'sanitize_text_field', wp_unslash( $_POST['sm_admin_booths'] ) ) )
+		: array();
+	update_post_meta( $post_id, '_sm_booths', $new_booths );
+
+	// Tillval + varianter (montermatta räknas per m² från montrarna)
+	$new_addons   = array();
+	$new_variants = array();
+	foreach ( sm_addons() as $a ) {
+		$id      = $a['id'];
+		$variant = '';
+		if ( ! empty( $a['variants'] ) && isset( $_POST['sm_admin_addon_variants'][ $id ] ) ) {
+			$chosen = sanitize_text_field( wp_unslash( $_POST['sm_admin_addon_variants'][ $id ] ) );
+			if ( in_array( $chosen, $a['variants'], true ) ) {
+				$variant = $chosen;
+			}
+		}
+		if ( ! empty( $a['scales_with_booths'] ) ) {
+			$qty = $variant ? sm_booths_total_sqm( $new_booths ) : 0;
+		} else {
+			$qty = isset( $_POST['sm_admin_addons'][ $id ] ) ? max( 0, (int) $_POST['sm_admin_addons'][ $id ] ) : 0;
+		}
+		if ( $qty > 0 ) {
+			$new_addons[ $id ] = $qty;
+			if ( $variant ) {
+				$new_variants[ $id ] = $variant;
+			}
+		}
+	}
+	update_post_meta( $post_id, '_sm_addons', $new_addons );
+	update_post_meta( $post_id, '_sm_addon_variants', $new_variants );
+
+	// Räkna om totalsumman
+	update_post_meta( $post_id, '_sm_total', sm_calculate_total( $new_booths, $new_addons, $is_for ) );
 
 	// Scenpass: tomt värde frigör en tidigare bokad tid; annars måste tiden vara
 	// giltig och inte upptagen av en annan anmälan.

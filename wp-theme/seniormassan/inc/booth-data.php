@@ -193,6 +193,28 @@ function sm_is_forening_booth( $id ) {
 	return is_string( $id ) && strpos( $id, 'N' ) === 0;
 }
 
+/**
+ * Yta i kvadratmeter för en monterstorlek (t.ex. '2x3' → 6).
+ */
+function sm_booth_sqm( $size ) {
+	$map = array( '2x2' => 4, '2x3' => 6, '3x3' => 9 );
+	return $map[ $size ] ?? 0;
+}
+
+/**
+ * Summan av kvadratmeter för en lista monter-ID.
+ */
+function sm_booths_total_sqm( $ids ) {
+	$sqm = 0;
+	foreach ( (array) $ids as $id ) {
+		$b = sm_booth( $id );
+		if ( $b ) {
+			$sqm += sm_booth_sqm( $b['size'] );
+		}
+	}
+	return $sqm;
+}
+
 function sm_booth_price( $id ) {
 	if ( sm_is_forening_booth( $id ) ) {
 		return sm_get_forening_price();
@@ -203,6 +225,30 @@ function sm_booth_price( $id ) {
 		}
 	}
 	return 0;
+}
+
+/**
+ * Beräknar totalsumman för en bokning (montrar + tillval + reg.avgift, ev. moms).
+ * Delad av formulärhandlern och admin-redigeringen så beräkningen är identisk.
+ */
+function sm_calculate_total( $booths, $addons, $is_forening ) {
+	$total = 0;
+	foreach ( (array) $booths as $bid ) {
+		$total += sm_booth_price( $bid );
+	}
+	foreach ( (array) $addons as $id => $qty ) {
+		$a = sm_addon( $id );
+		if ( $a ) {
+			$total += (int) $a['price'] * (int) $qty;
+		}
+	}
+	if ( ! empty( $booths ) ) {
+		$total += sm_get_registration_fee();
+	}
+	if ( $is_forening ) {
+		$total = (int) round( $total * 1.25 );
+	}
+	return (int) $total;
 }
 
 function sm_booth( $id ) {
@@ -266,7 +312,7 @@ function sm_booked_booth_ids( $exclude_post_id = 0 ) {
  */
 function sm_addons_raw() {
 	return array(
-		array( 'id' => 'matta',     'name' => 'Montermatta',                'price' => 110, 'cat' => 'Mattor & golv', 'variants' => array( 'Blå', 'Röd', 'Grön', 'Grå', 'Svart', 'Orange' ), 'scales_with_booths' => true, 'price_label' => 'kr/monter' ),
+		array( 'id' => 'matta',     'name' => 'Montermatta',                'price' => 110, 'cat' => 'Mattor & golv', 'variants' => array( 'Blå', 'Röd', 'Grön', 'Grå', 'Svart', 'Orange' ), 'scales_with_booths' => true, 'scales_by' => 'sqm', 'price_label' => 'kr/m²' ),
 		array( 'id' => 'stol',      'name' => 'Stol',                       'price' => 60,  'cat' => 'Möbler' ),
 		array( 'id' => 'barstol',   'name' => 'Barstol',                    'price' => 130, 'cat' => 'Möbler' ),
 		array( 'id' => 'bord180',   'name' => 'Bord 180×80 cm',             'price' => 130, 'cat' => 'Möbler' ),
