@@ -13,7 +13,7 @@ Sajten är för **Seniormässan på Arena Varberg**, onsdag 24 februari 2027. M�
 
 ## Status (senast uppdaterad)
 
-**Tema-version: 0.13.0** — driftsatt på `https://seniormassanvarberg.se` (HTTPS aktivt via Let's Encrypt; DNS pekar på Oderland).
+**Tema-version: 0.15.0** — driftsatt på `https://seniormassanvarberg.se` (HTTPS aktivt via Let's Encrypt; DNS pekar på Oderland).
 
 ### Klart
 - **5 publika sidor**: För besökare, Program, Hitta hit, Kontakt, För utställare
@@ -131,6 +131,7 @@ Hjälpfunktioner i `inc/customizer.php` är källan till sanningen för alla glo
 - `sm_event_date_long()`, `sm_event_hours()`, `sm_event_doors()`, `sm_event_entry()`, `sm_event_tagline()`
 - `sm_venue_name()`, `sm_venue_street()`, `sm_venue_zip()`, `sm_venue_main_email()`, `sm_venue_main_phone()`
 - `sm_booth_map_image_url()`, `sm_booking_email()`, `sm_last_registration_date()`
+- `sm_ticket_url()`, `sm_ticket_label()` — flytande "Förköp entré"-knapp (footer.php) på publika sidor; visas bara när URL är satt i Anpassa → Förköp / biljetter
 - `sm_addon_icon( $addon_id, $variant = null )`
 
 När du lägger till ett nytt redigerbart fält: lägg till settingen i `sm_customizer_register()` och en hjälpfunktion längst ner i samma fil.
@@ -156,17 +157,29 @@ Scenpass-bokningar härleds på liknande sätt — `sm_taken_stage_slots()`.
 
 Formuläret på `/anmalan/` är en hybrid: HTML-formulär med JS-stepper.
 
+- **Stegordning (5 steg):** Monter (0) → Tillägg (1) → Scen (2) → Företag (3) → Granska (4). `data-step`-attributen styr vilket steg som visas; `$steps`-arrayen + `canNext()` måste matcha samma index.
 - Alla 5 steg renderas i DOM:en samtidigt; JS togglar `is-active`-klass.
 - `readState()` läser DOM, `computeTotal()` beräknar pris.
 - `canNext(step, state)` validerar per steg. Inga `required`-attribut används — `novalidate` är satt på formuläret eftersom HTML5-validering kraschar på dolda fält.
+- **Förening:** ingen kryssruta i Företag-steget. I monter-steget har N-sektionen en Ja/Nej-fråga ("Är ni en ideell förening?") som sätter det dolda fältet `#sm-is-forening` och visar/döljer N-montrarna. `readState()` läser `.value === '1'`.
+- **Montermatta** skalar per m²: kvantiteten = summan av valda montrars yta (`sm_booth_sqm()`: 2x2=4, 2x3=6, 3x3=9). Priset visas som `kr/m²`.
 - Submit POSTar till `admin-post.php` med `action=sm_register`. Handlern ligger i `inc/registration-handler.php`.
+- **Totalsumma** beräknas av den delade hjälparen `sm_calculate_total( $booths, $addons, $is_forening )` i `booth-data.php` — används av både handlern och admin-redigeringen.
+
+### Redigera bokning i efterhand
+
+Varje anmälan får en `_sm_edit_token`. `sm_booking_edit_url( $post_id )` ger länken `/anmalan/?booking=ID&token=TOKEN` som skickas i bekräftelsemejlet och visas i admin. När den öppnas förifylls formuläret och submit **uppdaterar** posten istället för att skapa ny (`sm_valid_edit_request()`). Egen monter/scenpass exkluderas från upptaget-kollen via `$self_id`.
+
+### Mejl
+
+`sm_send_registration_emails( $post_id, $editing )` skickar notis till `sm_booking_email()` och bekräftelse till utställaren. Avsändare (From/Reply-To) sätts till `bokning@arenavarberg.se`. Bekräftelsen innehåller montrar, scenpass, tillval och ändra-länken. **OBS:** tillförlitlig leverans som `bokning@arenavarberg.se` kräver korrekt SPF/avsändarrättigheter på Oderland (annars kan ett SMTP-plugin behövas).
 
 ### Att lägga till ett nytt tillval
 
 Redigera `sm_addons()` i `inc/booth-data.php`. Flaggor:
 
 - `'variants' => [ 'Färg1', ... ]` — visar variant-knappar
-- `'scales_with_booths' => true` — kvantitet räknas automatiskt från antal valda montrar (som montermatta), ingen quantity-input visas
+- `'scales_with_booths' => true` + `'scales_by' => 'sqm'` — kvantitet räknas automatiskt (montermatta = summan av valda montrars m²), ingen quantity-input visas
 - `'requires' => 'barbord'` — ej implementerat på UI än, men finns i specen
 
 ### Innehåll (verbatim-strängar i designen)
