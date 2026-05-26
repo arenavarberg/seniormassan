@@ -16,7 +16,7 @@
 					<span style="width: 28px; height: 1px; background: currentColor; opacity: 0.55;"></span>
 				</div>
 			</div>
-			<div style="font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 16px; opacity: 0.6;">Sedan 2013</div>
+			<div style="font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 16px; opacity: 0.6;">Seniormässan sedan 2008</div>
 			<p style="margin-top: 24px; opacity: 0.75; max-width: 360px;">
 				<?php echo esc_html( sm_event_tagline() ); ?>
 			</p>
@@ -64,6 +64,7 @@
 				<a href="tel:<?php echo esc_attr( preg_replace( '/[^0-9+]/', '', sm_venue_main_phone() ) ); ?>" style="color: inherit; text-decoration: none;"><?php echo esc_html( sm_venue_main_phone() ); ?></a><br>
 				<a href="mailto:<?php echo esc_attr( sm_venue_main_email() ); ?>" style="color: inherit; text-decoration: none;"><?php echo esc_html( sm_venue_main_email() ); ?></a>
 			</div>
+			<img src="<?php echo esc_url( sm_image( 'arena-varberg-logo-white.png' ) ); ?>" alt="Arena Varberg" style="height: 40px; width: auto; margin-top: 24px; opacity: 0.9;">
 		</div>
 	</div>
 	<div style="border-top: 1px solid rgba(255,255,255,0.12); padding: 20px 32px; font-size: 14px; opacity: 0.7; text-align: center; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;">
@@ -74,6 +75,30 @@
 		<a href="<?php echo esc_url( home_url( '/villkor/' ) ); ?>" style="color: inherit; text-decoration: none;">Utställarvillkor</a>
 	</div>
 </footer>
+
+<?php
+// Flytande förköpsknapp — visas på publika sidor när en biljettlänk är angiven.
+$sm_ticket_url = sm_ticket_url();
+if ( $sm_ticket_url && ! is_page( array( 'for-utstallare', 'anmalan', 'villkor', 'integritet' ) ) ) :
+	?>
+	<a href="<?php echo esc_url( $sm_ticket_url ); ?>" class="sm-ticket-fab" target="_blank" rel="noopener">
+		<span aria-hidden="true" style="font-size: 18px;">🎟</span>
+		<span><?php echo esc_html( sm_ticket_label() ); ?></span>
+	</a>
+	<style>
+		.sm-ticket-fab {
+			position: fixed; right: 24px; bottom: 24px; z-index: 90;
+			display: inline-flex; align-items: center; gap: 8px;
+			background: var(--sm-accent); color: #fff; text-decoration: none;
+			padding: 14px 22px; border-radius: 999px; font-weight: 700; font-size: 16px;
+			box-shadow: 0 8px 24px rgba(0,0,0,0.25); transition: transform 0.15s, box-shadow 0.2s;
+		}
+		.sm-ticket-fab:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+		@media (max-width: 640px) {
+			.sm-ticket-fab { right: 14px; bottom: 14px; padding: 12px 18px; font-size: 15px; }
+		}
+	</style>
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>

@@ -19,16 +19,7 @@ $packages = array(
 	array( 'size' => '2 × 2 m',  'price' => sm_get_booth_price_for_size( '2x2' ), 'ideal' => 'Standardmonter för enskild utställare', 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ) ),
 	array( 'size' => '2 × 3 m',  'price' => sm_get_booth_price_for_size( '2x3' ), 'ideal' => 'Mest populära paketet',                 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ), 'featured' => true ),
 	array( 'size' => '3 × 3 m',  'price' => sm_get_booth_price_for_size( '3x3' ), 'ideal' => 'Stor monter med extra synlighet',      'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program', '5 digitala entrébiljetter' ) ),
-	array( 'size' => 'Förening', 'price' => (int) round( sm_get_forening_price() * 1.25 ), 'price_label' => 'inkl. moms', 'ideal' => '2 × 2 m · Föreningspris (ideella föreningar)', 'includes' => array( 'El (230 V)', 'Vita mässväggar', 'Omnämning i program' ) ),
-);
-
-$addons = array(
-	array( 'Registreringsavgift (obligatorisk)', sm_get_registration_fee() ),
-	array( 'Montermatta', sm_get_addon_price( 'matta', 110 ) ),
-	array( 'Wifi (premium)', 450 ),
-	array( 'Monterbord', sm_get_addon_price( 'bord180', 350 ) ),
-	array( 'Stol', sm_get_addon_price( 'stol', 120 ) ),
-	array( 'Matbiljett utställare', sm_get_addon_price( 'lunch', 180 ) ),
+	array( 'size' => 'Förening', 'price' => (int) round( sm_get_forening_price() * 1.25 ), 'price_label' => 'inkl. moms', 'ideal' => '2 × 2 m · Föreningspris', 'includes' => array( 'El (230 V)', 'Omnämning i program' ) ),
 );
 
 $reasons = array(
@@ -144,22 +135,9 @@ get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--
 		<div style="margin-top: 64px;">
 			<div class="sm-eyebrow">Tillägg</div>
 			<h3 style="font-size: 28px; margin-bottom: 8px;"><?php echo esc_html( sm_text( 'sm_addons_title', 'Skräddarsy din monter.' ) ); ?></h3>
-			<p style="font-size: 17px; color: var(--sm-ink-soft); margin-bottom: 24px; max-width: 720px; line-height: 1.5;">
+			<p style="font-size: 17px; color: var(--sm-ink-soft); margin-bottom: 0; max-width: 720px; line-height: 1.5;">
 				<?php echo esc_html( sm_text( 'sm_addons_intro', 'Vill du ha större utrymme kan du välja flera montrar. Du kan också lägga till produkter i din monter — t.ex. golv i olika färger, bord, stolar, utställarlunch m.m.' ) ); ?>
 			</p>
-			<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--sm-line); border-radius: var(--sm-radius-lg); overflow: hidden; background: var(--sm-bg);">
-				<?php
-				$total = count( $addons );
-				foreach ( $addons as $i => $a ) :
-					$show_bottom = $i < $total - 3;
-					$show_right  = ( $i + 1 ) % 3 !== 0;
-					?>
-					<div style="padding: 20px 24px; display: flex; justify-content: space-between; <?php echo $show_bottom ? 'border-bottom: 1px solid var(--sm-line);' : ''; ?> <?php echo $show_right ? 'border-right: 1px solid var(--sm-line);' : ''; ?>">
-						<span style="font-size: 17px;"><?php echo esc_html( $a[0] ); ?></span>
-						<span style="font-weight: 700; color: var(--sm-primary);"><?php echo esc_html( $a[1] ); ?> kr</span>
-					</div>
-				<?php endforeach; ?>
-			</div>
 		</div>
 
 		<div style="text-align: center; margin-top: 56px;">

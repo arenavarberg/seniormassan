@@ -54,6 +54,14 @@ get_template_part( 'template-parts/page-hero', null, array(
 		<?php echo esc_html( sm_text( 'sm_program_intro', 'Programmet uppdateras löpande inför mässan. Med reservation för ändringar.' ) ); ?>
 	</p>
 
+	<div style="background: var(--sm-surface); border-radius: var(--sm-radius-lg); padding: 40px 44px; margin-bottom: 48px; border: 1px solid var(--sm-line-soft);">
+		<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_program_stages_eyebrow', 'Två scener' ) ); ?></div>
+		<h2 style="font-size: var(--sm-fs-lg); margin: 4px 0 12px;"><?php echo esc_html( sm_text( 'sm_program_stages_title', 'Mycket händer på våra scener' ) ); ?></h2>
+		<p style="font-size: 17px; color: var(--sm-ink-soft); margin: 0; max-width: 820px; line-height: 1.6;">
+			<?php echo esc_html( sm_text( 'sm_program_stages_body', 'Under hela mässdagen pågår program på två scener. På Stora Scenen bjuds det på livemusik, modevisningar och föreläsningar. På Utställarscenen delar våra utställare med sig av kunskap, nyheter och inspiration i kortare pass. Allt ingår i entrén — slå dig ner en stund eller följ med hela dagen.' ) ); ?>
+		</p>
+	</div>
+
 	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
 		<?php
 		$columns = array(

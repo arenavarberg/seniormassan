@@ -71,7 +71,7 @@ function sm_customizer_register( $wp_customize ) {
 	) );
 
 	$wp_customize->add_setting( 'sm_hero_h1_accent', array(
-		'default'           => '24 feb 2027',
+		'default'           => '10 mars 2027',
 		'sanitize_callback' => 'sanitize_text_field',
 	) );
 	$wp_customize->add_control( 'sm_hero_h1_accent', array(
@@ -99,7 +99,7 @@ function sm_customizer_register( $wp_customize ) {
 	) );
 
 	$wp_customize->add_setting( 'sm_event_date_long', array(
-		'default'           => 'Onsdag 24 februari 2027',
+		'default'           => 'Onsdag 10 mars 2027',
 		'sanitize_callback' => 'sanitize_text_field',
 	) );
 	$wp_customize->add_control( 'sm_event_date_long', array(
@@ -244,6 +244,34 @@ function sm_customizer_register( $wp_customize ) {
 		'section'     => 'sm_registration',
 		'type'        => 'email',
 	) );
+
+
+	// ─── FÖRKÖP / BILJETTER ──────────────────────────────
+	$wp_customize->add_section( 'sm_tickets', array(
+		'title'    => 'Förköp / biljetter',
+		'priority' => 28,
+	) );
+
+	$wp_customize->add_setting( 'sm_ticket_url', array(
+		'default'           => '',
+		'sanitize_callback' => 'esc_url_raw',
+	) );
+	$wp_customize->add_control( 'sm_ticket_url', array(
+		'label'       => 'Länk till biljettförköp',
+		'description' => 'Klistra in URL:en till biljettshoppen. Den flytande "Förköp entré"-knappen visas på de publika sidorna först när en länk är ifylld här. Lämna tom för att dölja knappen.',
+		'section'     => 'sm_tickets',
+		'type'        => 'url',
+	) );
+
+	$wp_customize->add_setting( 'sm_ticket_label', array(
+		'default'           => 'Förköp entré',
+		'sanitize_callback' => 'sanitize_text_field',
+	) );
+	$wp_customize->add_control( 'sm_ticket_label', array(
+		'label'   => 'Knapptext',
+		'section' => 'sm_tickets',
+		'type'    => 'text',
+	) );
 }
 add_action( 'customize_register', 'sm_customizer_register' );
 
@@ -256,12 +284,14 @@ function sm_palette()                  { return get_theme_mod( 'sm_palette', 'ha
 function sm_booth_map_image_url()      { return get_theme_mod( 'sm_booth_map_image', '' ); }
 function sm_booking_email()            { return get_theme_mod( 'sm_booking_email', 'bokning@arenavarberg.se' ); }
 function sm_last_registration_date()   { return get_theme_mod( 'sm_last_registration_date', '15 augusti 2027' ); }
+function sm_ticket_url()               { return get_theme_mod( 'sm_ticket_url', '' ); }
+function sm_ticket_label()             { return get_theme_mod( 'sm_ticket_label', 'Förköp entré' ); }
 
 function sm_hero_h1_main()             { return get_theme_mod( 'sm_hero_h1_main', 'Seniormässan' ); }
-function sm_hero_h1_accent()           { return get_theme_mod( 'sm_hero_h1_accent', '24 feb 2027' ); }
+function sm_hero_h1_accent()           { return get_theme_mod( 'sm_hero_h1_accent', '10 mars 2027' ); }
 function sm_hero_body()                { return get_theme_mod( 'sm_hero_body', 'En dag fylld av möten, upplevelser och inspiration — närmare 90 utställare, scenprogram, caféer och restaurang.' ); }
 
-function sm_event_date_long()          { return get_theme_mod( 'sm_event_date_long', 'Onsdag 24 februari 2027' ); }
+function sm_event_date_long()          { return get_theme_mod( 'sm_event_date_long', 'Onsdag 10 mars 2027' ); }
 function sm_event_hours()              { return get_theme_mod( 'sm_event_hours', '10.00 – 17.00' ); }
 function sm_event_doors()              { return get_theme_mod( 'sm_event_doors', 'Dörrarna öppnar 09.30' ); }
 function sm_event_entry()              { return get_theme_mod( 'sm_event_entry', '100 kr i förköp · 120 kr vid dörren (swish / kort)' ); }

@@ -117,7 +117,6 @@ if ( sm_has_highlights() ) {
 						'title' => 'När?',
 						'items' => array(
 							array( sm_event_date_long(), sm_event_hours() ),
-							array( '', sm_event_doors() ),
 						),
 					) );
 					$bus_text = str_replace( '{plats}', sm_venue_name(), sm_text( 'sm_practical_bus', 'Linje 1, 2 och 4 till {plats}' ) );
@@ -177,7 +176,22 @@ if ( sm_has_highlights() ) {
 <?php get_template_part( 'template-parts/wave-divider', null, array( 'from' => 'var(--sm-primary)', 'to' => 'var(--sm-bg)', 'flip' => true ) ); ?>
 
 <section style="background: var(--sm-bg);">
-	<div class="sm-container" style="padding: 96px 32px;">
+	<div class="sm-container" style="padding: 88px 32px;">
+		<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: center;">
+			<div>
+				<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_lunch_eyebrow', 'Mat & paus' ) ); ?></div>
+				<h2 style="font-size: var(--sm-fs-xl);"><?php echo esc_html( sm_text( 'sm_lunch_title', 'Lunch i Rotundan' ) ); ?></h2>
+				<p style="font-size: var(--sm-fs-lg); color: var(--sm-ink-soft); margin-top: 16px;">
+					<?php echo esc_html( sm_text( 'sm_lunch_body', 'Under mässdagen kan du inta din lunch i Rotundan. I samband med ditt förköp av entrébiljett kan du även förköpa din lunch — så slipper du köa och har platsen klar när hungern kommer.' ) ); ?>
+				</p>
+			</div>
+			<div style="aspect-ratio: 4/3; border-radius: var(--sm-radius-lg); overflow: hidden; background-image: url('<?php echo esc_url( sm_image_url( 'sm_lunch_image', 'senior-wide.jpg' ) ); ?>'); background-size: cover; background-position: center;"></div>
+		</div>
+	</div>
+</section>
+
+<section style="background: var(--sm-bg);">
+	<div class="sm-container" style="padding: 0 32px 96px;">
 		<div class="sm-eyebrow"><?php echo esc_html( sm_text( 'sm_highlights_eyebrow', 'Höjdpunkter 2027' ) ); ?></div>
 		<h2 style="font-size: var(--sm-fs-xl); max-width: 700px;"><?php echo esc_html( sm_text( 'sm_highlights_title', 'Det du inte vill missa.' ) ); ?></h2>
 		<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">

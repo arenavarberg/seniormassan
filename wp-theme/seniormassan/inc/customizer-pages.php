@@ -132,6 +132,17 @@ function sm_register_page_customizer( $wp_customize ) {
 	$add_text( 'sm_front_cta', 'sm_cta_body',  'Brödtext', 'Dela gärna inbjudan. Köp biljett i förköp för 100 kr, eller 120 kr vid dörren.', 'textarea' );
 
 
+	/* ─── FÖRSTASIDAN — LUNCH I ROTUNDAN ────────────────────── */
+	$wp_customize->add_section( 'sm_front_lunch', array(
+		'title'    => 'Förstasidan — Lunch i Rotundan',
+		'priority' => 44,
+	) );
+	$add_text( 'sm_front_lunch', 'sm_lunch_eyebrow', 'Etikett', 'Mat & paus' );
+	$add_text( 'sm_front_lunch', 'sm_lunch_title',   'Rubrik',  'Lunch i Rotundan' );
+	$add_text( 'sm_front_lunch', 'sm_lunch_body',    'Brödtext', 'Under mässdagen kan du inta din lunch i Rotundan. I samband med ditt förköp av entrébiljett kan du även förköpa din lunch — så slipper du köa och har platsen klar när hungern kommer.', 'textarea' );
+	$add_image( 'sm_front_lunch', 'sm_lunch_image',  'Bild', 'Visas bredvid texten. Liggande bild (4:3). Standardbild används om inget laddas upp.' );
+
+
 	/* ─── FÖRSTASIDAN — HÖJDPUNKTER-INTRO ───────────────────── */
 	$wp_customize->add_section( 'sm_front_highlights', array(
 		'title'    => 'Förstasidan — Höjdpunkter-intro',
@@ -148,6 +159,9 @@ function sm_register_page_customizer( $wp_customize ) {
 	) );
 	$add_text( 'sm_page_program', 'sm_program_hero_body', 'Hero — undertext', 'Allt ingår i entrén — kom och gå som du vill.', 'textarea' );
 	$add_text( 'sm_page_program', 'sm_program_intro',     'Datum-text under rubriken', 'Programmet uppdateras löpande inför mässan. Med reservation för ändringar.', 'textarea' );
+	$add_text( 'sm_page_program', 'sm_program_stages_eyebrow', 'Scen-intro — etikett', 'Två scener' );
+	$add_text( 'sm_page_program', 'sm_program_stages_title',   'Scen-intro — rubrik',  'Mycket händer på våra scener' );
+	$add_text( 'sm_page_program', 'sm_program_stages_body',    'Scen-intro — brödtext', 'Under hela mässdagen pågår program på två scener. På Stora Scenen bjuds det på livemusik, modevisningar och föreläsningar. På Utställarscenen delar våra utställare med sig av kunskap, nyheter och inspiration i kortare pass. Allt ingår i entrén — slå dig ner en stund eller följ med hela dagen.', 'textarea' );
 
 
 	/* ─── KONTAKT ───────────────────────────────────────────── */
