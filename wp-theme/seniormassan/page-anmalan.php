@@ -170,13 +170,13 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	@media (max-width: 600px) {
 		.sm-wiz-header { padding: 18px 18px !important; }
 		.sm-wiz-header-title { font-size: 19px !important; }
-		.sm-wiz-body { padding: 28px 18px !important; min-height: 0 !important; }
+		.sm-wiz-body { padding: 28px 18px 132px !important; min-height: 0 !important; }
 		.sm-wiz-grid-2 { grid-template-columns: 1fr !important; }
 		.sm-review-grid { grid-template-columns: 1fr !important; }
 		.sm-stage-grid { grid-template-columns: repeat(2, 1fr) !important; }
 		#sm-booth-summary { grid-template-columns: 1fr !important; gap: 16px !important; padding: 20px !important; }
 		#sm-booth-summary > div:last-child { text-align: left !important; }
-		.sm-wiz-footer { padding: 16px 18px !important; gap: 10px !important; }
+		.sm-wiz-footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 14px 18px !important; gap: 10px !important; box-shadow: 0 -2px 14px rgba(0,0,0,0.12); }
 		.sm-wiz-total { flex: 1 1 100%; }
 		.sm-wiz-spacer { display: none; }
 		.sm-wiz-footer .sm-btn { flex: 1 1 auto; }
