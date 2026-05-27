@@ -391,13 +391,17 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 													<div style="font-weight: 700; margin-bottom: 4px;">Endast för ideella föreningar</div>
 													<p style="margin: 0 0 12px; font-size: 14px; color: var(--sm-ink-soft);">Montrarna i entréhallen (N) är reserverade för ideella föreningar till föreningspris. Är ni en ideell förening?</p>
 													<div style="display: flex; gap: 8px; flex-wrap: wrap;">
-														<button type="button" class="sm-btn sm-btn--small" data-forening-set="1">Ja, vi är en ideell förening</button>
-														<button type="button" class="sm-btn sm-btn--ghost sm-btn--small" data-forening-set="0">Nej</button>
+														<button type="button" class="sm-btn sm-btn--small" data-forening="yes">Ja, vi är en ideell förening</button>
+														<button type="button" class="sm-btn sm-btn--ghost sm-btn--small" data-forening="no">Nej</button>
 													</div>
 												</div>
 												<div class="sm-forening-yes" style="<?php echo $saved_forening ? '' : 'display:none;'; ?> background: #e6f4ea; border: 1px solid var(--sm-success); border-radius: 8px; padding: 10px 14px; font-size: 14px;">
 													✓ Föreningspris tillämpas. Välj en N-monter nedan.
-													<button type="button" data-forening-set="0" style="background:none;border:none;color:var(--sm-primary);text-decoration:underline;cursor:pointer;font-size:14px;padding:0;margin-left:6px;">Ångra</button>
+													<button type="button" data-forening="reset" style="background:none;border:none;color:var(--sm-primary);text-decoration:underline;cursor:pointer;font-size:14px;padding:0;margin-left:6px;">Ångra</button>
+												</div>
+												<div class="sm-forening-no" style="display:none; background: #f4f4f6; border: 1px solid #e0e0e6; border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--sm-ink-soft);">
+													Montrarna i entréhallen (N) är endast för ideella föreningar. Välj en monter i ett annat område, eller
+													<button type="button" data-forening="reset" style="background:none;border:none;color:var(--sm-primary);text-decoration:underline;cursor:pointer;font-size:14px;padding:0;margin-left:2px;">ändra svar</button>.
 												</div>
 											</div>
 										<?php endif; ?>
@@ -872,22 +876,24 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	});
 
 	// Förenings-gate i N-sektionen
-	document.querySelectorAll('[data-forening-set]').forEach(function (btn) {
+	document.querySelectorAll('[data-forening]').forEach(function (btn) {
 		btn.addEventListener('click', function () {
-			var yes = btn.dataset.foreningSet === '1';
-			$('sm-is-forening').value = yes ? '1' : '';
+			var mode = btn.dataset.forening; // 'yes' | 'no' | 'reset'
 			var gate = btn.closest('.sm-forening-gate');
 			var body = btn.closest('.sm-section-body');
 			var grid = body ? body.querySelector('.sm-booth-grid') : null;
+			$('sm-is-forening').value = (mode === 'yes') ? '1' : '';
 			if (gate) {
 				var q = gate.querySelector('.sm-forening-q');
 				var yesBox = gate.querySelector('.sm-forening-yes');
-				if (q) q.style.display = yes ? 'none' : '';
-				if (yesBox) yesBox.style.display = yes ? '' : 'none';
+				var noBox = gate.querySelector('.sm-forening-no');
+				if (q) q.style.display = (mode === 'reset') ? '' : 'none';
+				if (yesBox) yesBox.style.display = (mode === 'yes') ? '' : 'none';
+				if (noBox) noBox.style.display = (mode === 'no') ? '' : 'none';
 			}
 			if (grid) {
-				grid.style.display = yes ? 'grid' : 'none';
-				if (!yes) grid.querySelectorAll('.sm-booth-input:checked').forEach(function (i) { i.checked = false; });
+				grid.style.display = (mode === 'yes') ? 'grid' : 'none';
+				if (mode !== 'yes') grid.querySelectorAll('.sm-booth-input:checked').forEach(function (i) { i.checked = false; });
 			}
 			render();
 		});
