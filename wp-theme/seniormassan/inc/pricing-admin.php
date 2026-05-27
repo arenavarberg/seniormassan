@@ -60,7 +60,7 @@ function sm_pricing_page() {
 	?>
 	<div class="wrap">
 		<h1>Priser</h1>
-		<p>Priserna nedan används både i utställarformuläret (<code>/anmalan/</code>) och på prislistan på <code>/for-utstallare/</code>. Alla priser anges <strong>exklusive moms</strong>. För ideella föreningar läggs 25 % moms på automatiskt vid totalsumman.</p>
+		<p>Priserna nedan används både i utställarformuläret (<code>/anmalan/</code>) och på prislistan på <code>/for-utstallare/</code>. Alla priser anges <strong>exklusive moms</strong>. För föreningar läggs 25 % moms på automatiskt vid totalsumman.</p>
 
 		<form method="post">
 			<?php wp_nonce_field( 'sm_pricing' ); ?>

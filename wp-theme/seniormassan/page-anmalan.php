@@ -150,6 +150,9 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	}
 	.sm-wiz-input:focus { outline: none; border-color: var(--sm-primary); }
 	.sm-wiz-input:disabled { background: #f5f5f5; opacity: 0.6; }
+	.sm-wiz-input.is-invalid { border-color: #dc2626; background: #fef2f2; }
+	.sm-wiz-input.is-invalid:focus { border-color: #dc2626; }
+	.sm-wiz-stepper-btn:disabled { cursor: default; }
 	.sm-wiz-field-label { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--sm-ink); display: block; }
 	.sm-wiz-field-required { color: var(--sm-accent); }
 	.sm-wiz-step { display: none; }
@@ -288,6 +291,8 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					</div>
 				<?php endif; ?>
 
+				<div id="sm-step-error" style="display: none; padding: 12px 16px; background: #fee2e2; border: 1px solid #fecaca; border-radius: var(--sm-radius-lg); color: #991b1b; font-size: 15px; margin-bottom: 24px;"></div>
+
 				<!-- STEG 4: FÖRETAG -->
 				<div class="sm-wiz-step" data-step="3">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Företagsuppgifter</h2>
@@ -388,10 +393,10 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 									<?php if ( $is_forening ) : ?>
 											<div class="sm-forening-gate" style="margin-bottom: 12px;">
 												<div class="sm-forening-q" style="<?php echo $saved_forening ? 'display:none;' : ''; ?> background: var(--sm-accent-soft); border: 1px solid var(--sm-accent); border-radius: 8px; padding: 14px 16px;">
-													<div style="font-weight: 700; margin-bottom: 4px;">Endast för ideella föreningar</div>
-													<p style="margin: 0 0 12px; font-size: 14px; color: var(--sm-ink-soft);">Montrarna i entréhallen (N) är reserverade för ideella föreningar till föreningspris. Är ni en ideell förening?</p>
+													<div style="font-weight: 700; margin-bottom: 4px;">Endast för föreningar</div>
+													<p style="margin: 0 0 12px; font-size: 14px; color: var(--sm-ink-soft);">Montrarna i entréhallen (N) är reserverade för föreningar till föreningspris. Är ni en förening?</p>
 													<div style="display: flex; gap: 8px; flex-wrap: wrap;">
-														<button type="button" class="sm-btn sm-btn--small" data-forening="yes">Ja, vi är en ideell förening</button>
+														<button type="button" class="sm-btn sm-btn--small" data-forening="yes">Ja, vi är en förening</button>
 														<button type="button" class="sm-btn sm-btn--ghost sm-btn--small" data-forening="no">Nej</button>
 													</div>
 												</div>
@@ -400,7 +405,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 													<button type="button" data-forening="reset" style="background:none;border:none;color:var(--sm-primary);text-decoration:underline;cursor:pointer;font-size:14px;padding:0;margin-left:6px;">Ångra</button>
 												</div>
 												<div class="sm-forening-no" style="display:none; background: #f4f4f6; border: 1px solid #e0e0e6; border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--sm-ink-soft);">
-													Montrarna i entréhallen (N) är endast för ideella föreningar. Välj en monter i ett annat område, eller
+													Montrarna i entréhallen (N) är endast för föreningar. Välj en monter i ett annat område, eller
 													<button type="button" data-forening="reset" style="background:none;border:none;color:var(--sm-primary);text-decoration:underline;cursor:pointer;font-size:14px;padding:0;margin-left:2px;">ändra svar</button>.
 												</div>
 											</div>
@@ -730,10 +735,9 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 		var s = readState();
 		var canProceed = canNext(step, s);
-		// Next-knappen disablas hårt; submit-knappen är alltid klickbar
-		// (klick-handlern visar tydligt fel om GDPR/villkor saknas)
-		$('sm-wiz-next').style.opacity = canProceed ? '1' : '0.4';
-		$('sm-wiz-next').style.pointerEvents = canProceed ? 'auto' : 'none';
+		// Både Nästa och Skicka är alltid klickbara; klick-handlern visar
+		// tydligt vilka fält som saknas (rödmarkering + meddelande).
+		$('sm-wiz-next').style.opacity = canProceed ? '1' : '0.55';
 		$('sm-wiz-submit').style.opacity = canProceed ? '1' : '0.55';
 
 		var total = computeTotal(s);
@@ -838,11 +842,39 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		$('sm-review-content').style.display = anyData ? 'block' : 'none';
 	}
 
+	function clearStepErrors() {
+		var box = $('sm-step-error');
+		if (box) box.style.display = 'none';
+		document.querySelectorAll('.sm-wiz-input.is-invalid').forEach(function (i) { i.classList.remove('is-invalid'); });
+	}
+
+	function showStepErrors(currentStep) {
+		var box = $('sm-step-error');
+		document.querySelectorAll('.sm-wiz-input.is-invalid').forEach(function (i) { i.classList.remove('is-invalid'); });
+		var msg = '';
+		if (currentStep === 0) {
+			msg = 'Välj minst en monter för att gå vidare.';
+		} else if (currentStep === 3) {
+			var required = document.querySelectorAll('[data-step1-input][data-required="1"]:not([disabled])');
+			var missing = 0;
+			required.forEach(function (el) { if (!el.value.trim()) { el.classList.add('is-invalid'); missing++; } });
+			msg = missing > 0 ? 'Fyll i de rödmarkerade fälten för att gå vidare.' : 'Kontrollera uppgifterna och försök igen.';
+		}
+		if (box && msg) {
+			box.textContent = msg;
+			box.style.display = 'block';
+			box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+	}
+
 	function goto(newStep) {
 		if (newStep < 0 || newStep >= TOTAL_STEPS) return;
 		var s = readState();
-		if (newStep > step && !canNext(step, s)) return;
-		if (newStep > step) completed[step] = true;
+		if (newStep > step) {
+			if (!canNext(step, s)) { showStepErrors(step); return; }
+			completed[step] = true;
+		}
+		clearStepErrors();
 		step = newStep;
 		render();
 		window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -983,6 +1015,10 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	document.addEventListener('change', function (e) {
 		if (e.target.matches('.sm-booth-input, .sm-addon-input, #sm-is-forening, #sm-accept-terms, #sm-accept-gdpr')) {
 			render();
+			if (e.target.matches('.sm-booth-input') && document.querySelector('.sm-booth-input:checked')) {
+				var sErr = $('sm-step-error');
+				if (sErr) sErr.style.display = 'none';
+			}
 			// Göm submit-felmeddelandet när användaren bockar i en ruta
 			if (e.target.id === 'sm-accept-terms' || e.target.id === 'sm-accept-gdpr') {
 				var err = $('sm-submit-error');
@@ -995,7 +1031,14 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		}
 	});
 	document.addEventListener('input', function (e) {
-		if (e.target.matches('[data-step1-input], .sm-addon-input')) render();
+		if (e.target.matches('[data-step1-input], .sm-addon-input')) {
+			e.target.classList.remove('is-invalid');
+			if (!document.querySelector('.sm-wiz-input.is-invalid')) {
+				var box = $('sm-step-error');
+				if (box) box.style.display = 'none';
+			}
+			render();
+		}
 	});
 	toggleWebsite();
 	render();

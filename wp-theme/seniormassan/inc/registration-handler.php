@@ -115,10 +115,10 @@ function sm_handle_registration() {
 	// Föreningar får endast välja N-montrar; vanliga får inte välja N
 	foreach ( $booths as $bid ) {
 		if ( sm_is_forening_booth( $bid ) && ! $is_forening ) {
-			$errors[] = 'Monter ' . $bid . ' är reserverad för ideella föreningar. Bocka i "ideell förening" om det stämmer.';
+			$errors[] = 'Monter ' . $bid . ' är reserverad för föreningar. Svara Ja på föreningsfrågan i monter-steget om det stämmer.';
 		}
 		if ( ! sm_is_forening_booth( $bid ) && $is_forening ) {
-			$errors[] = 'Som ideell förening kan du endast välja N-montrar (N1–N12).';
+			$errors[] = 'Som förening kan du endast välja N-montrar (N1–N12).';
 		}
 	}
 

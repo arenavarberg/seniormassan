@@ -150,7 +150,7 @@ function sm_registration_meta_box_html( $post ) {
 		}
 	}
 
-	echo '<label>Förening</label><label><input type="checkbox" name="sm_is_forening" value="1" ' . checked( $is_for, '1', false ) . '> Anmälan från ideell förening (N-monter / inkl. moms)</label>';
+	echo '<label>Förening</label><label><input type="checkbox" name="sm_is_forening" value="1" ' . checked( $is_for, '1', false ) . '> Anmälan från förening (N-monter / inkl. moms)</label>';
 
 	$booked_other     = sm_booked_booth_ids( $post->ID );
 	$booked_other_set = array_flip( $booked_other );
