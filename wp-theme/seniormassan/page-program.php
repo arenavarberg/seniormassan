@@ -41,7 +41,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Program',
 	'title'   => sprintf( 'En dag, två scener, %d programpunkter.', $total_count ),
 	'body'    => sm_text( 'sm_program_hero_body', 'Allt ingår i entrén — kom och gå som du vill.' ),
-	'tone'    => 'primary',
+	'tone'    => 'accent',
 ) );
 ?>
 

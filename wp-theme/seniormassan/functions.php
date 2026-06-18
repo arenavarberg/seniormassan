@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SM_THEME_VERSION', '0.15.4' );
+define( 'SM_THEME_VERSION', '0.15.5' );
 
 require_once get_theme_file_path( 'inc/customizer.php' );
 require_once get_theme_file_path( 'inc/customizer-pages.php' );

@@ -14,7 +14,7 @@ get_template_part( 'template-parts/page-hero', null, array(
 	'eyebrow' => 'Hitta hit',
 	'title'   => sm_text( 'sm_hitta_hero_title', sm_venue_name() . ' — den stadsnära arenan.' ),
 	'body'    => sm_text( 'sm_hitta_hero_body',  '15 minuters promenad från stationen. Fri parkering med över 200 platser.' ),
-	'tone'    => 'primary',
+	'tone'    => 'accent',
 ) );
 ?>
 

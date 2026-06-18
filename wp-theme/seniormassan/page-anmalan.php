@@ -527,7 +527,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 					<label style="display: block; margin-top: 16px;">
 						<span class="sm-wiz-field-label">Särskilda önskemål</span>
-						<textarea name="sm_special_requests" rows="3" class="sm-wiz-input" placeholder="Frivilligt — t.ex. placering nära fönster, plats för rullstol etc."><?php echo esc_textarea( $input['sm_special_requests'] ?? '' ); ?></textarea>
+						<textarea name="sm_special_requests" rows="3" class="sm-wiz-input" placeholder="Frivilligt — t.ex. allergier etc."><?php echo esc_textarea( $input['sm_special_requests'] ?? '' ); ?></textarea>
 					</label>
 				</div>
 
@@ -603,7 +603,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 						<div id="sm-review-tickets-wrap" style="margin-top: 24px; padding: 16px 20px; background: var(--sm-primary-soft); border: 1px solid var(--sm-primary); border-radius: 10px;">
 							<div style="display: flex; justify-content: space-between; align-items: baseline;">
-								<span style="font-size: 16px;"><strong>5 digitala entrébiljetter</strong> — bjud in dina kunder</span>
+								<span style="font-size: 16px;"><strong>5 digitala entrébiljetter</strong> — bjud in dina kunder · skickas ut i god tid innan mässan</span>
 								<span style="color: var(--sm-primary); font-weight: 700;">0 kr</span>
 							</div>
 						</div>
