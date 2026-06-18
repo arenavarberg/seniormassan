@@ -72,6 +72,21 @@ function sm_register_page_customizer( $wp_customize ) {
 	};
 
 
+	/* ─── FÖRSTASIDAN — HERO-BILDER ─────────────────────────── */
+	$wp_customize->add_section( 'sm_front_hero_images', array(
+		'title'    => 'Förstasidan — Hero-bilder',
+		'priority' => 39,
+	) );
+	$hero_default_files = array( 'hero-5.jpg', 'hero-1.jpg', 'hero-7.jpg', 'hero-2.jpg', 'hero-6.jpg', 'hero-3.jpg', 'hero-4.jpg' );
+	foreach ( $hero_default_files as $n => $file ) {
+		$num  = $n + 1;
+		$desc = $num === 1
+			? 'Bildspelet högst upp på startsidan. Liggande bild, gärna bred (t.ex. 1920×1080). Bild 1 visas först. Lämna tomt för temats standardbild.'
+			: 'Lämna tomt för temats standardbild.';
+		$add_image( 'sm_front_hero_images', 'sm_hero_image_' . $num, 'Hero-bild ' . $num, $desc );
+	}
+
+
 	/* ─── FÖRSTASIDAN — STATISTIK ────────────────────────────── */
 	$wp_customize->add_section( 'sm_front_stats', array(
 		'title'    => 'Förstasidan — statistik',

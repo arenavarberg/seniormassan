@@ -15,7 +15,13 @@
 
 get_header();
 
-$hero_photos = array( 'hero-5.jpg', 'hero-1.jpg', 'hero-7.jpg', 'hero-2.jpg', 'hero-6.jpg', 'hero-3.jpg', 'hero-4.jpg' );
+// Hero-bildspelet: 7 bilder, redigerbara via Utseende → Anpassa → Förstasidan — Hero-bilder.
+// Tomma fält faller tillbaka på temats standardbilder så karusellen aldrig blir tom.
+$hero_defaults = array( 'hero-5.jpg', 'hero-1.jpg', 'hero-7.jpg', 'hero-2.jpg', 'hero-6.jpg', 'hero-3.jpg', 'hero-4.jpg' );
+$hero_photos   = array();
+foreach ( $hero_defaults as $n => $file ) {
+	$hero_photos[] = sm_image_url( 'sm_hero_image_' . ( $n + 1 ), $file );
+}
 
 $stats = array(
 	array( sm_text( 'sm_stat_1_value', '~90' ),    sm_text( 'sm_stat_1_label', 'utställare' ) ),
@@ -52,7 +58,7 @@ if ( sm_has_highlights() ) {
 
 <section class="sm-hero" style="position: relative; background: var(--sm-ink); overflow: hidden;">
 	<?php foreach ( $hero_photos as $i => $photo ) : ?>
-		<div class="sm-hero-slide" data-index="<?php echo (int) $i; ?>" aria-hidden="<?php echo $i === 0 ? 'false' : 'true'; ?>" style="position: absolute; inset: 0; background-image: url('<?php echo esc_url( sm_image( $photo ) ); ?>'); background-size: cover; background-position: center 35%; opacity: <?php echo $i === 0 ? '1' : '0'; ?>; transition: opacity 1.2s ease-in-out;"></div>
+		<div class="sm-hero-slide" data-index="<?php echo (int) $i; ?>" aria-hidden="<?php echo $i === 0 ? 'false' : 'true'; ?>" style="position: absolute; inset: 0; background-image: url('<?php echo esc_url( $photo ); ?>'); background-size: cover; background-position: center 35%; opacity: <?php echo $i === 0 ? '1' : '0'; ?>; transition: opacity 1.2s ease-in-out;"></div>
 	<?php endforeach; ?>
 
 	<div style="position: relative; background: linear-gradient(180deg, rgba(15,23,30,0.15) 0%, rgba(15,23,30,0.55) 60%, rgba(15,23,30,0.82) 100%); min-height: 620px; display: flex; align-items: flex-end;">
