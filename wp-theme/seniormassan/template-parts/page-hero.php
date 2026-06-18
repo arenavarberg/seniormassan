@@ -7,6 +7,7 @@
  *   title:   string
  *   body:    string
  *   tone:    'primary' | 'accent'  (default primary)
+ *   bg:      string (egen bakgrundsfärg, t.ex. '#094249' — överstyr tone)
  *   cta:     string (knapptext, valfritt)
  *   cta_url: string (knapp-URL, valfritt)
  */
@@ -16,11 +17,12 @@ $eyebrow = $args['eyebrow'] ?? '';
 $title   = $args['title']   ?? '';
 $body    = $args['body']    ?? '';
 $tone    = $args['tone']    ?? 'primary';
+$bg_arg  = $args['bg']      ?? '';
 $cta     = $args['cta']     ?? '';
 $cta_url = $args['cta_url'] ?? '';
 
 $is_accent = ( $tone === 'accent' );
-$bg        = $is_accent ? 'var(--sm-accent)' : 'var(--sm-primary)';
+$bg        = $bg_arg ? $bg_arg : ( $is_accent ? 'var(--sm-accent)' : 'var(--sm-primary)' );
 $btn_color = $is_accent ? 'var(--sm-accent)' : 'var(--sm-primary)';
 ?>
 <section style="background: <?php echo esc_attr( $bg ); ?>; color: #fff;">
