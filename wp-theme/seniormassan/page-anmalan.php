@@ -94,21 +94,6 @@ foreach ( sm_booths() as $b ) {
 }
 ksort( $by_section );
 
-$section_labels = array(
-	'A' => 'Vid trappan',
-	'B' => 'Sparbankshallen norr',
-	'C' => 'Sparbankshallen östra',
-	'D' => 'Mittenraden höger',
-	'E' => 'Mittenraden vänster',
-	'G' => 'Mitten höger',
-	'H' => 'Södra mitten',
-	'I' => 'Vänstra raden',
-	'J' => 'Södra raden vänster',
-	'K' => 'Södra raden höger',
-	'L' => 'Höger om scen',
-	'M' => 'Längst söderut',
-	'N' => 'Entréhallen · endast föreningar',
-);
 $size_labels = array( '2x2' => '2 × 2 m', '2x3' => '2 × 3 m', '3x3' => '3 × 3 m' );
 
 $prices_json = array(
@@ -366,7 +351,6 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							$first       = $booths_in_section[0];
 							$is_forening = ( $section === 'N' );
 							$price       = $is_forening ? sm_get_forening_price() : sm_get_booth_price_for_size( $first['size'] );
-							$label       = $section_labels[ $section ] ?? '';
 							$available   = 0;
 							foreach ( $booths_in_section as $b ) {
 								if ( ! isset( $booked_set[ $b['id'] ] ) ) {
@@ -380,7 +364,6 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 									<div>
 										<div style="font-family: var(--sm-font-display); font-weight: 800; font-size: 17px;">
 											Sektion <?php echo esc_html( $section ); ?> — <?php echo esc_html( $size_labels[ $first['size'] ] ); ?>
-											<span style="font-weight: 400; font-size: 13px; color: var(--sm-ink-soft); margin-left: 6px;"><?php echo esc_html( $label ); ?></span>
 										</div>
 										<div style="font-size: 13px; color: var(--sm-ink-soft); margin-top: 2px;">
 											<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong><?php echo $is_forening ? ' inkl. moms' : ' / st exkl. moms'; ?>
