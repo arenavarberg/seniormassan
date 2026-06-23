@@ -45,6 +45,7 @@ function sm_registration_columns( $columns ) {
 		'title'        => 'Företag',
 		'sm_contact'   => 'Kontakt',
 		'sm_booths'    => 'Montrar',
+		'sm_stage'     => 'Scenpass',
 		'sm_total'     => 'Summa',
 		'sm_status'    => 'Status',
 		'date'         => 'Inkom',
@@ -71,6 +72,19 @@ function sm_registration_column_content( $column, $post_id ) {
 			$booths = get_post_meta( $post_id, '_sm_booths', true );
 			if ( is_array( $booths ) && $booths ) {
 				echo esc_html( implode( ', ', $booths ) );
+			} else {
+				echo '—';
+			}
+			break;
+
+		case 'sm_stage':
+			$slot   = get_post_meta( $post_id, '_sm_stage_slot', true );
+			$status = get_post_meta( $post_id, '_sm_status', true ) ?: 'pending';
+			if ( $slot && $status !== 'cancelled' ) {
+				printf(
+					'<span style="background:#e0efec;color:#055;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;">%s</span>',
+					esc_html( $slot )
+				);
 			} else {
 				echo '—';
 			}
