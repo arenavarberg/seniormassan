@@ -280,7 +280,7 @@ function sm_send_registration_emails( $post_id, $editing = false ) {
 	$edit_link  = sm_booking_edit_url( $post_id );
 
 	$headers = array(
-		'From: Seniormässan – Arena Varberg <' . sm_booking_email() . '>',
+		'From: Seniormässan – Arena Varberg <' . sm_mail_from_email() . '>',
 		'Reply-To: ' . sm_booking_email(),
 	);
 

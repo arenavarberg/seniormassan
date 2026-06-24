@@ -245,6 +245,17 @@ function sm_customizer_register( $wp_customize ) {
 		'type'        => 'email',
 	) );
 
+	$wp_customize->add_setting( 'sm_mail_from_email', array(
+		'default'           => 'bokning@seniormassanvarberg.se',
+		'sanitize_callback' => 'sanitize_email',
+	) );
+	$wp_customize->add_control( 'sm_mail_from_email', array(
+		'label'       => 'Avsändaradress (From)',
+		'description' => 'Adressen som mejlen skickas FRÅN. Måste ligga på en domän som är verifierad hos din mejlleverantör (t.ex. SMTP2GO) — annars avvisas utskicken. Svar går fortfarande till notis-adressen ovan via Reply-To.',
+		'section'     => 'sm_registration',
+		'type'        => 'email',
+	) );
+
 
 	// ─── FÖRKÖP / BILJETTER ──────────────────────────────
 	$wp_customize->add_section( 'sm_tickets', array(
@@ -283,6 +294,7 @@ function sm_sanitize_palette( $value ) {
 function sm_palette()                  { return get_theme_mod( 'sm_palette', 'havsbla-korall' ); }
 function sm_booth_map_image_url()      { return get_theme_mod( 'sm_booth_map_image', '' ); }
 function sm_booking_email()            { return get_theme_mod( 'sm_booking_email', 'bokning@arenavarberg.se' ); }
+function sm_mail_from_email()           { return get_theme_mod( 'sm_mail_from_email', 'bokning@seniormassanvarberg.se' ); }
 function sm_last_registration_date()   { return get_theme_mod( 'sm_last_registration_date', '15 augusti 2027' ); }
 function sm_ticket_url()               { return get_theme_mod( 'sm_ticket_url', '' ); }
 function sm_ticket_label()             { return get_theme_mod( 'sm_ticket_label', 'Förköp entré' ); }
