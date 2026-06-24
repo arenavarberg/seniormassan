@@ -406,3 +406,87 @@ function sm_zones() {
 function sm_has_zones() {
 	return sm_has_posts( 'sm_zone' );
 }
+
+/* =====================================================================
+ * Engångsimport av standard-höjdpunkterna
+ *
+ * Gör temats tre inbyggda exempel-höjdpunkter till riktiga, redigerbara
+ * inlägg (med bild) första gången temat körs — men bara om redaktören
+ * inte redan lagt in egna. Så slipper man "allt-eller-inget": sidan ser
+ * exakt likadan ut, men varje kort går nu att ändra var för sig.
+ * ===================================================================== */
+
+function sm_default_highlights_seed() {
+	return array(
+		array( 'img' => 'scenprogram.jpg', 'k' => 'Scenprogram', 't' => 'Författarsamtal & musik',  'd' => 'Scenprogram som berör. Från livemusik till föreläsningar om det goda livet efter 70.' ),
+		array( 'img' => 'boule.jpg',       'k' => 'Provspring',  't' => 'Testa nya aktiviteter',     'd' => 'Prova curling, boule, linedance, innebandy och mycket mer — helt gratis.' ),
+		array( 'img' => 'resecentrum.jpg', 'k' => 'Resecentrum', 't' => 'Drömresor & bussutflykter', 'd' => 'Plocka hem vårens bästa reseidéer. Mässpriser hos 20+ researrangörer.' ),
+	);
+}
+
+function sm_seed_default_highlights() {
+	if ( get_option( 'sm_highlights_seeded' ) ) {
+		return;
+	}
+	// Skapa inte om redaktören redan har egna höjdpunkter.
+	if ( sm_has_posts( 'sm_highlight' ) ) {
+		update_option( 'sm_highlights_seeded', 1 );
+		return;
+	}
+
+	foreach ( sm_default_highlights_seed() as $i => $d ) {
+		$post_id = wp_insert_post( array(
+			'post_type'   => 'sm_highlight',
+			'post_status' => 'publish',
+			'post_title'  => $d['t'],
+			'menu_order'  => $i,
+		) );
+		if ( ! $post_id || is_wp_error( $post_id ) ) {
+			continue;
+		}
+		update_post_meta( $post_id, '_sm_kicker', $d['k'] );
+		update_post_meta( $post_id, '_sm_description', $d['d'] );
+		sm_attach_theme_image_as_thumbnail( $post_id, $d['img'] );
+	}
+
+	update_option( 'sm_highlights_seeded', 1 );
+}
+add_action( 'admin_init', 'sm_seed_default_highlights' );
+
+/**
+ * Kopiera en bundlad temabild till mediabiblioteket och sätt som utvald bild.
+ */
+function sm_attach_theme_image_as_thumbnail( $post_id, $filename ) {
+	if ( has_post_thumbnail( $post_id ) ) {
+		return;
+	}
+	$src = get_theme_file_path( 'assets/images/' . $filename );
+	if ( ! file_exists( $src ) ) {
+		return;
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+
+	$upload = wp_upload_bits( $filename, null, file_get_contents( $src ) );
+	if ( ! empty( $upload['error'] ) || empty( $upload['file'] ) ) {
+		return;
+	}
+
+	$filetype  = wp_check_filetype( $upload['file'], null );
+	$attach_id = wp_insert_attachment( array(
+		'post_mime_type' => $filetype['type'],
+		'post_title'     => sanitize_file_name( pathinfo( $filename, PATHINFO_FILENAME ) ),
+		'post_content'   => '',
+		'post_status'    => 'inherit',
+	), $upload['file'], $post_id );
+
+	if ( is_wp_error( $attach_id ) || ! $attach_id ) {
+		return;
+	}
+
+	$meta = wp_generate_attachment_metadata( $attach_id, $upload['file'] );
+	wp_update_attachment_metadata( $attach_id, $meta );
+	set_post_thumbnail( $post_id, $attach_id );
+}
