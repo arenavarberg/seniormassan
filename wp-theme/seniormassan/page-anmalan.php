@@ -366,7 +366,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 											Sektion <?php echo esc_html( $section ); ?> — <?php echo esc_html( $size_labels[ $first['size'] ] ); ?>
 										</div>
 										<div style="font-size: 13px; color: var(--sm-ink-soft); margin-top: 2px;">
-											<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong><?php echo $is_forening ? ' inkl. moms' : ' / st exkl. moms'; ?>
+											<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $is_forening ? round( $price * 1.25 ) : $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong><?php echo $is_forening ? ' inkl. moms' : ' / st exkl. moms'; ?>
 											· <span style="color: var(--sm-success); font-weight: 700;"><?php echo (int) $available; ?> lediga</span> av <?php echo (int) $total_in_section; ?>
 										</div>
 									</div>
@@ -424,7 +424,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 							<div style="font-family: var(--sm-font-display); font-size: 36px; font-weight: 800; line-height: 1; margin-top: 4px;">
 								<span id="sm-booth-summary-total">0</span> <span style="font-size: 16px; font-weight: 500;">kr</span>
 							</div>
-							<div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">+ <?php echo (int) sm_get_registration_fee(); ?> kr reg.avg · <span id="sm-booth-summary-moms">exkl. moms</span></div>
+							<div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">+ <span id="sm-booth-summary-reg"><?php echo (int) sm_get_registration_fee(); ?></span> kr reg.avg · <span id="sm-booth-summary-moms">exkl. moms</span></div>
 						</div>
 					</div>
 					<div id="sm-booth-summary-empty" style="margin-top: 24px; border: 2px dashed var(--sm-line); border-radius: 12px; padding: 32px 24px; text-align: center; color: var(--sm-ink-soft); font-size: 16px;">
@@ -461,7 +461,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 										</div>
 										<div style="flex: 1; min-width: 0;">
 											<div style="font-weight: 700;"><?php echo esc_html( $a['name'] ); ?></div>
-											<div style="font-size: 12px; color: var(--sm-ink-soft);"><?php echo esc_html( $a['price'] ); ?> <?php echo esc_html( $price_label ); ?></div>
+											<div class="sm-addon-price" data-base="<?php echo esc_attr( $a['price'] ); ?>" data-label="<?php echo esc_attr( $price_label ); ?>" style="font-size: 12px; color: var(--sm-ink-soft);"><?php echo esc_html( $a['price'] ); ?> <?php echo esc_html( $price_label ); ?></div>
 
 											<?php if ( $has_variants ) : ?>
 												<div class="sm-variant-grid" data-variant-for="<?php echo esc_attr( $a['id'] ); ?>">
@@ -639,6 +639,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 
 	function $(id) { return document.getElementById(id); }
 	function nf(n) { return n.toLocaleString('sv-SE'); }
+	function nfk(n) { return n.toLocaleString('sv-SE', { maximumFractionDigits: 2 }); }
 	function smSqm(size) { var p = String(size).split('x'); return (parseInt(p[0], 10) || 0) * (parseInt(p[1], 10) || 0); }
 
 	function readState() {
@@ -717,6 +718,17 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		$('sm-wiz-submit').style.display = step === TOTAL_STEPS - 1 ? 'inline-flex' : 'none';
 
 		var s = readState();
+
+		// Föreningar ser alla priser inkl. moms (×1,25); företag exkl. moms som förut.
+		var momsF = s.forening ? 1.25 : 1;
+		document.querySelectorAll('.sm-addon-price').forEach(function (el) {
+			var base = parseFloat(el.getAttribute('data-base')) || 0;
+			var lbl  = el.getAttribute('data-label') || '';
+			el.textContent = (s.forening ? nfk(base * momsF) : nf(base)) + ' ' + lbl;
+		});
+		var regEl = $('sm-booth-summary-reg');
+		if (regEl) regEl.textContent = nf(Math.round(data.registration_fee * momsF));
+
 		var canProceed = canNext(step, s);
 		// Både Nästa och Skicka är alltid klickbara; klick-handlern visar
 		// tydligt vilka fält som saknas (rödmarkering + meddelande).
@@ -738,7 +750,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					var b = data.booths[id];
 					var price = (s.forening && id.charAt(0) === 'N') ? data.forening_price : (b ? b.price : 0);
 					var sizeLabel = b ? b.size.replace('x', '×') + ' m' : '';
-					return '<span style="background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;font-family:var(--sm-font-display);font-weight:700;font-size:14px;">' + id + ' <span style="opacity:0.7;font-weight:400;font-size:12px;">· ' + sizeLabel + ' · ' + nf(price) + ' kr</span></span>';
+					return '<span style="background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;font-family:var(--sm-font-display);font-weight:700;font-size:14px;">' + id + ' <span style="opacity:0.7;font-weight:400;font-size:12px;">· ' + sizeLabel + ' · ' + nf(s.forening ? Math.round(price * 1.25) : price) + ' kr</span></span>';
 				});
 				$('sm-booth-chips').innerHTML = chips.join('');
 
@@ -786,10 +798,10 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			if (!b) return;
 			var price = (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
 			var label = id.charAt(0) === 'N' ? id + ' (förenings-monter)' : id + ' (' + b.size.replace('x', '×') + ' m)';
-			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">' + label + '</span><span style="font-weight:600;">' + nf(price) + ' kr</span></div>');
+			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">' + label + '</span><span style="font-weight:600;">' + nfk(s.forening ? price * 1.25 : price) + ' kr</span></div>');
 		});
 		if (s.booths.length > 0) {
-			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">Registreringsavgift</span><span style="font-weight:600;">' + nf(data.registration_fee) + ' kr</span></div>');
+			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">Registreringsavgift</span><span style="font-weight:600;">' + nfk(s.forening ? data.registration_fee * 1.25 : data.registration_fee) + ' kr</span></div>');
 		}
 		$('sm-review-booths').innerHTML = boothLines.join('') || '<div style="color:var(--sm-muted);">— Inga montrar valda</div>';
 		$('sm-review-booths-title').textContent = 'Montrar (' + s.booths.length + ')';
@@ -800,7 +812,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			var a = data.addons[id];
 			if (!a) return;
 			var variant = s.variants[id] ? ' (' + s.variants[id] + ')' : '';
-			addonLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:17px;"><span>' + a.name + variant + ' × ' + s.addons[id] + '</span><span style="font-weight:700;">' + nf(a.price * s.addons[id]) + ' kr</span></div>');
+			addonLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:17px;"><span>' + a.name + variant + ' × ' + s.addons[id] + '</span><span style="font-weight:700;">' + nfk(s.forening ? a.price * s.addons[id] * 1.25 : a.price * s.addons[id]) + ' kr</span></div>');
 		});
 		$('sm-review-addons').innerHTML = addonLines.join('');
 		$('sm-review-addons-wrap').style.display = addonLines.length ? 'block' : 'none';
