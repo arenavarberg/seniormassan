@@ -366,7 +366,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 											Sektion <?php echo esc_html( $section ); ?> — <?php echo esc_html( $size_labels[ $first['size'] ] ); ?>
 										</div>
 										<div style="font-size: 13px; color: var(--sm-ink-soft); margin-top: 2px;">
-											<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $is_forening ? round( $price * 1.25 ) : $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong><?php echo $is_forening ? ' inkl. moms' : ' / st exkl. moms'; ?>
+											<strong style="color: var(--sm-primary);"><?php echo esc_html( number_format( $price, 0, ',', "\u{00A0}" ) ); ?> kr</strong><?php echo $is_forening ? ' inkl. moms' : ' / st exkl. moms'; ?>
 											· <span style="color: var(--sm-success); font-weight: 700;"><?php echo (int) $available; ?> lediga</span> av <?php echo (int) $total_in_section; ?>
 										</div>
 									</div>
@@ -672,19 +672,21 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 	}
 
 	function computeTotal(s) {
-		var t = 0;
+		var boothSum = 0;
 		s.booths.forEach(function (id) {
 			var b = data.booths[id];
 			if (!b) return;
-			t += (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
+			boothSum += (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
 		});
-		if (s.booths.length > 0) t += data.registration_fee;
+		var rest = 0;
+		if (s.booths.length > 0) rest += data.registration_fee;
 		Object.keys(s.addons).forEach(function (id) {
 			var a = data.addons[id];
-			if (a) t += a.price * s.addons[id];
+			if (a) rest += a.price * s.addons[id];
 		});
-		if (s.forening) t = Math.round(t * 1.25);
-		return t;
+		// Föreningsmontern är redan inkl. moms; moms läggs bara på reg + tillägg.
+		if (s.forening) return Math.round(boothSum + rest * 1.25);
+		return boothSum + rest;
 	}
 
 	function canNext(currentStep, s) {
@@ -750,7 +752,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					var b = data.booths[id];
 					var price = (s.forening && id.charAt(0) === 'N') ? data.forening_price : (b ? b.price : 0);
 					var sizeLabel = b ? b.size.replace('x', '×') + ' m' : '';
-					return '<span style="background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;font-family:var(--sm-font-display);font-weight:700;font-size:14px;">' + id + ' <span style="opacity:0.7;font-weight:400;font-size:12px;">· ' + sizeLabel + ' · ' + nf(s.forening ? Math.round(price * 1.25) : price) + ' kr</span></span>';
+					return '<span style="background:rgba(255,255,255,0.15);padding:6px 12px;border-radius:6px;font-family:var(--sm-font-display);font-weight:700;font-size:14px;">' + id + ' <span style="opacity:0.7;font-weight:400;font-size:12px;">· ' + sizeLabel + ' · ' + nf(price) + ' kr</span></span>';
 				});
 				$('sm-booth-chips').innerHTML = chips.join('');
 
@@ -761,7 +763,6 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 					if (!b) return;
 					boothOnly += (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
 				});
-				if (s.forening) boothOnly = Math.round(boothOnly * 1.25);
 				$('sm-booth-summary-total').textContent = nf(boothOnly);
 				$('sm-booth-summary-moms').textContent  = s.forening ? 'inkl. moms' : 'exkl. moms';
 			} else {
@@ -798,7 +799,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 			if (!b) return;
 			var price = (s.forening && id.charAt(0) === 'N') ? data.forening_price : b.price;
 			var label = id.charAt(0) === 'N' ? id + ' (förenings-monter)' : id + ' (' + b.size.replace('x', '×') + ' m)';
-			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">' + label + '</span><span style="font-weight:600;">' + nfk(s.forening ? price * 1.25 : price) + ' kr</span></div>');
+			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">' + label + '</span><span style="font-weight:600;">' + nfk(price) + ' kr</span></div>');
 		});
 		if (s.booths.length > 0) {
 			boothLines.push('<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:16px;border-bottom:1px solid var(--sm-line);"><span style="color:var(--sm-ink-soft);">Registreringsavgift</span><span style="font-weight:600;">' + nfk(s.forening ? data.registration_fee * 1.25 : data.registration_fee) + ' kr</span></div>');

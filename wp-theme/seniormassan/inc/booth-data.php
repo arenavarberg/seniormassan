@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const SM_FORENING_PRICE = 1888; // 2360 inkl. 25 % moms — default; överstyrs av sm_pricing-option
+const SM_FORENING_PRICE = 1888; // färdigt pris inkl. 25 % moms — default; överstyrs av sm_pricing-option
 const SM_BOOTH_PRICES = array(
 	'2x2' => 3820,
 	'2x3' => 5730,
@@ -240,23 +240,27 @@ function sm_booth_price( $id ) {
  * Delad av formulärhandlern och admin-redigeringen så beräkningen är identisk.
  */
 function sm_calculate_total( $booths, $addons, $is_forening ) {
-	$total = 0;
+	// Föreningsmontern (sm_booth_price → sm_get_forening_price) är redan inkl. moms.
+	$booth_total = 0;
 	foreach ( (array) $booths as $bid ) {
-		$total += sm_booth_price( $bid );
+		$booth_total += sm_booth_price( $bid );
 	}
+	// Registreringsavgift + tillägg räknas exkl. moms (bas).
+	$rest = 0;
 	foreach ( (array) $addons as $id => $qty ) {
 		$a = sm_addon( $id );
 		if ( $a ) {
-			$total += (int) $a['price'] * (int) $qty;
+			$rest += (int) $a['price'] * (int) $qty;
 		}
 	}
 	if ( ! empty( $booths ) ) {
-		$total += sm_get_registration_fee();
+		$rest += sm_get_registration_fee();
 	}
 	if ( $is_forening ) {
-		$total = (int) round( $total * 1.25 );
+		// Moms (25 %) läggs bara på reg.avgift + tillägg — montern är redan inkl. moms.
+		return (int) round( $booth_total + $rest * 1.25 );
 	}
-	return (int) $total;
+	return (int) ( $booth_total + $rest );
 }
 
 function sm_booth( $id ) {
