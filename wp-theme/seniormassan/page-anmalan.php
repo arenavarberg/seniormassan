@@ -436,7 +436,7 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 				<div class="sm-wiz-step" data-step="1">
 					<h2 style="font-size: 28px; margin-bottom: 8px;">Tillval</h2>
 					<p style="color: var(--sm-ink-soft); margin-bottom: 24px;">
-						Skräddarsy din monter. Registreringsavgift (<?php echo (int) sm_get_registration_fee(); ?> kr) ingår automatiskt och visas i sammanfattningen.
+						Skräddarsy din monter. Registreringsavgift (<span id="sm-tillval-reg"><?php echo (int) sm_get_registration_fee(); ?></span> kr) ingår automatiskt och visas i sammanfattningen, alla priser <span id="sm-tillval-moms">exkl. moms</span>.
 					</p>
 
 					<?php foreach ( $addons_by_cat as $cat => $list ) : ?>
@@ -730,6 +730,10 @@ $saved_forening   = ! empty( $input['sm_is_forening'] );
 		});
 		var regEl = $('sm-booth-summary-reg');
 		if (regEl) regEl.textContent = nf(Math.round(data.registration_fee * momsF));
+		var tillvalReg = $('sm-tillval-reg');
+		if (tillvalReg) tillvalReg.textContent = nf(Math.round(data.registration_fee * momsF));
+		var tillvalMoms = $('sm-tillval-moms');
+		if (tillvalMoms) tillvalMoms.textContent = s.forening ? 'inkl. moms' : 'exkl. moms';
 
 		var canProceed = canNext(step, s);
 		// Både Nästa och Skicka är alltid klickbara; klick-handlern visar
