@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SM_THEME_VERSION', '0.15.15' );
+define( 'SM_THEME_VERSION', '0.15.16' );
 
 require_once get_theme_file_path( 'inc/customizer.php' );
 require_once get_theme_file_path( 'inc/customizer-pages.php' );
@@ -16,6 +16,7 @@ require_once get_theme_file_path( 'inc/registration-cpt.php' );
 require_once get_theme_file_path( 'inc/registration-handler.php' );
 require_once get_theme_file_path( 'inc/addon-admin.php' );
 require_once get_theme_file_path( 'inc/pricing-admin.php' );
+require_once get_theme_file_path( 'inc/recompute-admin.php' );
 require_once get_theme_file_path( 'inc/program-cpt.php' );
 require_once get_theme_file_path( 'inc/content-cpts.php' );
 require_once get_theme_file_path( 'inc/cookie-banner.php' );
